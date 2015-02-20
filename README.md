@@ -1,6 +1,6 @@
 # neuronroot
 
-#todo:
+#to do:
 
     - Test a lower threshold value combined with a higher remove_dark threshold
     - Allow .tif image input and output
