@@ -12,7 +12,6 @@ Initial git commit. Program currently can:
 
     - Load an image (currently in gif format)
     - Threshold and filter an image
-    
     - Create initial graph representation of image based on intensity of pixels
     - Create weighted edges between adjacent pixels (higher weights caused by 
     bigger differences)
