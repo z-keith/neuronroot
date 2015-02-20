@@ -1,16 +1,14 @@
 # neuronroot
 
-todo:
+#todo:
 
     - Test a lower threshold value combined with a higher remove_dark threshold
     - Allow .tif image input and output
     - Build native scaling function (may not be used in production, but handy for testing)
     - Add size of image, image filename, seed location as global variables
 
-v0.1.0:   
-        Initial git commit.
-        
-    Program currently can:
+#v0.1.0:
+Initial git commit. Program currently can:
 
     - Load an image (currently in gif format)
     - Threshold and filter an image
