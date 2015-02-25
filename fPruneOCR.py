@@ -34,7 +34,7 @@ def RemoveDark(node_dict):
             RemoveNode(node_dict, node)
         allwhite = True
         for node in leafset:
-            if node_dict[node].Intensity == 0:
+            if node_dict[node].Intensity < 0.12:
                 RemoveNode(node_dict, node)
                 allwhite = False
         if allwhite:

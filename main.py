@@ -32,8 +32,8 @@ def main():
     last_time = time.time()
 
     #load and clean up the image    
-    #imgpath = "TestImages/2014-06-24-Tri-293-scaled.gif"
-    imgpath = "TestImages/2014-06-26-Tri-329-scaled.gif"
+    imgpath = "TestImages/2014-06-24-Tri-293.tif"
+    #imgpath = "TestImages/2014-06-26-Tri-329.tif"
     imgarray = LoadImage(imgpath)
     imgarray = PrepImage(imgarray)
     ysize = imgarray.shape[0]
@@ -71,8 +71,6 @@ def main():
 
     print("\nPruned OCR in " + PrintTimeBenchmark(last_time) + "\n")
     last_time = time.time()
-    
-    PrintRepresentation(node_dict, xsize, ysize)
 
     #build root structure
     print("Building root objects.\n")
@@ -88,6 +86,8 @@ def main():
     seconds = str(round((elapsed % 60), 2))
     minutes = str(minutes)
     print("Complete!\nTotal runtime: " + minutes + " minutes and " + seconds + " seconds.")
+
+    PrintRepresentation(node_dict, xsize, ysize)
 
 # Run statement
 main()

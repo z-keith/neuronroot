@@ -1,11 +1,13 @@
 # neuronroot
 
 #to do:
-
-    - Test a lower threshold value combined with a higher remove_dark threshold
-    - Allow .tif image input and output
-    - Build native scaling function (may not be used in production, but handy for testing)
     - Add size of image, image filename, seed location as global variables
+    
+#v0.1.1:    
+    - Added additional input and output formats (notably .tif)
+    - Built native scaling function (can now input original full sized .tifs)
+    - Adjusted initial node construction threshold to be more restrictive
+    - Adjusted remove_dark threshold to be more restrictive
 
 #v0.1.0:
 Initial git commit. Program currently can:

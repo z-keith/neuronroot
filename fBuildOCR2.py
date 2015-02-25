@@ -42,8 +42,8 @@ def ConstructOCR(ImgArray):
     print ("Nodes in initial representation: " + str(graph.number_of_nodes()))
 
     #### Default seed point for the image
-    #seedxy = (1146, 80) #for 293
-    seedxy = (901, 432) #for 329
+    seedxy = (1146, 80) #for 293
+    #seedxy = (901, 432) #for 329
     dist_seed_best = 999999     #current distance from the seed point
     node_best = None    #current candidate node    
     
@@ -156,11 +156,7 @@ def TreeCheck(pred_dict, node_dict):
                 minY = node_dict[key].Y
             if node_dict[key].Y > maxY:
                 maxY = node_dict[key].Y
-    if maxY > 2000:
-        return False
-    elif maxX - minX < 50:
-        return False
-    elif maxX - minX < 50:
+    if maxY > 1998:
         return False
     else:
         return (count>1500)
