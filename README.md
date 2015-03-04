@@ -1,13 +1,15 @@
 # neuronroot
 
 #to do:
-    - Add size of image, image filename, seed location as global variables
+    - radius finder (test with different colors for edge and non-edge nodes? concerns about 8-direction not being enough)
     
 #v0.1.1:    
     - Added additional input and output formats (notably .tif)
     - Built native scaling function (can now input original full sized .tifs)
     - Adjusted initial node construction threshold to be more restrictive
     - Adjusted remove_dark threshold to be more restrictive
+    - Set up filename environment variables
+    - Added color support for radius debugging purposes
 
 #v0.1.0:
 Initial git commit. Program currently can:

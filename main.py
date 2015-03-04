@@ -13,6 +13,7 @@
 
 # Library import declarations
 import time
+import os
 
 # Class import declarations
 from cRoot import Root, Node
@@ -31,13 +32,25 @@ def main():
     start_time = time.time()
     last_time = time.time()
 
-    #load and clean up the image    
-    imgpath = "TestImages/2014-06-24-Tri-293.tif"
-    #imgpath = "TestImages/2014-06-26-Tri-329.tif"
+    #load and clean up the image
+
+    os.environ["FILENAME"] = "2014-06-24-Tri-293"
+    #os.environ["FILENAME"] = "2014-06-26-Tri-329"
+
+    imgpath = "TestImages/" + os.environ["FILENAME"] + ".tif"
     imgarray = LoadImage(imgpath)
     imgarray = PrepImage(imgarray)
-    ysize = imgarray.shape[0]
-    xsize = imgarray.shape[1]
+
+    os.environ["YSIZE"] = str(imgarray.shape[0])
+    os.environ["XSIZE"] = str(imgarray.shape[1])
+
+    #set seedpoint (293)
+    os.environ["SEED_XLOC"] = "1146"
+    os.environ["SEED_YLOC"] = "80"
+
+    #set seedpoint (329)
+    #os.environ["SEED_XLOC"] = "901"
+    #os.environ["SEED_YLOC"] = "432"
 
     print("\nCompleted load and threshold in " + PrintTimeBenchmark(last_time) + "\n")
     last_time = time.time()
@@ -87,7 +100,7 @@ def main():
     minutes = str(minutes)
     print("Complete!\nTotal runtime: " + minutes + " minutes and " + seconds + " seconds.")
 
-    PrintRepresentation(node_dict, xsize, ysize)
+    PrintRepresentation(node_dict, int(os.environ["XSIZE"]), int(os.environ["YSIZE"]))
 
 # Run statement
 main()

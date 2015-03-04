@@ -11,6 +11,7 @@
 import networkx as nx
 import math
 import time
+import os
 
 # Class import declarations
 from cRoot import Node
@@ -20,8 +21,8 @@ from cRoot import Node
 def ConstructOCR(ImgArray):  
     lasttime = time.time()
     graph = nx.Graph()
-    xsize = ImgArray.shape[1]
-    ysize = ImgArray.shape[0]
+    xsize = int(os.environ["XSIZE"])
+    ysize = int(os.environ["YSIZE"])
     nodecount = 0
     
     node_dict = {}  #keys = graph node name(int), values = Node objects
@@ -42,12 +43,11 @@ def ConstructOCR(ImgArray):
     print ("Nodes in initial representation: " + str(graph.number_of_nodes()))
 
     #### Default seed point for the image
-    seedxy = (1146, 80) #for 293
-    #seedxy = (901, 432) #for 329
+    seedxy = (int(os.environ["SEED_XLOC"]), int(os.environ["SEED_YLOC"]))
     dist_seed_best = 999999     #current distance from the seed point
-    node_best = None    #current candidate node    
-    
-    for node1 in graph: 
+    node_best = None    #current candidate node
+
+    for node1 in graph:
         #check if this is the node that best approximates seed point location
         dist_seed_this = math.sqrt((seedxy[0]-node_dict[node1].X)**2 + (seedxy[1]-node_dict[node1].Y)**2)
         if  dist_seed_this < dist_seed_best:

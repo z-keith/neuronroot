@@ -8,8 +8,7 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # Library import declarations
-from skimage import data
-from matplotlib import pyplot
+import os
 from scipy import ndimage, misc
 from PIL import Image
 import numpy as np
@@ -35,8 +34,12 @@ def PrepImage(ImgArray):
     return ImgArray
 
 def PrintRepresentation(node_dict, xsize, ysize):
-    outimage = np.zeros((ysize, xsize))
+    outarray =np.zeros((ysize, xsize),np.uint32)
+    for i in range(xsize):
+        for j in range(ysize):
+            outarray[j][i] = 0xFF000000
     for key in node_dict:
-        outimage[node_dict[key].Y, node_dict[key].X] = (255)
-    misc.imsave("TestImages/2014-06-24-Tri-293-trace.tif", outimage)
-    #misc.imsave("TestImages/2014-06-26-Tri-329-trace.tif", outimage)
+        outarray[node_dict[key].Y, node_dict[key].X] = 0xFF00FF00
+    outimage = Image.fromarray(outarray, 'RGBA')
+    outimage.save("TestImages/" + os.environ["FILENAME"] + "-trace.tif")
+
