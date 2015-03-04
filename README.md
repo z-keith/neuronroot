@@ -2,7 +2,8 @@
 
 #to do:
     - fully install xsize/ysize globals (MERGE AFTER THIS)
-    - radius finder (test with different colors for edge and non-edge nodes? concerns about 8-direction not being enough)
+    - radius finder (test with different colors for edge and non-edge nodes?
+    also, concerns about 8-direction not being enough)
     
 #v0.1.1:    
     - Added additional input and output formats (notably .tif)
