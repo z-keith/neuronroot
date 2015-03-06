@@ -13,81 +13,51 @@
 
 # Library import declarations
 import time
-
-# Class import declarations
-from cRoot import Root, Node
+import config
 
 # Function import declarations
-from fImageHandlers import LoadImage, PrepImage, PrintRepresentation
-from fBuildOCR2 import ConstructOCR, PrintTimeBenchmark
+from fImageHandlers import LoadImage, PrintRepresentation
+from fBuildOCR import ConstructOCR
 from fPruneOCR import PruneOCR
-from fTraceRoots import *
-from fDeclareNodules import *
 
 # Main function
 
 def main():
-    #initialize timer
-    start_time = time.time()
-    last_time = time.time()
+#set filename, seed point, and timestamps
+    config.init()
 
-    #load and clean up the image    
-    #imgpath = "TestImages/2014-06-24-Tri-293-scaled.gif"
-    imgpath = "TestImages/2014-06-26-Tri-329-scaled.gif"
+#load and clean up the image
+    print("\nLoading image {0}.".format(config.current_file))
+    imgpath = "TestImages/" + config.filename + ".tif"
     imgarray = LoadImage(imgpath)
-    imgarray = PrepImage(imgarray)
-    ysize = imgarray.shape[0]
-    xsize = imgarray.shape[1]
 
-    print("\nCompleted load and threshold in " + PrintTimeBenchmark(last_time) + "\n")
-    last_time = time.time()
+#update global variables
+    config.sizeY = imgarray.shape[0]
+    config.sizeX = imgarray.shape[1]
 
-    #build over-complete representation
-    print("Building initial reconstruction.\n")
+#build over-complete representation
+    print("\nBuilding initial reconstruction.")
     node_dict = ConstructOCR(imgarray)
-    nodefile = open('nodefile.txt', 'w')
-    for key in node_dict:
-        nodefile.write('ID: ' + str(key) + '\n')
-        nodefile.write('X: ' + str(node_dict[key].X))
-        nodefile.write(' Y: ' + str(node_dict[key].Y))
-        nodefile.write(' I: ' + str(node_dict[key].Intensity) + '\n')
-        nodefile.write('Parent: ' + str(node_dict[key].Parent))
-        nodefile.write(' Children: ' + str(node_dict[key].Children) + '\n')
-
-    print("\nCompleted OCR in " + PrintTimeBenchmark(last_time) + "\n")
-    last_time = time.time()
+    # Uncomment the following to output the results of construction
+    #config.PrintNodeFile(node_dict, config.filename + '-nodefile.txt')
     
-    #prune dark/excess nodes
-    print("Cleaning up reconstruction.\n")
+#prune dark/excess nodes
+    print("\nCleaning up reconstruction.")
     clean_dict = PruneOCR(node_dict)
-    nodefile = open('nodefile_clean.txt', 'w')
-    for key in clean_dict:
-        nodefile.write('ID: ' + str(key) + '\n')
-        nodefile.write('X: ' + str(clean_dict[key].X))
-        nodefile.write(' Y: ' + str(clean_dict[key].Y))
-        nodefile.write(' I: ' + str(clean_dict[key].Intensity) + '\n')
-        nodefile.write('Parent: ' + str(clean_dict[key].Parent))
-        nodefile.write(' Children: ' + str(clean_dict[key].Children) + '\n')
+    # Uncomment the following to output the results of pruning
+    #config.PrintNodeFile(clean_dict, config.filename + '-nodefile-clean.txt')
 
-    print("\nPruned OCR in " + PrintTimeBenchmark(last_time) + "\n")
-    last_time = time.time()
-    
-    PrintRepresentation(node_dict, xsize, ysize)
+#build root structure
+    print("\nBuilding root objects.")
 
-    #build root structure
-    print("Building root objects.\n")
-
-    print("Root objects built in " + PrintTimeBenchmark(last_time) + "\n")
-    last_time = time.time()
-    
-    print("Total root length: " + "pixels.")
-
-    #calculate total runtime
-    elapsed = time.time() - start_time
-    minutes = int(elapsed / 60)
+#calculate total runtime
+    elapsed = time.time() - config.start_time
+    minutes = str(int(elapsed / 60))
     seconds = str(round((elapsed % 60), 2))
-    minutes = str(minutes)
-    print("Complete!\nTotal runtime: " + minutes + " minutes and " + seconds + " seconds.")
+    print("\nComplete!\nTotal runtime: " + minutes + " minutes and " + seconds + " seconds.")
+
+#save image
+    PrintRepresentation(node_dict)
 
 # Run statement
 main()
