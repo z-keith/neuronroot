@@ -8,10 +8,12 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # Library import declarations
-import os
 from scipy import ndimage, misc
 from PIL import Image
 import numpy as np
+import config
+
+# Class import declarations
 
 # Function import declarations
 
@@ -25,6 +27,10 @@ def LoadImage(Filepath):
 
     ImgArray = np.array(Img)
     ImgArray = np.dot(ImgArray[...,:3], [0.299, 0.587, 0.144])
+    ImgArray = PrepImage(ImgArray)
+
+    print("Completed load and threshold in " + config.PrintTimeBenchmark())
+
     return ImgArray
     
 def PrepImage(ImgArray):
@@ -33,13 +39,13 @@ def PrepImage(ImgArray):
     ImgArray = ndimage.filters.median_filter(ImgArray, size=(5,5))
     return ImgArray
 
-def PrintRepresentation(node_dict, xsize, ysize):
-    outarray =np.zeros((ysize, xsize),np.uint32)
-    for i in range(xsize):
-        for j in range(ysize):
+def PrintRepresentation(node_dict):
+    outarray =np.zeros((config.sizeY, config.sizeX),np.uint32)
+    for i in range(config.sizeX):
+        for j in range(config.sizeY):
             outarray[j][i] = 0xFF000000
     for key in node_dict:
-        outarray[node_dict[key].Y, node_dict[key].X] = 0xFF00FF00
+        outarray[node_dict[key].Y, node_dict[key].X] = 0xFFFFFFFF
     outimage = Image.fromarray(outarray, 'RGBA')
-    outimage.save("TestImages/" + os.environ["FILENAME"] + "-trace.tif")
+    outimage.save("TestImages/" + config.filename + "-trace.tif")
 
