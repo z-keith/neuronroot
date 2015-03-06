@@ -1,6 +1,6 @@
 #neuronroot
 
-to do:
+#to do:
 - implement radius finder (test with different colors for edge and non-edge nodes?
 also, concerns about 8-direction not being enough)
 - implement covered-leaf pruning (this will be considered 0.2.0)
