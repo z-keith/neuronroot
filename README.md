@@ -1,11 +1,11 @@
 #neuronroot
 
-#to do:
-
+to do:
 - implement radius finder (test with different colors for edge and non-edge nodes?
 also, concerns about 8-direction not being enough)
 - implement covered-leaf pruning (this will be considered 0.2.0)
-v0.1.1:
+
+#v0.1.1:
 - Added additional input and output formats (notably .tif)
 - Built native scaling function (can now input original full sized .tifs)
 - Adjusted initial node construction threshold to be more restrictive
@@ -15,7 +15,6 @@ v0.1.1:
 - Added comments
 
 #v0.1.0:
-
 Initial git commit. Program currently can:
 
 - Load an image (currently in gif format)
