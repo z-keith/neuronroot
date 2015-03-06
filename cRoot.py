@@ -91,6 +91,3 @@ class Node:
         self.Y = y
         self.Intensity = i
         self.Children = list()
-        
-    def SetRadius(self, r):
-        self.Radius = r

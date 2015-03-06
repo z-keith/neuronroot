@@ -15,8 +15,6 @@
 import time
 import config
 
-# Class import declarations
-
 # Function import declarations
 from fImageHandlers import LoadImage, PrintRepresentation
 from fBuildOCR import ConstructOCR
@@ -29,7 +27,7 @@ def main():
     config.init()
 
 #load and clean up the image
-    print("\nLoading image.")
+    print("\nLoading image {0}.".format(config.current_file))
     imgpath = "TestImages/" + config.filename + ".tif"
     imgarray = LoadImage(imgpath)
 

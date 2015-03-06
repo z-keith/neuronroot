@@ -10,62 +10,100 @@
 # Library import declarations
 import config
 
-# Class import declarations
-
-# Function import declarations
 
 def PruneOCR(node_dict):
+    """
+    Main pruning function, prints debug data and calls RemoveDark and RemoveRedundant
+    :param node_dict: dictionary of form {int: Node}
+    :return: node_dict, but stripped of dark/redundant nodes
+    """
     node_dict = RemoveDark(node_dict)
 
-    print ("Removed dark leaves in " + config.PrintTimeBenchmark())
-    print ("Removed " + str(config.initial_nodecount - len(node_dict)) + " dark nodes.")
+    remaining_nodecount = len(node_dict)
+    removed_count = config.initial_nodecount - remaining_nodecount
+    print("Removed dark leaves in {0}".format(config.PrintTimeBenchmark()))
+    print("Removed {0} dark nodes.".format(removed_count))
 
-    nodecount = len(node_dict)
     node_dict = RemoveRedundant(node_dict)
 
-    print ("Removed redundant nodes in " + config.PrintTimeBenchmark())
-    print ("Removed " + str(nodecount - len(node_dict)) + " redundant nodes.")
+    post_rmdark_nodecount = remaining_nodecount
+    remaining_nodecount = len(node_dict)
+    removed_count = post_rmdark_nodecount - remaining_nodecount
+    print("Removed redundant nodes in {0}".format(config.PrintTimeBenchmark()))
+    print("Removed {0} redundant nodes.".format(removed_count))
 
-    print("Total nodes in final representation: " + str(len(node_dict)))
-    print("Compression: " + str(round(100*(1 - len(node_dict)/config.initial_nodecount), 1)) + "%")
+    print("Total nodes in final representation: {0}".format(str(remaining_nodecount)))
+    compression_percentage = round(100 * (1 - remaining_nodecount / config.initial_nodecount), 1)
+    print("Compression: {0}%".format(compression_percentage))
 
     return node_dict
 
+
 def RemoveDark(node_dict):
-    whiteleaves = False
-    while not whiteleaves:
+    """
+    Recursively removes leaf nodes that are not visibly bright, but were allowed into
+    the image for construction purposes. Does so until all leaf nodes are visible.
+    :param node_dict: dictionary of form {int: Node}
+    :return: node_dict, but stripped of dark nodes
+    """
+    MINIMUM_VISIBLE_INTENSITY = 0.12
+
+    while True:
         leafset = []
         removeset = []
 
         for key in node_dict:
             if not node_dict[key].Children:
                 if not node_dict[key].Parent:
+                    # remove any nodes with no children or parents (i.e: noise)
                     removeset.append(key)
                 else:
+                    # add nodes with no children to the set of leaf nodes
                     leafset.append(key)
 
-        for node in removeset:
-            RemoveNode(node_dict, node)
+        # remove noise
+        for key in removeset:
+            RemoveNode(node_dict, key)
 
-        allwhite = True
-        for node in leafset:
-            if node_dict[node].Intensity < 0.12:
-                RemoveNode(node_dict, node)
-                allwhite = False
-        if allwhite:
-            whiteleaves = True
+        # check if the entire leafset is visible yet
+        leafset_was_visible = True
+        for key in leafset:
+            if node_dict[key].Intensity < MINIMUM_VISIBLE_INTENSITY:
+                # node was not visible, remove it
+                RemoveNode(node_dict, key)
+                # not all nodes were visible
+                leafset_was_visible = False
 
-    return node_dict
+        #if the entire leafset was visible, you're done
+        if leafset_was_visible:
+            return node_dict
+
 
 def RemoveRedundant(node_dict):
-
+    """
+    Implements the covered-leaf removal algorithm as described in Peng et al 2.3.2
+    :param node_dict: dictionary of form {int: Node}
+    :return: node_dict, but stripped of redundant nodes
+    """
     return node_dict
 
-def RemoveNode(node_dict, node):
-    if node in node_dict:
-        if node_dict[node].Children:
-            for child in node_dict[node].Children:
-                node_dict[child].Parent = node_dict[node].Parent
-        if node_dict[node].Parent:
-            node_dict[node_dict[node].Parent].Children.remove(node)
-        del node_dict[node]
+
+def RemoveNode(node_dict, key):
+    """
+    Removes a node from the dictionary, connecting its parent and child nodes
+    :param node_dict: dictionary of form {int: Node}
+    :param key: integer key representing a Node in node_dict
+    """
+    if key in node_dict:
+        # attach this node's children to this node's parent
+        if node_dict[key].Children:
+            for child_key in node_dict[key].Children:
+                node_dict[child_key].Parent = node_dict[key].Parent
+                # attach the parent to the child
+                node_dict[key].Parent.Children.append(child_key)
+
+        # remove this node's parent's reference to this node
+        if node_dict[key].Parent:
+            node_dict[node_dict[key].Parent].Children.remove(key)
+
+        del node_dict[key]

@@ -8,44 +8,72 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # Library import declarations
-from scipy import ndimage, misc
+from scipy import ndimage
 from PIL import Image
-import numpy as np
+import numpy
 import config
 
-# Class import declarations
 
-# Function import declarations
+def LoadImage(filepath):
+    """
+    Main image loading function. Loads, resizes, and filters an image.
+    :param filepath: name of image to open
+    :return: numpy array of floats 0-255 representing brightness at that location
+    """
+    img = Image.open(filepath)
 
-def LoadImage(Filepath):
-    Img = Image.open(Filepath)
+    # scale image
+    base_height = 2000
+    scaling_percent = (base_height/float(img.size[1]))
+    scaled_width = int(float(img.size[0])*scaling_percent)
+    img = img.resize((scaled_width, base_height))
 
-    baseheight = 2000
-    wpercent = (baseheight/float(Img.size[1]))
-    wsize = int((float(Img.size[0])*float(wpercent)))
-    Img = Img.resize((wsize, baseheight))
+    # make array from image
+    img_array = numpy.array(img)
+    # make image black and white
+    img_array = numpy.dot(img_array[...,:3], [0.299, 0.587, 0.144])
+    img_array = PrepImage(img_array)
 
-    ImgArray = np.array(Img)
-    ImgArray = np.dot(ImgArray[...,:3], [0.299, 0.587, 0.144])
-    ImgArray = PrepImage(ImgArray)
+    print("Completed load and threshold in {0}".format(config.PrintTimeBenchmark()))
 
-    print("Completed load and threshold in " + config.PrintTimeBenchmark())
+    return img_array
 
-    return ImgArray
-    
-def PrepImage(ImgArray):
-    globalThreshold = ImgArray.mean() * 0.8
-    ImgArray[ImgArray<globalThreshold] = 0
-    ImgArray = ndimage.filters.median_filter(ImgArray, size=(5,5))
-    return ImgArray
+
+def PrepImage(img_array):
+    """
+    Threshold and filter an image array
+    :param img_array: numpy array of floats 0 - 255 representing brightness at that location
+    :return: numpy array of floats 0 - 255 representing brightness at that location
+    """
+    THRESHOLD_MULTIPLIER = 0.8
+
+    # threshold the image based on the mean brightness of the image
+    globalThreshold = img_array.mean() * THRESHOLD_MULTIPLIER
+    img_array[img_array<globalThreshold] = 0
+
+    img_array = ndimage.filters.median_filter(img_array, size=(5,5))
+
+    return img_array
+
 
 def PrintRepresentation(node_dict):
-    outarray =np.zeros((config.sizeY, config.sizeX),np.uint32)
+    """
+    Prototype function for displaying a visual representation of a node_dict
+    :param node_dict: dictionary of the form {int: Node}
+    """
+    # initialize array
+    outarray = numpy.zeros((config.sizeY, config.sizeX), numpy.uint32)
+
+    # set array to black
     for i in range(config.sizeX):
         for j in range(config.sizeY):
             outarray[j][i] = 0xFF000000
+
+    # set all locations containing a node to white
     for key in node_dict:
         outarray[node_dict[key].Y, node_dict[key].X] = 0xFFFFFFFF
+
+    # save image
     outimage = Image.fromarray(outarray, 'RGBA')
-    outimage.save("TestImages/" + config.filename + "-trace.tif")
+    outimage.save("TestImages/{0}-trace.tif".format(config.filename))
 
