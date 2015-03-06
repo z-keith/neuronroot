@@ -1,5 +1,7 @@
 # neuronroot
 
+TEST
+
 #todo:
 
     - Test a lower threshold value combined with a higher remove_dark threshold
