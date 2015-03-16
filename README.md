@@ -3,6 +3,7 @@
 #to do:
 - implement covered-leaf pruning (this will be considered 0.2.0)
     - any bugs may be caused by square radius growth instead of actually circular
+- implement smartroot-style cross detection (this may need to come before covered-leaf pruning)
 
 #v0.1.2:
 - Added radius construction resources
