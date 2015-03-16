@@ -1,9 +1,14 @@
 #neuronroot
 
 #to do:
-- implement radius finder (test with different colors for edge and non-edge nodes?
-also, concerns about 8-direction not being enough)
 - implement covered-leaf pruning (this will be considered 0.2.0)
+    - any bugs may be caused by square radius growth instead of actually circular
+
+#v0.1.2:
+- Added radius construction resources
+- Added radius finder function, finally
+- Nodes now keep a list of neighbors
+- Added preliminary print-by-radius support (looks really weird)
 
 #v0.1.1:
 - Added additional input and output formats (notably .tif)
