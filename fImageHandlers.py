@@ -69,8 +69,9 @@ def PrintRepresentation(node_dict):
         for j in range(config.sizeY):
             outarray[j][i] = 0xFF000000
 
-    # set all locations containing a node to white
+    # set all locations containing a node to a color dependent on the radius at the point, or white
     for key in node_dict:
+        #outarray[node_dict[key].Y, node_dict[key].X] = 0xFFFFFFFF - (0xFFFFFF % (0x8888 * node_dict[key].Radius + 1))
         outarray[node_dict[key].Y, node_dict[key].X] = 0xFFFFFFFF
 
     # save image

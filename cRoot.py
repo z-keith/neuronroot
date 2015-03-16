@@ -84,6 +84,9 @@ class Node:
     
     # Children of this node (if empty, this is a leaf node)
     Children = None
+
+    # Neighbors of this node (nodes adjacent to this node)
+    Neighbors = None
     
     # Expects ' newNode = Node(xLocation, yLocation, intensity) '
     def __init__(self, x, y, i):
@@ -91,3 +94,4 @@ class Node:
         self.Y = y
         self.Intensity = i
         self.Children = list()
+        self.Neighbors = list()

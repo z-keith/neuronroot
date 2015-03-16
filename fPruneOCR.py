@@ -24,6 +24,9 @@ def PruneOCR(node_dict):
     print("Removed dark leaves in {0}".format(config.PrintTimeBenchmark()))
     print("Removed {0} dark nodes.".format(removed_count))
 
+    node_dict = SetRadii(node_dict)
+    print("Set radii in {0}".format(config.PrintTimeBenchmark()))
+
     node_dict = RemoveRedundant(node_dict)
 
     post_rmdark_nodecount = remaining_nodecount
@@ -107,3 +110,44 @@ def RemoveNode(node_dict, key):
             node_dict[node_dict[key].Parent].Children.remove(key)
 
         del node_dict[key]
+
+
+def SetRadii(node_dict):
+    """
+    Iterates through the nodes of a root structure setting the radius of each node. It can be assumed that any node that
+    does not have 8 neighbors is touching black space and the maximum radius of a circle centered at the node and
+    contained within the root is 0. It follows that all nodes touching that node (the second layer inward) have radius 1,
+    and so on and so forth.
+    :param node_dict: dictionary of form {int: Node}
+    :return: node_dict, with the nodes' radii filled in
+    """
+
+    # create set of nodes that touch the black
+    outermost_node_set = list()
+    for key in node_dict:
+        neighbor_count = len(node_dict[key].Neighbors)
+        if neighbor_count is not 8:
+            outermost_node_set.append(key)
+
+    # recursively iterate through until all radii are set
+    current_radius_value = 0
+    while outermost_node_set:
+        new_outermost_set = list()
+
+        # set current list's radii first, to avoid conflicts
+        for key in outermost_node_set:
+            node_dict[key].Radius = current_radius_value
+
+        # add all nodes that a) touch the current set and b) haven't had a radius set yet
+        for key in outermost_node_set:
+            for neighbor_key in node_dict[key].Neighbors:
+                if node_dict[neighbor_key].Radius == -1:
+                    new_outermost_set.append(neighbor_key)
+
+        # increment current radius, reloop
+        current_radius_value += 1
+        outermost_node_set = new_outermost_set
+
+    print("Max radius: {0}".format(current_radius_value))
+
+    return node_dict

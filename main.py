@@ -45,7 +45,7 @@ def main():
     print("\nCleaning up reconstruction.")
     clean_dict = PruneOCR(node_dict)
     # Uncomment the following to output the results of pruning
-    #config.PrintNodeFile(clean_dict, config.filename + '-nodefile-clean.txt')
+    config.PrintNodeFile(clean_dict, config.filename + '-nodefile-clean.txt')
 
 #build root structure
     print("\nBuilding root objects.")
