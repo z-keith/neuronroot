@@ -71,8 +71,16 @@ def PrintRepresentation(node_dict):
 
     # set all locations containing a node to a color dependent on the radius at the point, or white
     for key in node_dict:
-        #outarray[node_dict[key].Y, node_dict[key].X] = 0xFFFFFFFF - (0xFFFFFF % (0x8888 * node_dict[key].Radius + 1))
-        outarray[node_dict[key].Y, node_dict[key].X] = 0xFFFFFFFF
+
+        # Colorized by radius
+         outarray[node_dict[key].Y, node_dict[key].X] = 0xFF888888 + 0x8912 * (0xFF % (4*node_dict[key].Radius + 1))
+
+        # Print as white
+        # outarray[node_dict[key].Y, node_dict[key].X] = 0xFFFFFFFF
+
+        # Print outline
+        # if node_dict[key].Radius == 0:
+        #     outarray[node_dict[key].Y, node_dict[key].X] = 0xFFFFFFFF
 
     # save image
     outimage = Image.fromarray(outarray, 'RGBA')

@@ -109,6 +109,11 @@ def RemoveNode(node_dict, key):
         if node_dict[key].Parent:
             node_dict[node_dict[key].Parent].Children.remove(key)
 
+        # remove Neighbor references
+        if node_dict[key].Neighbors:
+            for neighbor_key in node_dict[key].Neighbors:
+                node_dict[neighbor_key].Neighbors.remove(key)
+
         del node_dict[key]
 
 
@@ -123,16 +128,16 @@ def SetRadii(node_dict):
     """
 
     # create set of nodes that touch the black
-    outermost_node_set = list()
+    outermost_node_set = set()
     for key in node_dict:
         neighbor_count = len(node_dict[key].Neighbors)
-        if neighbor_count is not 8:
-            outermost_node_set.append(key)
+        if neighbor_count < 8:
+            outermost_node_set.add(key)
 
     # recursively iterate through until all radii are set
     current_radius_value = 0
     while outermost_node_set:
-        new_outermost_set = list()
+        new_outermost_set = set()
 
         # set current list's radii first, to avoid conflicts
         for key in outermost_node_set:
@@ -142,7 +147,7 @@ def SetRadii(node_dict):
         for key in outermost_node_set:
             for neighbor_key in node_dict[key].Neighbors:
                 if node_dict[neighbor_key].Radius == -1:
-                    new_outermost_set.append(neighbor_key)
+                    new_outermost_set.add(neighbor_key)
 
         # increment current radius, reloop
         current_radius_value += 1
