@@ -10,6 +10,7 @@
 - Added radius finder function, finally
 - Nodes now keep a list of neighbors
 - Added preliminary print-by-radius support (looks really weird)
+- Fixed print-by-radius
 
 #v0.1.1:
 - Added additional input and output formats (notably .tif)
