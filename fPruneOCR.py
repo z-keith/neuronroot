@@ -88,7 +88,27 @@ def RemoveRedundant(node_dict):
     :param node_dict: dictionary of form {int: Node}
     :return: node_dict, but stripped of redundant nodes
     """
-    return node_dict
+
+    while True:
+        leaf_set = set()
+        remove_set = set()
+        for key in node_dict:
+            if not node_dict[key].Children:
+                leaf_set.add(key)
+        for key in leaf_set:
+            mass_node = MassOperator(node_dict, node_dict[key].Covers)
+            covering_set = set()
+            for covering_key in node_dict[key].CoveredBy:
+                for i in node_dict[covering_key].Covers:
+                    covering_set.add(i)
+            covering_mass = MassOperator(node_dict, covering_set.intersection(node_dict[key].Covers))
+            if covering_mass/mass_node >= 0.9:
+                remove_set.add(key)
+        if remove_set:
+            for key in remove_set:
+                RemoveNode(node_dict, key)
+        else:
+            return node_dict
 
 
 def RemoveNode(node_dict, key):
@@ -113,6 +133,14 @@ def RemoveNode(node_dict, key):
         if node_dict[key].Neighbors:
             for neighbor_key in node_dict[key].Neighbors:
                 node_dict[neighbor_key].Neighbors.remove(key)
+
+        # remove Cover/CoveredBy references
+        if node_dict[key].Covers:
+            for cover_key in node_dict[key].Covers:
+                node_dict[cover_key].CoveredBy.discard(key)
+        if node_dict[key].CoveredBy:
+            for covered_key in node_dict[key].CoveredBy:
+                node_dict[covered_key].Covers.discard(key)
 
         del node_dict[key]
 
@@ -153,6 +181,36 @@ def SetRadii(node_dict):
         current_radius_value += 1
         outermost_node_set = new_outermost_set
 
+    # set the nodes that are covered by each node
+    for key in node_dict:
+        node_dict[key].Covers.add(key)
+
+        old_cover_set = set()
+        old_cover_set.add(key)
+
+        for i in range(node_dict[key].Radius):
+            cover_set = set()
+            for cover_node_key in old_cover_set:
+                for neighbor_key in node_dict[cover_node_key].Neighbors:
+                    cover_set.add(neighbor_key)
+            for node_key in cover_set:
+                node_dict[key].Covers.add(node_key)
+                node_dict[node_key].CoveredBy.add(key)
+
     print("Max radius: {0}".format(current_radius_value))
 
     return node_dict
+
+def MassOperator(node_dict, node_set):
+    """
+    Mass-computing operator for a set of nodes. Sums their intensity and returns it.
+    :param node_dict: dictionary of form {int: Node}
+    :param node_set: Set of unique keys that represent node_dict entries
+    :return: Float representing the mass of the set of nodes
+    """
+
+    sum = 0.0
+    for key in node_set:
+        sum += node_dict[key].Intensity
+
+    return sum

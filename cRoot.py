@@ -87,6 +87,12 @@ class Node:
 
     # Neighbors of this node (nodes adjacent to this node)
     Neighbors = None
+
+    # Nodes covered by this node
+    Covers = None
+
+    # Nodes this node is covered by
+    CoveredBy = None
     
     # Expects ' newNode = Node(xLocation, yLocation, intensity) '
     def __init__(self, x, y, i):
@@ -95,3 +101,5 @@ class Node:
         self.Intensity = i
         self.Children = list()
         self.Neighbors = list()
+        self.Covers = set()
+        self.CoveredBy = set()

@@ -1,9 +1,14 @@
 #neuronroot
 
 #to do:
-- implement covered-leaf pruning (this will be considered 0.2.0)
-    - any bugs may be caused by square radius growth instead of actually circular
 - implement smartroot-style cross detection (this may need to come before covered-leaf pruning)
+- add statistical output
+- add user interface
+
+#v0.2.0:
+- Added preliminary covered-leaf pruning
+    - known bugs:
+        - nodule trace goes straight through the nodule (maybe check all nodes, not just edge nodes?)
 
 #v0.1.2:
 - Added radius construction resources
