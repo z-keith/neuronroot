@@ -89,6 +89,8 @@ def RemoveRedundant(node_dict):
     :return: node_dict, but stripped of redundant nodes
     """
 
+    COVERING_THRESHOLD=0.75
+
     while True:
         leaf_set = set()
         remove_set = set()
@@ -102,7 +104,7 @@ def RemoveRedundant(node_dict):
                 for i in node_dict[covering_key].Covers:
                     covering_set.add(i)
             covering_mass = MassOperator(node_dict, covering_set.intersection(node_dict[key].Covers))
-            if covering_mass/mass_node >= 0.9:
+            if covering_mass/mass_node >= COVERING_THRESHOLD:
                 remove_set.add(key)
         if remove_set:
             for key in remove_set:

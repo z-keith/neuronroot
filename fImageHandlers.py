@@ -67,16 +67,16 @@ def PrintRepresentation(node_dict):
     # set array to black
     for i in range(config.sizeX):
         for j in range(config.sizeY):
-            outarray[j][i] = 0x88000000
+            outarray[j][i] = 0x00000000
 
     # set all locations containing a node to a color dependent on the radius at the point, or white
     for key in node_dict:
 
         # Colorized by radius
-        # outarray[node_dict[key].Y, node_dict[key].X] = 0xFF888888 + 0x8912 * (0xFF % (4*node_dict[key].Radius + 1))
+        outarray[node_dict[key].Y, node_dict[key].X] = 0xFF888888 + 0x8912 * (0xFF % (4*node_dict[key].Radius + 1))
 
         # Print as white
-        outarray[node_dict[key].Y, node_dict[key].X] = 0xFFFFFFFF
+        # outarray[node_dict[key].Y, node_dict[key].X] = 0xFFFFFFFF
 
         # Print outline
         # if node_dict[key].Radius == 0:
@@ -84,5 +84,5 @@ def PrintRepresentation(node_dict):
 
     # save image
     outimage = Image.fromarray(outarray, 'RGBA')
-    outimage.save("TestImages/{0}-trace.tif".format(config.filename))
+    outimage.save('TestImages/{0}-skeleton.tif'.format(config.filename))
 
