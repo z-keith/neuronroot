@@ -67,7 +67,7 @@ def PrintRepresentation(node_dict):
     # set array to black
     for i in range(config.sizeX):
         for j in range(config.sizeY):
-            outarray[j][i] = 0x00000000
+            outarray[j][i] = 0xFF000000
 
     # set all locations containing a node to a color dependent on the radius at the point, or white
     for key in node_dict:

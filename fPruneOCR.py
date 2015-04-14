@@ -89,7 +89,7 @@ def RemoveRedundant(node_dict):
     :return: node_dict, but stripped of redundant nodes
     """
 
-    COVERING_THRESHOLD=0.75
+    COVERING_THRESHOLD=0.9
 
     while True:
         leaf_set = set()
@@ -183,6 +183,19 @@ def SetRadii(node_dict):
         current_radius_value += 1
         outermost_node_set = new_outermost_set
 
+    node_dict = SetCoveredSquares(node_dict)
+    #node_dict = RefineCoveredRegions(node_dict)
+
+    print("Max radius: {0}".format(current_radius_value))
+
+    return node_dict
+
+def SetCoveredSquares(node_dict):
+    """
+    Sets the Covers and CoveredBy fields to a square centered at each node in a node_dict
+    :param node_dict: node_dict to operate on
+    :return: node_dict with fields set
+    """
     # set the nodes that are covered by each node
     for key in node_dict:
         node_dict[key].Covers.add(key)
@@ -199,8 +212,27 @@ def SetRadii(node_dict):
                 node_dict[key].Covers.add(node_key)
                 node_dict[node_key].CoveredBy.add(key)
 
-    print("Max radius: {0}".format(current_radius_value))
+    return node_dict
 
+def RefineCoveredRegions(node_dict):
+    """
+
+    :param node_dict:
+    :return:
+    """
+    for key in node_dict:
+        X = node_dict[key].X
+        Y = node_dict[key].Y
+        Radius = node_dict[key].Radius
+        remove_set = set()
+        for covers_key in node_dict[key].Covers:
+            X2 = node_dict[covers_key].X
+            Y2 = node_dict[covers_key].Y
+            if (X - X2)**2 + (Y - Y2)**2 > Radius**2:
+                remove_set.add(covers_key)
+        for remove_key in remove_set:
+            node_dict[key].Covers.remove(remove_key)
+            node_dict[remove_key].CoveredBy.remove(key)
     return node_dict
 
 def MassOperator(node_dict, node_set):
