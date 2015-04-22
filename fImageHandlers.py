@@ -45,7 +45,7 @@ def PrepImage(img_array):
     :param img_array: numpy array of floats 0 - 255 representing brightness at that location
     :return: numpy array of floats 0 - 255 representing brightness at that location
     """
-    THRESHOLD_MULTIPLIER = 0.8
+    THRESHOLD_MULTIPLIER = 0.9
 
     # threshold the image based on the mean brightness of the image
     globalThreshold = img_array.mean() * THRESHOLD_MULTIPLIER
@@ -56,7 +56,7 @@ def PrepImage(img_array):
     return img_array
 
 
-def PrintRepresentation(node_dict):
+def PrintInitial(node_dict):
     """
     Prototype function for displaying a visual representation of a node_dict
     :param node_dict: dictionary of the form {int: Node}
@@ -69,20 +69,43 @@ def PrintRepresentation(node_dict):
         for j in range(config.sizeY):
             outarray[j][i] = 0xFF000000
 
-    # set all locations containing a node to a color dependent on the radius at the point, or white
+    # set all locations containing a node to grey
     for key in node_dict:
 
-        # Colorized by radius
-        outarray[node_dict[key].Y, node_dict[key].X] = 0xFF888888 + 0x8912 * (0xFF % (4*node_dict[key].Radius + 1))
-
-        # Print as white
-        # outarray[node_dict[key].Y, node_dict[key].X] = 0xFFFFFFFF
-
-        # Print outline
-        # if node_dict[key].Radius == 0:
-        #     outarray[node_dict[key].Y, node_dict[key].X] = 0xFFFFFFFF
+        # Print as grey
+        outarray[node_dict[key].Y, node_dict[key].X] = 0xFF444444
 
     # save image
     outimage = Image.fromarray(outarray, 'RGBA')
     outimage.save('TestImages/{0}-skeleton.tif'.format(config.filename))
 
+
+def PrintSkeleton(node_dict):
+    """
+    Prototype function for displaying a visual representation of a node_dict
+    :param node_dict: dictionary of the form {int: Node}
+    """
+    # initialize array
+    img = Image.open('TestImages/{0}-skeleton.tif'.format(config.filename))
+    outarray = numpy.array(img)
+
+    for key in node_dict:
+        if node_dict[key].Radius > 20:
+            outarray = ColorArea(node_dict, key, outarray)
+
+    # set all locations containing a node to a color dependent on the radius at the point
+    for key in node_dict:
+
+        # Colorized by radius
+        # outarray[node_dict[key].Y, node_dict[key].X] = 0xFF888888 + 0x8912 * (0xFF % (4*node_dict[key].Radius + 1))
+        outarray[node_dict[key].Y, node_dict[key].X] = 0xFFFFFFFF
+
+    # save image
+    outimage = Image.fromarray(outarray, 'RGBA')
+    outimage.save('TestImages/{0}-skeleton.tif'.format(config.filename))
+
+def ColorArea(node_dict, key, outarray):
+
+    # need to find a new way to color within the radius, since the nodes that are covered have been removed
+
+    return outarray

@@ -16,7 +16,7 @@ import time
 import config
 
 # Function import declarations
-from fImageHandlers import LoadImage, PrintRepresentation
+from fImageHandlers import LoadImage, PrintSkeleton, PrintInitial
 from fBuildOCR import ConstructOCR
 from fPruneOCR import PruneOCR
 
@@ -40,6 +40,8 @@ def main():
     node_dict = ConstructOCR(imgarray)
     # Uncomment the following to output the results of construction
     #config.PrintNodeFile(node_dict, config.filename + '-nodefile.txt')
+
+    PrintInitial(node_dict)
     
 #prune dark/excess nodes
     print("\nCleaning up reconstruction.")
@@ -57,7 +59,7 @@ def main():
     print("\nComplete!\nTotal runtime: " + minutes + " minutes and " + seconds + " seconds.")
 
 #save image
-    PrintRepresentation(node_dict)
+    PrintSkeleton(node_dict)
 
 # Run statement
 main()
