@@ -8,7 +8,6 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # Library import declarations
-from scipy import ndimage
 from PIL import Image
 import numpy
 import config
@@ -24,9 +23,10 @@ def LoadImage(filepath):
 
     # scale image
     base_height = 2000
-    scaling_percent = (base_height/float(img.size[1]))
-    scaled_width = int(float(img.size[0])*scaling_percent)
-    img = img.resize((scaled_width, base_height))
+    scaling_ratio = (base_height/float(img.size[1]))
+    if scaling_ratio < 1:
+        scaled_width = int(float(img.size[0])*scaling_ratio)
+        img = img.resize((scaled_width, base_height))
 
     # make array from image
     img_array = numpy.array(img)
@@ -45,13 +45,13 @@ def PrepImage(img_array):
     :param img_array: numpy array of floats 0 - 255 representing brightness at that location
     :return: numpy array of floats 0 - 255 representing brightness at that location
     """
-    THRESHOLD_MULTIPLIER = 0.9
+    THRESHOLD_MULTIPLIER = 1.0
 
     # threshold the image based on the mean brightness of the image
     globalThreshold = img_array.mean() * THRESHOLD_MULTIPLIER
     img_array[img_array<globalThreshold] = 0
 
-    img_array = ndimage.filters.median_filter(img_array, size=(5,5))
+    #img_array = ndimage.filters.median_filter(img_array, size=(5,5))
 
     return img_array
 
@@ -98,7 +98,15 @@ def PrintSkeleton(node_dict):
 
         # Colorized by radius
         # outarray[node_dict[key].Y, node_dict[key].X] = 0xFF888888 + 0x8912 * (0xFF % (4*node_dict[key].Radius + 1))
-        outarray[node_dict[key].Y, node_dict[key].X] = 0xFFFFFFFF
+
+        # White
+        if not node_dict[key].Removed:
+            if node_dict[key].Radius > 4:
+                outarray[node_dict[key].Y, node_dict[key].X] = 0xFF888888
+
+        # branch nodes only
+        # if len(node_dict[key].Children) > 1:
+            # outarray[node_dict[key].Y, node_dict[key].X] = 0xFFFFFFFF
 
     # save image
     outimage = Image.fromarray(outarray, 'RGBA')

@@ -15,7 +15,7 @@ import time
 # GLOBAL VARIABLES  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # change this to swap between test images (currently supports 293 and 329)
-current_file = 293
+current_file = 2
 
 # filename stub (the date and sample)
 # used for opening an image and naming files made from it
@@ -55,6 +55,11 @@ def init():
 
     start_time = time.time()
     last_time = time.time()
+
+    if current_file == 2:
+        filename = "2015-04-22-Pai-002"
+        seedX = 233
+        seedY = 92
 
     if current_file == 293:
         filename = "2014-06-24-Tri-293"

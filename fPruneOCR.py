@@ -95,7 +95,7 @@ def RemoveRedundant(node_dict):
         leaf_set = set()
         remove_set = set()
         for key in node_dict:
-            if not node_dict[key].Children:
+            if not node_dict[key].Children and not node_dict[key].Removed:
                 leaf_set.add(key)
         for key in leaf_set:
             mass_node = MassOperator(node_dict, node_dict[key].Covers)
@@ -120,6 +120,8 @@ def RemoveNode(node_dict, key):
     :param key: integer key representing a Node in node_dict
     """
     if key in node_dict:
+        node_dict[key].Removed = True
+
         # attach this node's children to this node's parent
         if node_dict[key].Children:
             for child_key in node_dict[key].Children:
@@ -136,15 +138,15 @@ def RemoveNode(node_dict, key):
             for neighbor_key in node_dict[key].Neighbors:
                 node_dict[neighbor_key].Neighbors.remove(key)
 
-        # remove Cover/CoveredBy references
-        if node_dict[key].Covers:
-            for cover_key in node_dict[key].Covers:
-                node_dict[cover_key].CoveredBy.discard(key)
-        if node_dict[key].CoveredBy:
-            for covered_key in node_dict[key].CoveredBy:
-                node_dict[covered_key].Covers.discard(key)
-
-        del node_dict[key]
+        # # remove Cover/CoveredBy references
+        # if node_dict[key].Covers:
+        #     for cover_key in node_dict[key].Covers:
+        #         node_dict[cover_key].CoveredBy.discard(key)
+        # if node_dict[key].CoveredBy:
+        #     for covered_key in node_dict[key].CoveredBy:
+        #         node_dict[covered_key].Covers.discard(key)
+        #
+        # del node_dict[key]
 
 
 def SetRadii(node_dict):

@@ -93,6 +93,9 @@ class Node:
 
     # Nodes this node is covered by
     CoveredBy = None
+
+    # Has this node been removed?
+    Removed = False
     
     # Expects ' newNode = Node(xLocation, yLocation, intensity) '
     def __init__(self, x, y, i):
