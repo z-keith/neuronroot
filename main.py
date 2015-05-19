@@ -24,6 +24,7 @@ from fPruneOCR import PruneOCR
 
 def main():
 #set filename, seed point, and timestamps
+
     config.init()
 
 #load and clean up the image
