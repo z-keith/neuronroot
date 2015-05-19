@@ -15,7 +15,6 @@ import config
 # Class import declarations
 from cRoot import Node
 
-
 def ConstructOCR(img_array):
     """
     Main construction function. Converts a numpy array to a dictionary containing interconnected Node objects

@@ -10,7 +10,6 @@
 # Library import declarations
 import config
 
-
 def PruneOCR(node_dict):
     """
     Main pruning function, prints debug data and calls RemoveDark and RemoveRedundant

@@ -12,7 +12,6 @@ from PIL import Image
 import numpy
 import config
 
-
 def LoadImage(filepath):
     """
     Main image loading function. Loads, resizes, and filters an image.
