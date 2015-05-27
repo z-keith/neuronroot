@@ -72,7 +72,7 @@ def PrintInitial(node_dict):
     for key in node_dict:
 
         # Print as grey
-        outarray[node_dict[key].Y, node_dict[key].X] = 0xFF444444
+        outarray[node_dict[key].Y, node_dict[key].X] = 0xFF222222
 
     # save image
     outimage = Image.fromarray(outarray, 'RGBA')
@@ -100,8 +100,7 @@ def PrintSkeleton(node_dict):
 
         # White
         if not node_dict[key].Removed:
-            if node_dict[key].Radius > 4:
-                outarray[node_dict[key].Y, node_dict[key].X] = 0xFF888888
+            outarray[node_dict[key].Y, node_dict[key].X] = 0xFFFFFFFF
 
         # branch nodes only
         # if len(node_dict[key].Children) > 1:

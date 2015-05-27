@@ -102,7 +102,7 @@ class Node:
         self.X = x
         self.Y = y
         self.Intensity = i
-        self.Children = list()
-        self.Neighbors = list()
+        self.Children = set()
+        self.Neighbors = set()
         self.Covers = set()
         self.CoveredBy = set()

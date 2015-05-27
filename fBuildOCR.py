@@ -139,8 +139,8 @@ def NodeCheckingMechanism(node1, node2loc, node_dict, graph):
                 edge_weight = CalculateWeight(node_dict[node1].Intensity, node_dict[node2].Intensity)
                 graph.add_edge(node1, node2)
                 graph[node1][node2]['weight'] = edge_weight
-                node_dict[node1].Neighbors.append(node2)
-                node_dict[node2].Neighbors.append(node1)
+                node_dict[node1].Neighbors.add(node2)
+                node_dict[node2].Neighbors.add(node1)
                 break
 
 
@@ -190,7 +190,7 @@ def ConstructPartialTree(graph, node_dict, seed_node):
         if len(pred_dict[key]):
             if sig_tree:            
                 node_dict[key].Parent = int(pred_dict[key][0])
-                node_dict[int(pred_dict[key][0])].Children.append(key)
+                node_dict[int(pred_dict[key][0])].Children.add(key)
             graph.remove_node(key)
 
     return sig_tree

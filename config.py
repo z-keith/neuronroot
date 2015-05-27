@@ -15,7 +15,7 @@ import time
 # GLOBAL VARIABLES  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # change this to swap between test images (currently supports 293 and 329)
-current_file = 2
+current_file = 329
 
 # filename stub (the date and sample)
 # used for opening an image and naming files made from it

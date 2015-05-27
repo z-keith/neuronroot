@@ -55,7 +55,7 @@ def RemoveDark(node_dict):
         removeset = []
 
         for key in node_dict:
-            if not node_dict[key].Children:
+            if not node_dict[key].Children and not node_dict[key].Removed:
                 if not node_dict[key].Parent:
                     # remove any nodes with no children or parents (i.e: noise)
                     removeset.append(key)
@@ -118,24 +118,23 @@ def RemoveNode(node_dict, key):
     :param node_dict: dictionary of form {int: Node}
     :param key: integer key representing a Node in node_dict
     """
-    if key in node_dict:
-        node_dict[key].Removed = True
+    node_dict[key].Removed = True
 
-        # attach this node's children to this node's parent
-        if node_dict[key].Children:
-            for child_key in node_dict[key].Children:
-                node_dict[child_key].Parent = node_dict[key].Parent
-                # attach the parent to the child
-                node_dict[key].Parent.Children.append(child_key)
+    # attach this node's children to this node's parent
+    if node_dict[key].Children:
+        for child_key in node_dict[key].Children:
+            node_dict[child_key].Parent = node_dict[key].Parent
+            # attach the parent to the child
+            node_dict[key].Parent.Children.append(child_key)
 
-        # remove this node's parent's reference to this node
-        if node_dict[key].Parent:
-            node_dict[node_dict[key].Parent].Children.remove(key)
+    # remove this node's parent's reference to this node
+    if node_dict[key].Parent:
+        node_dict[node_dict[key].Parent].Children.discard(key)
 
-        # remove Neighbor references
-        if node_dict[key].Neighbors:
-            for neighbor_key in node_dict[key].Neighbors:
-                node_dict[neighbor_key].Neighbors.remove(key)
+    # remove Neighbor references
+    if node_dict[key].Neighbors:
+        for neighbor_key in node_dict[key].Neighbors:
+            node_dict[neighbor_key].Neighbors.discard(key)
 
         # # remove Cover/CoveredBy references
         # if node_dict[key].Covers:
