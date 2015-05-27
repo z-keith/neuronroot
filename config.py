@@ -15,7 +15,7 @@ import time
 # GLOBAL VARIABLES  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # change this to swap between test images (currently supports 293 and 329)
-current_file = 329
+current_file = 293
 
 # filename stub (the date and sample)
 # used for opening an image and naming files made from it
@@ -29,6 +29,9 @@ sizeY = 0
 seedX = 0
 seedY = 0
 
+# key of best approximation of seed node found by BuildOCR
+best_node = None
+
 # time tracking used throughout the program by PrintTimeBenchmark()
 start_time = 0
 last_time = 0
@@ -38,6 +41,14 @@ initial_nodecount = 0
 
 # number of nodes remaining after pruning
 final_nodecount = 0
+
+# colors for gradient printing
+red = 255
+redAscending = False
+blue = 255
+blueAscending = False
+green = 255
+greenAscending = False
 
 
 # FUNCTIONS # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #

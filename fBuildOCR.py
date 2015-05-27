@@ -58,6 +58,8 @@ def ConstructOCR(img_array):
         NodeCheckDownLeft(node_dict, graph, node1)
         NodeCheckDown(node_dict, graph, node1)
         NodeCheckDownRight(node_dict, graph, node1)
+
+    config.best_node = node_best
     
     print ("Added and weighted edges in {0}".format(config.PrintTimeBenchmark()))
     print ("Found {0} edges.".format(graph.number_of_edges()))

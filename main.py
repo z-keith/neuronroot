@@ -28,7 +28,7 @@ def main():
 
 #load and clean up the image
     print("\nLoading image {0}.".format(config.current_file))
-    imgpath = "TestImages/" + config.filename + ".tif"
+    imgpath = "TestImages/" + config.filename + "-ORIGINAL.tif"
     imgarray = LoadImage(imgpath)
 
 #update global variables
