@@ -74,8 +74,8 @@ def init():
 
     if current_file == 293:
         filename = "2014-06-24-Tri-293"
-        seedX = 1146
-        seedY = 80
+        seedX = 1035
+        seedY = 74
 
     if current_file == 329:
         filename = "2014-06-26-Tri-329"

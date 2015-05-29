@@ -92,7 +92,7 @@ def PrintSkeleton(node_dict):
         if not node_dict[key].Removed:
             outarray[node_dict[key].Y, node_dict[key].X] = 0xFFFFFFFF
 
-    #outarray = RecursivePrint(node_dict, set([config.best_node]), outarray)
+    outarray = RecursivePrint(node_dict, set([config.best_node]), outarray)
 
     # save image
     outimage = Image.fromarray(outarray, 'RGBA')
