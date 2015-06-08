@@ -10,7 +10,9 @@
 # Library import declarations
 from PIL import Image
 import numpy
-import config
+
+from old import config
+
 
 def LoadImage(filepath):
     """

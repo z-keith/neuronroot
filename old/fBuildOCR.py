@@ -8,12 +8,15 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # Library import declarations
-import networkx as nx
 import math
-import config
+
+import networkx as nx
+
+from old import config
+
 
 # Class import declarations
-from cRoot import Node
+from old.cRoot import Node
 
 def ConstructOCR(img_array):
     """
@@ -217,8 +220,8 @@ def TreeCheck(pred_dict, node_dict):
                 maxY = node_dict[key].Y
 
     # does the tree get within (based on 2000px height) 1 px of the edge?
-    if maxY > 0.999*config.sizeY:
+    if maxY > 0.999* config.sizeY:
         return False
     # is the tree at least (based on 2000px height) 1500 px in area?
     else:
-        return (count>0.75*config.sizeY)
+        return (count>0.75* config.sizeY)

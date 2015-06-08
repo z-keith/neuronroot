@@ -13,12 +13,14 @@
 
 # Library import declarations
 import time
-import config
+
+from old import config
+
 
 # Function import declarations
-from fImageHandlers import LoadImage, PrintSkeleton, PrintInitial
-from fBuildOCR import ConstructOCR
-from fPruneOCR import PruneOCR
+from old.fImageHandlers import LoadImage, PrintSkeleton, PrintInitial
+from old.fBuildOCR import ConstructOCR
+from old.fPruneOCR import PruneOCR
 
 # Main function
 
@@ -28,7 +30,7 @@ def main():
 
 #load and clean up the image
     print("\nLoading image {0}.".format(config.current_file))
-    imgpath = "TestImages/" + config.filename + "-ORIGINAL.tif"
+    imgpath = "TestImages/" + config.filename + ".tif"
     imgarray = LoadImage(imgpath)
 
 #update global variables

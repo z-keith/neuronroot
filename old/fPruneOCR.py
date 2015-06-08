@@ -8,7 +8,8 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # Library import declarations
-import config
+from old import config
+
 
 def PruneOCR(node_dict):
     """
