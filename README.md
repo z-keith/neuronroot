@@ -1,9 +1,14 @@
 #neuronroot
 
 #to do:
-- implement smartroot-style cross detection (this may need to come before covered-leaf pruning)
+- implement dark- and covered-leaf pruning that works properly with flowing parent-child algorithm
+- implement smartroot-style cross detection / graph-cycle cross detection
 - add statistical output
 - add user interface
+
+#v0.3.0
+- Revised tree construction for more complete reconstructions
+- Added smooth gradient printing to more easily trace the parent-child connections
 
 #v0.2.0:
 - Added preliminary covered-leaf pruning
