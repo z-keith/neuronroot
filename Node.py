@@ -190,34 +190,30 @@ class Node:
 
     def clean_up_node(self):
         """
-
-        :return:
+        Cleans up the children, parents, and neighbors of this node to remove references to .removed nodes.
         """
 
+        # Clean up children field
         remove_set = set()
-
         for node in self.children:
             if node.removed:
                 remove_set.add(node)
-
         for node in remove_set:
             self.children.discard(node)
 
+        # Clean up parents field
         remove_set.clear()
-
         for node in self.parents:
             if node.removed:
                 remove_set.add(node)
-
         for node in remove_set:
             self.parents.discard(node)
 
+        # Clean up neighbors field
         remove_set.clear()
-
         for i in range(8):
             if self.neighbors[i]:
                 if self.neighbors[i].removed:
                     remove_set.add(i)
-
         for i in remove_set:
             self.neighbors[i] = None

@@ -191,10 +191,12 @@ class TreeHandler:
 
     def prune_dark_nodes(self):
         """
-
-        :return:
+        Removes dark leaf nodes from the dictionary. Anything darker than minimum_visible_intensity is removed.
         """
 
+        minimum_visible_intensity = 0.5
+
+        # Loop until there are no dark nodes on the edges of the tree
         dark_node_in_leaf_set = True
         while dark_node_in_leaf_set:
 
@@ -202,16 +204,20 @@ class TreeHandler:
 
             for key in self.node_dict:
                 if not self.node_dict[key].removed:
-                    # Make sure all 'children' actually exist
+
+                    # Make sure all potential 'neighbors' actually exist
                     self.node_dict[key].clean_up_node()
 
+                    # If None is present in a neighbor list, this node must be touching the black
                     if None in self.node_dict[key].neighbors:
                         leaf_set.add(key)
 
             dark_node_in_leaf_set = False
 
             for key in leaf_set:
-                if not self.node_dict[key].intensity:
+
+                # Prune the dark nodes found in the leaf set
+                if self.node_dict[key].intensity < minimum_visible_intensity:
                     self.node_dict[key].removed = True
                     self.current_nodecount -= 1
                     dark_node_in_leaf_set = True
@@ -252,14 +258,25 @@ class TreeHandler:
 
     def set_covered_areas(self):
         """
-
-        :return:
+        For each node in the dictionary, find all nodes within its radius and add it to the original node's covered-set
         """
+
+        for node in self.node_dict.values():
+            if not node.removed:
+
+                radius_range = node.radius
+
+                # Set up the square to search in
+                for x in range(node.x - radius_range, node.x + radius_range + 1):
+                    for y in range(node.y - radius_range, node.y + radius_range + 1):
+
+                        # If a given node exists, add it to the covered set
+                        if (y,x) in self.node_dict:
+                            node.add_to_covered_set(self.node_dict[(y,x)])
 
     def prune_redundant_nodes(self):
         """
-
-        :return:
+        Implements the covered-leaf removal algorithm as described in Peng et al 2.3.2
         """
 
         covering_threshold = 0.9
@@ -272,15 +289,12 @@ class TreeHandler:
 
             for key in self.node_dict:
                 if not self.node_dict[key].removed:
+
+                    # Update neighbor list
                     self.node_dict[key].clean_up_node()
+
+                    # If it touches None, it's a leaf
                     if None in self.node_dict[key].neighbors:
                         leaf_set.add(key)
 
-            for key in leaf_set:
-                mass_node = self.mass_operator(key)
-
-    def mass_operator(self):
-        """
-
-        :return:
-        """
+            # TODO: implement rest of redundant-leaf pruning

@@ -175,10 +175,10 @@ class Controller:
 
         self.tree_h.set_radii()
         print("\n- Set radii in {0}".format(self.print_timestamp()))
-        # set covering/covered_by
+        self.tree_h.set_covered_areas()
         print("- Set covering/covered_by relationships in {0}.".format(self.print_timestamp()))
 
-        # remove redundant
+        self.tree_h.prune_redundant_nodes()
         redundant_removal_count = self.tree_h.initial_nodecount - dark_removal_count - self.tree_h.current_nodecount
         print("\n- Removed redundant nodes in {0}".format(self.print_timestamp()))
         print("- Redundant nodes removed: {0}".format(redundant_removal_count))
