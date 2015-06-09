@@ -137,7 +137,7 @@ class Controller:
         Performs the TreeHandler's tree construction operations
         """
 
-        print("\n\nConstructing nodes and edges:")
+        print("\nConstructing nodes and edges:")
 
         self.tree_h = tH.TreeHandler()
 
@@ -166,7 +166,7 @@ class Controller:
         Performs the TreeHandler's tree pruning operations
         """
 
-        print("\n\nPruning over-complete reconstruction:")
+        print("\nPruning over-complete reconstruction:")
 
         # prune dark
         dark_removal_count = self.tree_h.initial_nodecount - self.tree_h.current_nodecount
