@@ -173,7 +173,7 @@ class Controller:
         print("\n- Removed dark leaves in {0}".format(self.print_timestamp()))
         print("- Dark nodes removed: {0}".format(dark_removal_count))
 
-        # set radii
+        self.tree_h.set_radii()
         print("\n- Set radii in {0}".format(self.print_timestamp()))
         # set covering/covered_by
         print("- Set covering/covered_by relationships in {0}.".format(self.print_timestamp()))

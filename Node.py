@@ -11,9 +11,6 @@
 
 class Node:
 
-    # Key this node is given in node_dict
-    key = None
-
     # Physical location of this node, measured in pixels as a positive integer
     x = None
     y = None
@@ -48,16 +45,14 @@ class Node:
     # Toggle to ensure a node is only printed once per print
     printed = False
 
-    def __init__(self, key, x, y, i):
+    def __init__(self, x, y, i):
         """
         Initialize a node by location and intensity
-        :param key: id this node has in node_dict (int)
         :param x: x-location of the node being created (int)
         :param y: y-location of the node being created (int)
         :param i: intensity of the node being created (int)
         """
 
-        self.key = key
         self.x = x
         self.y = y
         self.intensity = i
@@ -75,10 +70,10 @@ class Node:
         :return: String displaying a node's information
         """
         info_string = "\nX: {0} Y: {1} I: {2} R: {3}".format(self.x, self.y, round(self.intensity, 1), self.radius)
-        neighbor_string = "\nNeighbors:  {0}{1}{2}\n\t\t\t{3}  x   {4}\n\t\t\t{5}{6}{7}"\
-            .format(str(self.neighbors[0]).ljust(6), str(self.neighbors[1]).ljust(6), str(self.neighbors[2]).ljust(6),
-                    str(self.neighbors[3]).ljust(6), str(self.neighbors[4]).ljust(6),
-                    str(self.neighbors[5]).ljust(6), str(self.neighbors[6]).ljust(6), str(self.neighbors[7]).ljust(6))
+        neighbor_string = "\nNeighbors:  {0}{1}{2}\n\t\t\t{3}\t x  \t{4}\n\t\t\t{5}{6}{7}"\
+            .format(str(self.neighbors[0]).ljust(12), str(self.neighbors[1]).ljust(12), str(self.neighbors[2]).ljust(12),
+                    str(self.neighbors[3]).ljust(12), str(self.neighbors[4]).ljust(12),
+                    str(self.neighbors[5]).ljust(12), str(self.neighbors[6]).ljust(12), str(self.neighbors[7]).ljust(12))
         child_string = self.print_children()
         parent_string = self.print_parents()
         return "\t{0}\t{1}\t{2}\t{3}\n".format(info_string, neighbor_string, child_string, parent_string)
@@ -87,7 +82,7 @@ class Node:
         """
         :return: A simple representation of the node: its key ID
         """
-        return str(self.key)
+        return str((self.y, self.x))
 
     def print_children(self):
         """

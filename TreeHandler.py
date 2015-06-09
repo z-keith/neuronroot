@@ -6,7 +6,7 @@ from Node import Node
 
 class TreeHandler:
 
-    # Dictionary of the form {int: Node} that contains all the node objects in the image
+    # Dictionary of the form {(y, x): Node} that contains all the node objects in the image
     node_dict = None
 
     # Graph that holds node_dict keys and their relationships
@@ -45,8 +45,8 @@ class TreeHandler:
                 if image_h.array[y][x]:
                     # current number of nodes in the graph is used for the key to node_dict and for the
                     # node label in the graph, to keep the two associated.
-                    key = self.graph.number_of_nodes()
-                    self.node_dict[key] = Node(key, x, y, image_h.array[y][x])
+                    key = (y, x)
+                    self.node_dict[key] = Node( x, y, image_h.array[y][x])
                     self.graph.add_node(self.graph.number_of_nodes())
 
         self.initial_nodecount = self.graph.number_of_nodes()
@@ -56,19 +56,22 @@ class TreeHandler:
         """
         Check the entire node_dict for the best approximation to the click location
         """
-        # TODO: Improve algorithm to start in the center of the image and move towards the seed point
 
-        best_distance_to_seed = 999999
+        start_key = (Config.seedY, Config.seedX)
+        key_range = 0
+        looking_for_seed_node = True
 
-        for key in self.graph:
-            # check if this node is closer by linear distance to the seed location than the current best
-            this_distance_to_seed = math.sqrt((Config.seedX - self.node_dict[key].x)**2 +
-                                              (Config.seedY - self.node_dict[key].y)**2)
-            if this_distance_to_seed < best_distance_to_seed:
-                best_distance_to_seed = this_distance_to_seed
-                self.best_node = self.node_dict[key]
-                self.best_node_key = key
-                self.all_seed_nodes.add(self.node_dict[key])
+        while looking_for_seed_node:
+            for x in range (start_key[1] - key_range, start_key[1] + key_range + 1):
+                for y in range (start_key[0] - key_range, start_key[0] + key_range + 1):
+                    key = (y, x)
+                    if key in self.node_dict:
+                        looking_for_seed_node = False
+                        self.best_node_key = key
+                        self.best_node = self.node_dict[key]
+                        self.all_seed_nodes.add(self.node_dict[key])
+                    else:
+                        key_range += 1
 
     def find_edges(self):
         """
@@ -76,7 +79,7 @@ class TreeHandler:
         node in the graph
         """
 
-        for key in self.graph:
+        for key in self.node_dict:
             # If each node checks the same half of eight possible directions, they will tessellate to
             # cover all possible edges. By convention, we choose to choose the 4 nodes that would come
             # after the current node in its neighbor list.
@@ -89,32 +92,16 @@ class TreeHandler:
         :param node1_key: node we are looking for neighbors to
         :param delta: tuple of the change in (x,y) we're looking for for node 2
         """
-        # TODO: This is the most time-consuming part of the program. Should look into methods to speed it up.
 
-        node2_x = self.node_dict[node1_key].x + delta[0]
-        node2_y = self.node_dict[node1_key].y + delta[1]
+        node2_x = node1_key[1] + delta[0]
+        node2_y = node1_key[0] + delta[1]
+        node2_key = (node2_y, node2_x)
 
-        for node2_key in range(node1_key, self.calc_max_range(node1_key)):
-            if self.node_dict[node2_key].x == node2_x:
-                if self.node_dict[node2_key].y == node2_y:
-                    edge_weight = self.calculate_weight(node1_key, node2_key)
-                    self.graph.add_edge(node1_key, node2_key)
-                    self.graph[node1_key][node2_key]['weight'] = edge_weight
-                    self.node_dict[node1_key].set_neighbors(self.node_dict[node2_key])
-                    break
-
-    def calc_max_range(self, node1_key):
-        """
-        Calculates the index within node_dict of the last possible node that could represent the pixel one down and one
-        to the right from the current node1. If the entire image is made of nodes, this index is node1 + the height of
-        the image + 2, for a complete line across the image plus the pixel to the right and below-right (the target)
-        :param node1_key: node to search from
-        :return: the maximum distance an adjacent node
-        """
-        if (node1_key + Config.image_scaled_height + 2) < (self.initial_nodecount - 1):
-            return node1_key + Config.image_scaled_height + 2
-        else:
-            return self.initial_nodecount - 1
+        if node2_key in self.node_dict:
+            edge_weight = self.calculate_weight(node1_key, node2_key)
+            self.graph.add_edge(node1_key, node2_key)
+            self.graph[node1_key][node2_key]['weight'] = edge_weight
+            self.node_dict[node1_key].set_neighbors(self.node_dict[node2_key])
 
     def calculate_weight(self, node1_key, node2_key):
         """
@@ -212,23 +199,14 @@ class TreeHandler:
         while dark_node_in_leaf_set:
 
             leaf_set = set()
-            removal_set = set()
 
             for key in self.node_dict:
                 if not self.node_dict[key].removed:
                     # Make sure all 'children' actually exist
                     self.node_dict[key].clean_up_node()
 
-                    if not self.node_dict[key].children:
-                        # If a node has no children or parents, it is noise
-                        removal_set.add(key)
-                    else:
-                        # If a node has a parent but no children, it is a leaf
+                    if None in self.node_dict[key].neighbors:
                         leaf_set.add(key)
-
-            for key in removal_set:
-                self.node_dict[key].removed = True
-                self.current_nodecount -= 1
 
             dark_node_in_leaf_set = False
 
@@ -237,3 +215,72 @@ class TreeHandler:
                     self.node_dict[key].removed = True
                     self.current_nodecount -= 1
                     dark_node_in_leaf_set = True
+
+    def set_radii(self):
+        """
+        Iterates through the nodes of a root structure setting the radius of each node. It can be assumed that any node that
+        does not have 8 neighbors is touching black space and the maximum radius of a circle centered at the node and
+        contained within the root is 0. It follows that all nodes touching that node (the second layer inward) have radius 1,
+        and so on and so forth.
+        """
+
+        # create set of nodes that touch the black
+        outermost_node_set = set()
+        for key in self.node_dict:
+            node = self.node_dict[key]
+            if None in node.neighbors and not node.removed:
+                outermost_node_set.add(node)
+
+        # recursively iterate through until all radii are set
+        current_radius_value = 0
+        while outermost_node_set:
+            new_outermost_set = set()
+
+            # set current list's radii first, to avoid conflicts
+            for node in outermost_node_set:
+                node.radius = current_radius_value
+
+            # add all nodes that a) touch the current set and b) haven't had a radius set yet
+            for node in outermost_node_set:
+                for neighbor in node.neighbors:
+                    if neighbor and neighbor.radius == None:
+                        new_outermost_set.add(neighbor)
+
+            # increment current radius, reloop
+            current_radius_value += 1
+            outermost_node_set = new_outermost_set
+
+    def set_covered_areas(self):
+        """
+
+        :return:
+        """
+
+    def prune_redundant_nodes(self):
+        """
+
+        :return:
+        """
+
+        covering_threshold = 0.9
+
+        nodes_left_to_remove = True
+
+        while nodes_left_to_remove:
+            leaf_set = set()
+            remove_set = set()
+
+            for key in self.node_dict:
+                if not self.node_dict[key].removed:
+                    self.node_dict[key].clean_up_node()
+                    if None in self.node_dict[key].neighbors:
+                        leaf_set.add(key)
+
+            for key in leaf_set:
+                mass_node = self.mass_operator(key)
+
+    def mass_operator(self):
+        """
+
+        :return:
+        """
