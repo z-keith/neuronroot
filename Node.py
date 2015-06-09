@@ -192,3 +192,37 @@ class Node:
 
         self.covered_set.add(covered)
         covered.covered_by.add(self)
+
+    def clean_up_node(self):
+        """
+
+        :return:
+        """
+
+        remove_set = set()
+
+        for node in self.children:
+            if node.removed:
+                remove_set.add(node)
+
+        for node in remove_set:
+            self.children.discard(node)
+
+        remove_set.clear()
+
+        for node in self.parents:
+            if node.removed:
+                remove_set.add(node)
+
+        for node in remove_set:
+            self.parents.discard(node)
+
+        remove_set.clear()
+
+        for i in range(8):
+            if self.neighbors[i]:
+                if self.neighbors[i].removed:
+                    remove_set.add(i)
+
+        for i in remove_set:
+            self.neighbors[i] = None

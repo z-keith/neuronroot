@@ -127,7 +127,7 @@ class ImageHandler:
         for key in tree_handler.node_dict:
 
             # Print as grey
-            self.array[tree_handler.node_dict[key].y, tree_handler.node_dict[key].x] = [80, 80, 80, 255]
+            self.array[tree_handler.node_dict[key].y, tree_handler.node_dict[key].x] = [40, 40, 40, 255]
 
         outimage = Image.fromarray(self.array, 'RGBA')
         outimage.save('TestImages/{0}-skeleton.tif'.format(self.file_name))

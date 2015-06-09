@@ -168,7 +168,7 @@ class Controller:
 
         print("\nPruning over-complete reconstruction:")
 
-        # prune dark
+        self.tree_h.prune_dark_nodes()
         dark_removal_count = self.tree_h.initial_nodecount - self.tree_h.current_nodecount
         print("\n- Removed dark leaves in {0}".format(self.print_timestamp()))
         print("- Dark nodes removed: {0}".format(dark_removal_count))

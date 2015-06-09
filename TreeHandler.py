@@ -202,3 +202,38 @@ class TreeHandler:
                         self.tree_count += 1
                         self.all_seed_nodes.add(self.node_dict[key])
 
+    def prune_dark_nodes(self):
+        """
+
+        :return:
+        """
+
+        dark_node_in_leaf_set = True
+        while dark_node_in_leaf_set:
+
+            leaf_set = set()
+            removal_set = set()
+
+            for key in self.node_dict:
+                if not self.node_dict[key].removed:
+                    # Make sure all 'children' actually exist
+                    self.node_dict[key].clean_up_node()
+
+                    if not self.node_dict[key].children:
+                        # If a node has no children or parents, it is noise
+                        removal_set.add(key)
+                    else:
+                        # If a node has a parent but no children, it is a leaf
+                        leaf_set.add(key)
+
+            for key in removal_set:
+                self.node_dict[key].removed = True
+                self.current_nodecount -= 1
+
+            dark_node_in_leaf_set = False
+
+            for key in leaf_set:
+                if not self.node_dict[key].intensity:
+                    self.node_dict[key].removed = True
+                    self.current_nodecount -= 1
+                    dark_node_in_leaf_set = True
