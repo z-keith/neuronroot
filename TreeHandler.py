@@ -46,7 +46,7 @@ class TreeHandler:
                     # current number of nodes in the graph is used for the key to node_dict and for the
                     # node label in the graph, to keep the two associated.
                     key = (y, x)
-                    self.node_dict[key] = Node( x, y, image_h.array[y][x])
+                    self.node_dict[key] = Node(x, y, image_h.array[y][x])
                     self.graph.add_node(self.graph.number_of_nodes())
 
         self.initial_nodecount = self.graph.number_of_nodes()
@@ -62,8 +62,8 @@ class TreeHandler:
         looking_for_seed_node = True
 
         while looking_for_seed_node:
-            for x in range (start_key[1] - key_range, start_key[1] + key_range + 1):
-                for y in range (start_key[0] - key_range, start_key[0] + key_range + 1):
+            for x in range(start_key[1] - key_range, start_key[1] + key_range + 1):
+                for y in range(start_key[0] - key_range, start_key[0] + key_range + 1):
                     key = (y, x)
                     if key in self.node_dict:
                         looking_for_seed_node = False
@@ -224,10 +224,10 @@ class TreeHandler:
 
     def set_radii(self):
         """
-        Iterates through the nodes of a root structure setting the radius of each node. It can be assumed that any node that
-        does not have 8 neighbors is touching black space and the maximum radius of a circle centered at the node and
-        contained within the root is 0. It follows that all nodes touching that node (the second layer inward) have radius 1,
-        and so on and so forth.
+        Iterates through the nodes of a root structure setting the radius of each node. It can be assumed that any node
+        that does not have 8 neighbors is touching black space and the maximum radius of a circle centered at the node
+        and contained within the root is 0. It follows that all nodes touching that node (the second layer inward) have
+        radius 1, and so on and so forth.
         """
 
         # create set of nodes that touch the black
@@ -249,7 +249,7 @@ class TreeHandler:
             # add all nodes that a) touch the current set and b) haven't had a radius set yet
             for node in outermost_node_set:
                 for neighbor in node.neighbors:
-                    if neighbor and neighbor.radius == None:
+                    if neighbor and neighbor.radius is None:
                         new_outermost_set.add(neighbor)
 
             # increment current radius, reloop
@@ -263,6 +263,24 @@ class TreeHandler:
 
         for node in self.node_dict.values():
             if not node.removed:
+                node.add_to_covered_set(node)
+                old_cover_set = set()
+                old_cover_set.add(node)
+
+                for r in range(node.radius):
+                    cover_set = set()
+                    for cover_node in old_cover_set:
+                        for neighbor in cover_node.neighbors:
+                            if neighbor:
+                                cover_set.add(neighbor)
+                    for cover_node in cover_set:
+                        node.add_to_covered_set(cover_node)
+
+    def modern_covered_areas(self):
+
+        # TODO: Figure out the differences between this and set_covered_areas()
+        for node in self.node_dict.values():
+            if not node.removed:
 
                 radius_range = node.radius
 
@@ -271,30 +289,36 @@ class TreeHandler:
                     for y in range(node.y - radius_range, node.y + radius_range + 1):
 
                         # If a given node exists, add it to the covered set
-                        if (y,x) in self.node_dict:
-                            node.add_to_covered_set(self.node_dict[(y,x)])
+                        if (y, x) in self.node_dict:
+                            if not self.node_dict[(y, x)].removed:
+                                node.add_to_covered_set(self.node_dict[(y, x)])
 
     def prune_redundant_nodes(self):
         """
         Implements the covered-leaf removal algorithm as described in Peng et al 2.3.2
         """
 
-        covering_threshold = 0.9
+        covering_threshold = 0.5
 
         nodes_left_to_remove = True
 
         while nodes_left_to_remove:
+
+            nodes_left_to_remove = False
+
             leaf_set = set()
-            remove_set = set()
 
-            for key in self.node_dict:
-                if not self.node_dict[key].removed:
+            # TODO: Make this work
 
-                    # Update neighbor list
-                    self.node_dict[key].clean_up_node()
+    @staticmethod
+    def mass_operator(set_to_mass):
+        """
 
-                    # If it touches None, it's a leaf
-                    if None in self.node_dict[key].neighbors:
-                        leaf_set.add(key)
+        :param set_to_mass:
+        :return:
+        """
+        total = 0.0
+        for node in set_to_mass:
+            total += node.intensity
 
-            # TODO: implement rest of redundant-leaf pruning
+        return total
