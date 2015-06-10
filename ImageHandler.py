@@ -140,19 +140,17 @@ class ImageHandler:
 
         # Start with the seed nodes of each tree
         current_set = tree_handler.all_seed_nodes
-        # TODO: fix potential bug where best_node is pruned and this gets mad
+        # TODO: fix potential bug where best_node is pruned and this gets mad (This is already happening with 002)
 
         while True:
             next_set = set()
 
             # Print the current set of nodes in the current color
             for node in current_set:
-                if not node.printed:
-                    self.array[node.y, node.x] = self.current_color
-                    for child in node.children:
-                        if not child.removed:
-                            next_set.add(child)
-                    node.printed = True
+                self.array[node.y, node.x] = self.current_color
+                for child in node.children:
+                    if not child.removed:
+                        next_set.add(child)
 
             # Update the print color
             if len(next_set) > 0:
@@ -192,3 +190,11 @@ class ImageHandler:
         # save image
         outimage = Image.fromarray(self.array, 'RGBA')
         outimage.save('TestImages/{0}-skeleton.tif'.format(self.file_name))
+
+    def all_node_print(self, tree_handler):
+        for node in tree_handler.node_dict.values():
+            if not node.removed:
+                self.array[node.y, node.x] = [255, 255, 255, 255]
+
+        outimage = Image.fromarray(self.array, 'RGBA')
+        outimage.save('TestImages/{0}-skeleton.jpg'.format(self.file_name))
