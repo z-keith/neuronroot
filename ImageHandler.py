@@ -140,7 +140,7 @@ class ImageHandler:
 
         # Start with the seed nodes of each tree
         current_set = tree_handler.all_seed_nodes
-        # TODO: fix potential bug where best_node is pruned and this gets mad (This is already happening with 002)
+        # TODO: fix potential bug where best_node is pruned and this gets mad (This is already happening)
 
         while True:
             next_set = set()
