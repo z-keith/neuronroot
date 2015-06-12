@@ -194,7 +194,7 @@ class TreeHandler:
         Removes dark leaf nodes from the dictionary. Anything darker than minimum_visible_intensity is removed.
         """
 
-        minimum_visible_intensity = 20
+        minimum_visible_intensity = 0.5
 
         # Loop until there are no dark nodes on the edges of the tree
         dark_node_in_leaf_set = True
@@ -288,9 +288,46 @@ class TreeHandler:
         while nodes_left_to_remove:
 
             nodes_left_to_remove = False
+
             leaf_set = set()
 
-            # TODO: Figure this function out (is multiple parents breaking it?)
+            for node in self.node_dict.values():
+                if not node.removed:
+
+                    # Update neighbor list
+                    node.clean_up_node()
+
+                    # If it touches None, it's a leaf
+                    if None in node.neighbors:
+                        leaf_set.add(node)
+
+            for node in leaf_set:
+
+                neighbor_set = set()
+
+                for neighbor in node.neighbors:
+
+                    if neighbor:
+                        neighbor_set.add(neighbor)
+
+                neighbors_cover_set = set()
+
+                for neighbor in neighbor_set:
+                    for covered in neighbor.covered_set:
+                        neighbors_cover_set.add(covered)
+
+                mass_node = self.mass_operator(node.covered_set)
+
+#                overlapping_area = set()
+#                for overlapping_node in possible_covering_set:
+#                    overlapping_area = overlapping_area.union(overlapping_node.covered_set)
+
+                covering_mass = self.mass_operator(node.covered_set.intersection(neighbors_cover_set))
+
+                if covering_mass/mass_node >= covering_threshold:
+                    node.removed = True
+                    self.current_nodecount -= 1
+                    nodes_left_to_remove = True
 
     @staticmethod
     def mass_operator(set_to_mass):
