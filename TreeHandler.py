@@ -176,25 +176,25 @@ class TreeHandler:
 
         self.tree_count = 0
 
-        for key in self.node_dict:
+        for node in self.node_dict.values():
 
             # Use only completely-surrounded nodes as potential seed points
-            if None not in self.node_dict[key].neighbors:
+            if None not in node.neighbors:
 
                 # Use only nodes that haven't been put in a tree (no children or parents)
-                if not self.node_dict[key].children and not self.node_dict[key].parents:
+                if not node.children and not node.parents:
 
                     # Build tree and increment tree count if it's valid
-                    if self.build_tree(key):
+                    if self.build_tree((node.y, node.x)):
                         self.tree_count += 1
-                        self.all_seed_nodes.add(self.node_dict[key])
+                        self.all_seed_nodes.add(node)
 
     def prune_dark_nodes(self):
         """
         Removes dark leaf nodes from the dictionary. Anything darker than minimum_visible_intensity is removed.
         """
 
-        minimum_visible_intensity = 0.5
+        minimum_visible_intensity = 20
 
         # Loop until there are no dark nodes on the edges of the tree
         dark_node_in_leaf_set = True
@@ -202,23 +202,23 @@ class TreeHandler:
 
             leaf_set = set()
 
-            for key in self.node_dict:
-                if not self.node_dict[key].removed:
+            for node in self.node_dict.values():
+                if not node.removed:
 
                     # Make sure all potential 'neighbors' actually exist
-                    self.node_dict[key].clean_up_node()
+                    node.clean_up_node()
 
                     # If None is present in a neighbor list, this node must be touching the black
-                    if None in self.node_dict[key].neighbors:
-                        leaf_set.add(key)
+                    if None in node.neighbors:
+                        leaf_set.add(node)
 
             dark_node_in_leaf_set = False
 
-            for key in leaf_set:
+            for node in leaf_set:
 
                 # Prune the dark nodes found in the leaf set
-                if self.node_dict[key].intensity < minimum_visible_intensity:
-                    self.node_dict[key].removed = True
+                if node.intensity < minimum_visible_intensity:
+                    node.removed = True
                     self.current_nodecount -= 1
                     dark_node_in_leaf_set = True
 
@@ -267,7 +267,7 @@ class TreeHandler:
                 old_cover_set = set()
                 old_cover_set.add(node)
 
-                for r in range(node.radius):
+                for r in range(node.radius + 1):
                     cover_set = set()
                     for cover_node in old_cover_set:
                         for neighbor in cover_node.neighbors:
@@ -276,83 +276,28 @@ class TreeHandler:
                     for cover_node in cover_set:
                         node.add_to_covered_set(cover_node)
 
-    def modern_covered_areas(self):
-
-        # TODO: Figure out the differences between this and set_covered_areas()
-        for node in self.node_dict.values():
-            if not node.removed:
-
-                radius_range = node.radius
-
-                # Set up the square to search in
-                for x in range(node.x - radius_range, node.x + radius_range + 1):
-                    for y in range(node.y - radius_range, node.y + radius_range + 1):
-
-                        # If a given node exists, add it to the covered set
-                        if (y, x) in self.node_dict:
-                            if not self.node_dict[(y, x)].removed:
-                                node.add_to_covered_set(self.node_dict[(y, x)])
-
     def prune_redundant_nodes(self):
         """
         Implements the covered-leaf removal algorithm as described in Peng et al 2.3.2
         """
-        # TODO: Fix and clean this function
 
-        covering_threshold = 0.8
+        covering_threshold = 0.9
 
         nodes_left_to_remove = True
 
         while nodes_left_to_remove:
 
             nodes_left_to_remove = False
-
             leaf_set = set()
 
-            for node in self.node_dict.values():
-                if not node.removed:
-
-                    # Update neighbor list
-                    node.clean_up_node()
-
-                    # If it touches None, it's a leaf
-                    if None in node.neighbors:
-                        leaf_set.add(node)
-
-            for node in leaf_set:
-
-                neighbor_set = set()
-
-                for neighbor in node.neighbors:
-
-                    if neighbor:
-                        neighbor_set.add(neighbor)
-
-                neighbors_cover_set = set()
-
-                for neighbor in neighbor_set:
-                    for covered in neighbor.covered_set:
-                        neighbors_cover_set.add(covered)
-
-                mass_node = self.mass_operator(node.covered_set)
-
-#                overlapping_area = set()
-#                for overlapping_node in possible_covering_set:
-#                    overlapping_area = overlapping_area.union(overlapping_node.covered_set)
-
-                covering_mass = self.mass_operator(node.covered_set.intersection(neighbors_cover_set))
-
-                if covering_mass/mass_node >= covering_threshold:
-                    node.removed = True
-                    self.current_nodecount -= 1
-                    nodes_left_to_remove = True
+            # TODO: Figure this function out (is multiple parents breaking it?)
 
     @staticmethod
     def mass_operator(set_to_mass):
         """
-
-        :param set_to_mass:
-        :return:
+        Finds the mass (sum of intensity) of a set of nodes
+        :param set_to_mass: The set to find the mass of
+        :return: the mass of the area
         """
         total = 0.0
         for node in set_to_mass:

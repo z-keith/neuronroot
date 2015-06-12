@@ -9,6 +9,7 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 from PIL import Image
+from scipy import ndimage
 import numpy as np
 
 import Config
@@ -73,6 +74,8 @@ class ImageHandler:
         # threshold the image based on the mean brightness of the image
         global_threshold = self.array.mean() * self.threshold_multiplier
         self.array[self.array < global_threshold] = 0
+
+        self.array = ndimage.filters.median_filter(self.array, size=(4,4))
 
         self.mask_ruler()
 
@@ -140,7 +143,8 @@ class ImageHandler:
 
         # Start with the seed nodes of each tree
         current_set = tree_handler.all_seed_nodes
-        # TODO: fix potential bug where best_node is pruned and this gets mad (This is already happening with 002)
+        # TODO: fix potential bug where best_node is pruned and this gets mad (This is already happening)
+        # Can do this by checking if any node in current_set is removed and if it is, use best_node to find a new approx
 
         while True:
             next_set = set()
@@ -197,4 +201,4 @@ class ImageHandler:
                 self.array[node.y, node.x] = [255, 255, 255, 255]
 
         outimage = Image.fromarray(self.array, 'RGBA')
-        outimage.save('TestImages/{0}-skeleton.jpg'.format(self.file_name))
+        outimage.save('TestImages/{0}-skeleton.tif'.format(self.file_name))

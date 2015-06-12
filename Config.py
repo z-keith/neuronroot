@@ -8,7 +8,7 @@
 #               pixel scales via a clickable window)
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-# Change this to swap between test images for testing purposes (currently supports 2, 293, and 329)
+# Change this to swap between test images for testing purposes (currently supports 2, 293, 2930, and 329)
 current_file = 293
 
 # filename stub (the date and sample)
@@ -20,7 +20,7 @@ seedX = 0
 seedY = 0
 
 # height to scale images to
-image_scaled_height = 2000
+image_scaled_height = 4000
 
 # minimum size of a tree to be considered not-noise
 minimum_tree_size = 1000
@@ -45,6 +45,11 @@ def init():
         filename = "2014-06-24-Tri-293"
         seedX = 1035
         seedY = 74
+
+    if current_file == 2930:
+        filename = "2014-06-24-Tri-293-ORIGINAL"
+        seedX = 2070
+        seedY = 148
 
     if current_file == 329:
         filename = "2014-06-26-Tri-329"
