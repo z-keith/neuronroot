@@ -8,15 +8,12 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # Library import declarations
-import math
-
 import networkx as nx
-
-from old import config
-
+import math
+import config
 
 # Class import declarations
-from old.cRoot import Node
+from cRoot import Node
 
 def ConstructOCR(img_array):
     """
@@ -61,8 +58,6 @@ def ConstructOCR(img_array):
         NodeCheckDownLeft(node_dict, graph, node1)
         NodeCheckDown(node_dict, graph, node1)
         NodeCheckDownRight(node_dict, graph, node1)
-
-    config.best_node = node_best
     
     print ("Added and weighted edges in {0}".format(config.PrintTimeBenchmark()))
     print ("Found {0} edges.".format(graph.number_of_edges()))
@@ -144,8 +139,8 @@ def NodeCheckingMechanism(node1, node2loc, node_dict, graph):
                 edge_weight = CalculateWeight(node_dict[node1].Intensity, node_dict[node2].Intensity)
                 graph.add_edge(node1, node2)
                 graph[node1][node2]['weight'] = edge_weight
-                node_dict[node1].Neighbors.add(node2)
-                node_dict[node2].Neighbors.add(node1)
+                node_dict[node1].Neighbors.append(node2)
+                node_dict[node2].Neighbors.append(node1)
                 break
 
 
@@ -178,7 +173,6 @@ def CalculateWeight(intensity1, intensity2):
 
 def ConstructPartialTree(graph, node_dict, seed_node):
     """
-
     :param graph: graph to search
     :param node_dict: dict of the form {int: Node} to search
     :param seed_node: key of node to start from
@@ -195,7 +189,7 @@ def ConstructPartialTree(graph, node_dict, seed_node):
         if len(pred_dict[key]):
             if sig_tree:            
                 node_dict[key].Parent = int(pred_dict[key][0])
-                node_dict[int(pred_dict[key][0])].Children.add(key)
+                node_dict[int(pred_dict[key][0])].Children.append(key)
             graph.remove_node(key)
 
     return sig_tree
@@ -220,8 +214,8 @@ def TreeCheck(pred_dict, node_dict):
                 maxY = node_dict[key].Y
 
     # does the tree get within (based on 2000px height) 1 px of the edge?
-    if maxY > 0.999* config.sizeY:
+    if maxY > 0.999*config.sizeY:
         return False
     # is the tree at least (based on 2000px height) 1500 px in area?
     else:
-        return (count>0.75* config.sizeY)
+        return (count>0.75*config.sizeY)

@@ -126,8 +126,8 @@ class TreeHandler:
         # Current tree size is 1, because you're starting with one pixel
         tree_size = 1
 
-        previous_set = set()
-        current_set = {self.node_dict[start_key]}
+        previous_set = {self.node_dict[start_key]}
+        current_set = set(self.node_dict[start_key].neighbors)
         next_set_exists = True
 
         # Continue iterating as long as there are unattached neighbors
@@ -135,13 +135,21 @@ class TreeHandler:
 
             next_set = set()
             for node in current_set:
+
                 for neighbor in node.neighbors:
                     if neighbor and (neighbor not in previous_set) and (neighbor not in current_set):
                         if not neighbor.removed:
-                            if not neighbor.parents:
+                            if not neighbor.parent:
                                 next_set.add(neighbor)
                                 tree_size += 1
-                            node.set_child(neighbor)
+
+                potential_parents = previous_set.intersection(node.neighbors)
+                for p_parent in potential_parents:
+                    if not node.parent:
+                        p_parent.set_child(node)
+                    else:
+                        if node.parent.intensity < p_parent.intensity:
+                            p_parent.set_child(node)
 
             if not next_set:
                 next_set_exists = False
@@ -182,7 +190,7 @@ class TreeHandler:
             if None not in node.neighbors:
 
                 # Use only nodes that haven't been put in a tree (no children or parents)
-                if not node.children and not node.parents:
+                if not node.children and not node.parent:
 
                     # Build tree and increment tree count if it's valid
                     if self.build_tree((node.y, node.x)):
@@ -260,70 +268,78 @@ class TreeHandler:
         """
         For each node in the dictionary, find all nodes within its radius and add it to the original node's covered-set
         """
-
         for node in self.node_dict.values():
-            if not node.removed:
-                node.add_to_covered_set(node)
-                old_cover_set = set()
-                old_cover_set.add(node)
+            node.add_to_covered_set(node)
 
-                for r in range(node.radius + 1):
-                    cover_set = set()
-                    for cover_node in old_cover_set:
-                        for neighbor in cover_node.neighbors:
-                            if neighbor:
-                                cover_set.add(neighbor)
-                    for cover_node in cover_set:
-                        node.add_to_covered_set(cover_node)
+            if not node.removed:
+
+                radius_range = node.radius
+
+                # Set up the square to search in
+                for x in range(node.x - radius_range, node.x + radius_range+1):
+                    for y in range(node.y - radius_range, node.y + radius_range+1):
+
+                        # If a given node exists, add it to the covered set
+                        if (y, x) in self.node_dict:
+                            if not self.node_dict[(y, x)].removed:
+                                node.add_to_covered_set(self.node_dict[(y, x)])
+
+    # def old_set_covered_areas(self):
+    #     for node in self.node_dict.values():
+    #         node.covered_set.add(node)
+    #
+    #         old_cover_set = set()
+    #         old_cover_set.add(node)
+    #
+    #         if node.radius:
+    #
+    #             for r in range(node.radius):
+    #                 cover_set = set()
+    #                 for cover_node in old_cover_set:
+    #                     for neighbor in cover_node.neighbors:
+    #                         if neighbor:
+    #                             cover_set.add(neighbor)
+    #                 for covered_node in cover_set:
+    #                     node.covered_set.add(covered_node)
+    #                     covered_node.covered_by.add(node)
+    #                 old_cover_set = cover_set
 
     def prune_redundant_nodes(self):
         """
         Implements the covered-leaf removal algorithm as described in Peng et al 2.3.2
         """
-
         covering_threshold = 0.9
 
         nodes_left_to_remove = True
-
         while nodes_left_to_remove:
-
             nodes_left_to_remove = False
 
             leaf_set = set()
 
             for node in self.node_dict.values():
                 if not node.removed:
-
-                    # Update neighbor list
                     node.clean_up_node()
-
-                    # If it touches None, it's a leaf
-                    if None in node.neighbors:
+                    if not node.children:
                         leaf_set.add(node)
 
             for node in leaf_set:
+                mass_node = self.mass_operator(node.covered_set)
+
+                covering_set = set()
+                for covering_node in node.covered_by:
+                    for i in covering_node.covered_set:
+                        covering_set.add(i)
 
                 neighbor_set = set()
-
                 for neighbor in node.neighbors:
-
                     if neighbor:
                         neighbor_set.add(neighbor)
-
                 neighbors_cover_set = set()
-
                 for neighbor in neighbor_set:
                     for covered in neighbor.covered_set:
                         neighbors_cover_set.add(covered)
 
-                mass_node = self.mass_operator(node.covered_set)
-
-#                overlapping_area = set()
-#                for overlapping_node in possible_covering_set:
-#                    overlapping_area = overlapping_area.union(overlapping_node.covered_set)
-
-                covering_mass = self.mass_operator(node.covered_set.intersection(neighbors_cover_set))
-
+                covering_mass = self.mass_operator(neighbors_cover_set.intersection(node.covered_set))
                 if covering_mass/mass_node >= covering_threshold:
                     node.removed = True
                     self.current_nodecount -= 1

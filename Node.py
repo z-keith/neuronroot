@@ -29,7 +29,7 @@ class Node:
     neighbors = None
 
     # Parents and children of this node, stored as references to the relatives themselves.
-    parents = None
+    parent = None
     children = None
 
     # Set of nodes within the radius of this node, stored by reference
@@ -58,7 +58,7 @@ class Node:
         self.radius = None  # Leave as None until set by a function later, but adding here for clarity/consistency
 
         self.neighbors = [None, None, None, None, None, None, None, None]  # 8 items allow location-based placement
-        self.parents = set()
+        self.parents = None
         self.children = set()
 
         self.covered_set = set()
@@ -68,16 +68,7 @@ class Node:
         """
         :return: String displaying a node's information
         """
-        info_string = "\nX: {0} Y: {1} I: {2} R: {3}".format(self.x, self.y, round(self.intensity, 1), self.radius)
-        neighbor_string = "\nNeighbors:  {0}{1}{2}\n\t\t\t{3}\t x  \t{4}\n\t\t\t{5}{6}{7}" \
-            .format(str(self.neighbors[0]).ljust(12), str(self.neighbors[1]).ljust(12),
-                    str(self.neighbors[2]).ljust(12),
-                    str(self.neighbors[3]).ljust(12), str(self.neighbors[4]).ljust(12),
-                    str(self.neighbors[5]).ljust(12), str(self.neighbors[6]).ljust(12),
-                    str(self.neighbors[7]).ljust(12))
-        child_string = self.print_children()
-        parent_string = self.print_parents()
-        return "\t{0}\t{1}\t{2}\t{3}\n".format(info_string, neighbor_string, child_string, parent_string)
+        return str((self.y, self.x))
 
     def __str__(self):
         """
@@ -99,11 +90,13 @@ class Node:
 
         return children
 
-    def print_parents(self):
+    """def print_parents(self):
         """
+    """
         Prints a pretty list of the parents of this node
         :return: A string representing this node's parents
         """
+    """
         parents = "\nParents: "
         for parent in self.parents:
             parents += (str(parent) + ", ")
@@ -112,7 +105,7 @@ class Node:
             parents = parents[:-2]
 
         return parents
-
+"""
     def set_child(self, child):
         """
         Sets a parent/child relationship between two nodes
@@ -120,7 +113,7 @@ class Node:
         """
 
         self.children.add(child)
-        child.parents.add(self)
+        child.parent = self
 
     def set_neighbors(self, neighbor):
         """
@@ -204,11 +197,9 @@ class Node:
 
         # Clean up parents field
         remove_set.clear()
-        for node in self.parents:
-            if node.removed:
-                remove_set.add(node)
-        for node in remove_set:
-            self.parents.discard(node)
+        if self.parent:
+            if self.parent.removed:
+                self.parent=None
 
         # Clean up neighbors field
         remove_set.clear()
@@ -218,3 +209,5 @@ class Node:
                     remove_set.add(i)
         for i in remove_set:
             self.neighbors[i] = None
+
+
