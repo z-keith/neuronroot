@@ -26,7 +26,7 @@ def PruneOCR(node_dict):
     node_dict = SetRadii(node_dict)
     print("Set radii in {0}".format(config.PrintTimeBenchmark()))
 
-    node_dict = RemoveRedundant(node_dict)
+    #node_dict = RemoveRedundant(node_dict)
 
     post_rmdark_nodecount = remaining_nodecount
     remaining_nodecount = len(node_dict)
@@ -218,7 +218,7 @@ def SetCoveredSquares(node_dict):
             for node_key in cover_set:
                 node_dict[key].Covers.add(node_key)
                 node_dict[node_key].CoveredBy.add(key)
-            old_cover_set = cover_set
+#            old_cover_set = cover_set
 
     return node_dict
 

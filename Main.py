@@ -33,7 +33,7 @@ def main():
     controller.prune_trees()
 
     # print the skeleton representation of the output
-    controller.image_h.skeleton_print(controller.tree_h)
+    #controller.image_h.skeleton_print(controller.tree_h)
     controller.image_h.all_node_print(controller.tree_h)
     print("\nPrinted skeleton representation in {0}".format(controller.print_timestamp()))
 

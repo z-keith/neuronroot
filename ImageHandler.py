@@ -200,5 +200,6 @@ class ImageHandler:
             if not node.removed:
                 self.array[node.y, node.x] = [255, 255, 255, 255]
 
+
         outimage = Image.fromarray(self.array, 'RGBA')
         outimage.save('TestImages/{0}-skeleton.tif'.format(self.file_name))

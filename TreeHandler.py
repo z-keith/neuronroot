@@ -229,6 +229,8 @@ class TreeHandler:
                     node.removed = True
                     self.current_nodecount -= 1
                     dark_node_in_leaf_set = True
+                    for covers in node.covered_set:
+                        covers.covered_by.discard(node)
 
     def set_radii(self):
         """
@@ -308,42 +310,51 @@ class TreeHandler:
         """
         Implements the covered-leaf removal algorithm as described in Peng et al 2.3.2
         """
-        covering_threshold = 0.9
+        j = 0
+
+        covering_threshold = .2
 
         nodes_left_to_remove = True
         while nodes_left_to_remove:
+
+            j+=1
+            print(j)
+
             nodes_left_to_remove = False
 
             leaf_set = set()
+            remove_set = set()
 
             for node in self.node_dict.values():
                 if not node.removed:
                     node.clean_up_node()
                     if not node.children:
                         leaf_set.add(node)
+                    elif None in node.neighbors:
+                        leaf_set.add(node)
 
             for node in leaf_set:
                 mass_node = self.mass_operator(node.covered_set)
 
-                covering_set = set()
-                for covering_node in node.covered_by:
-                    for i in covering_node.covered_set:
-                        covering_set.add(i)
+                covered_by_set = set()
+                for covered_node in node.covered_set:
+                    for i in covered_node.covered_by:
+                        if not i.removed:
+                            covered_by_set.add(i)
+                # for covered_node in node.neighbors:
+                #     if covered_node and not covered_node.removed:
+                #         covered_by_set.add(covered_node)
 
-                neighbor_set = set()
-                for neighbor in node.neighbors:
-                    if neighbor:
-                        neighbor_set.add(neighbor)
-                neighbors_cover_set = set()
-                for neighbor in neighbor_set:
-                    for covered in neighbor.covered_set:
-                        neighbors_cover_set.add(covered)
+                covered_by_mass = self.mass_operator(covered_by_set.intersection(node.covered_set))
+                if covered_by_mass/mass_node >= covering_threshold:
+                    remove_set.add(node)
 
-                covering_mass = self.mass_operator(neighbors_cover_set.intersection(node.covered_set))
-                if covering_mass/mass_node >= covering_threshold:
-                    node.removed = True
-                    self.current_nodecount -= 1
-                    nodes_left_to_remove = True
+            for node in remove_set:
+                node.removed = True
+                self.current_nodecount -= 1
+                nodes_left_to_remove = True
+                for covers in node.covered_set:
+                    covers.covered_by.discard(node)
 
     @staticmethod
     def mass_operator(set_to_mass):

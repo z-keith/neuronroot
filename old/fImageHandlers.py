@@ -99,8 +99,8 @@ def PrintSkeleton(node_dict):
         # outarray[node_dict[key].Y, node_dict[key].X] = 0xFF888888 + 0x8912 * (0xFF % (4*node_dict[key].Radius + 1))
 
         # White
-        if not node_dict[key].Removed:
-            outarray[node_dict[key].Y, node_dict[key].X] = 0xFF888888
+        if not node_dict[key].Removed and not node_dict[key].Children:
+            outarray[node_dict[key].Y, node_dict[key].X] = 0xFFFFFFFF
 
         # branch nodes only
         # if len(node_dict[key].Children) > 1:
