@@ -24,22 +24,19 @@ class Node:
     # Stored as a list of length 8, each position relates to an orientation like so:
     #
     # [0, 1, 2, 3, 4, 5, 6, 7] ->   0   1   2
-    #                               3   n   4
-    #                               5   6   7
+    #                               7   n   3
+    #                               6   5   4
     neighbors = None
 
     # Parents and children of this node, stored as references to the relatives themselves.
-    parent = None
+    parents = None
     children = None
-
-    # Set of nodes within the radius of this node, stored by reference
-    covered_set = None
-
-    # Set of nodes this node is covered by, stored by reference
-    covered_by = None
 
     # Toggle for lazy deletion - true deletion would break the mass operator for covered sets
     removed = False
+
+    # Toggle to represent a skeleton node that can be ignored in printing
+    is_skeleton = False
 
     # Toggle to ensure a node is only printed once per print
     printed = False
@@ -58,11 +55,8 @@ class Node:
         self.radius = None  # Leave as None until set by a function later, but adding here for clarity/consistency
 
         self.neighbors = [None, None, None, None, None, None, None, None]  # 8 items allow location-based placement
-        self.parents = None
+        self.parents = set()
         self.children = set()
-
-        self.covered_set = set()
-        self.covered_by = set()
 
     def __repr__(self):
         """
@@ -76,36 +70,6 @@ class Node:
         """
         return str((self.y, self.x))
 
-    def print_children(self):
-        """
-        Prints a pretty list of the children of this node
-        :return: A string representing this node's children
-        """
-        children = "\nChildren: "
-        for child in self.children:
-            children += (str(child) + ", ")
-
-        if len(children) > 11:
-            children = children[:-2]
-
-        return children
-
-    """def print_parents(self):
-        """
-    """
-        Prints a pretty list of the parents of this node
-        :return: A string representing this node's parents
-        """
-    """
-        parents = "\nParents: "
-        for parent in self.parents:
-            parents += (str(parent) + ", ")
-
-        if len(parents) > 10:
-            parents = parents[:-2]
-
-        return parents
-"""
     def set_child(self, child):
         """
         Sets a parent/child relationship between two nodes
@@ -113,7 +77,7 @@ class Node:
         """
 
         self.children.add(child)
-        child.parent = self
+        child.parents.add(self)
 
     def set_neighbors(self, neighbor):
         """
@@ -130,57 +94,48 @@ class Node:
             # The neighbor node is in the top-left position relative to this
             if diff_x == -1:
                 self.neighbors[0] = neighbor
-                neighbor.neighbors[7] = self
+                neighbor.neighbors[4] = self
 
             # The neighbor node is in the top-center position relative to this
             if diff_x == 0:
                 self.neighbors[1] = neighbor
-                neighbor.neighbors[6] = self
+                neighbor.neighbors[5] = self
 
             # The neighbor node is in the top-right position relative to this
             if diff_x == 1:
                 self.neighbors[2] = neighbor
-                neighbor.neighbors[5] = self
+                neighbor.neighbors[6] = self
 
         # The neighbor node is on the same row as this
         if diff_y == 0:
 
             # The neighbor node is in the center-left position relative to this
             if diff_x == -1:
-                self.neighbors[3] = neighbor
-                neighbor.neighbors[4] = self
+                self.neighbors[7] = neighbor
+                neighbor.neighbors[3] = self
 
             # The neighbor node is in the center-right position relative to this
             if diff_x == 1:
-                self.neighbors[4] = neighbor
-                neighbor.neighbors[3] = self
+                self.neighbors[3] = neighbor
+                neighbor.neighbors[7] = self
 
         # The neighbor node is on the row below this
         if diff_y == 1:
 
             # The neighbor node is in the bottom-left position relative to this
             if diff_x == -1:
-                self.neighbors[5] = neighbor
+                self.neighbors[6] = neighbor
                 neighbor.neighbors[2] = self
 
             # The neighbor node is in the bottom-center position relative to this
             if diff_x == 0:
-                self.neighbors[6] = neighbor
+                self.neighbors[5] = neighbor
                 neighbor.neighbors[1] = self
 
             # The neighbor node is in the bottom-right position relative to this
             if diff_x == 1:
-                self.neighbors[7] = neighbor
+                self.neighbors[4] = neighbor
                 neighbor.neighbors[0] = self
-
-    def add_to_covered_set(self, covered):
-        """
-        Sets a covered/covered by relationship between 2 nodes
-        :param covered: the node considered "covered" by this node
-        """
-
-        self.covered_set.add(covered)
-        covered.covered_by.add(self)
 
     def clean_up_node(self):
         """
@@ -197,9 +152,11 @@ class Node:
 
         # Clean up parents field
         remove_set.clear()
-        if self.parent:
-            if self.parent.removed:
-                self.parent=None
+        for node in self.parents:
+            if node.removed:
+                remove_set.add(node)
+        for node in remove_set:
+            self.parents.discard(node)
 
         # Clean up neighbors field
         remove_set.clear()

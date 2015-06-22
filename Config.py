@@ -9,7 +9,7 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # Change this to swap between test images for testing purposes (currently supports 2, 293, 2930, and 329)
-current_file = 293
+current_file = 2
 
 # filename stub (the date and sample)
 # used for opening an image and naming files made from it

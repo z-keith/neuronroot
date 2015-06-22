@@ -197,7 +197,7 @@ class ImageHandler:
 
     def all_node_print(self, tree_handler):
         for node in tree_handler.node_dict.values():
-            if not node.removed:
+            if not node.removed and None in node.neighbors:
                 self.array[node.y, node.x] = [255, 255, 255, 255]
 
 

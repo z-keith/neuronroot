@@ -3,6 +3,8 @@ import networkx as nx
 import Config
 from Node import Node
 
+import time
+
 
 class TreeHandler:
 
@@ -139,17 +141,13 @@ class TreeHandler:
                 for neighbor in node.neighbors:
                     if neighbor and (neighbor not in previous_set) and (neighbor not in current_set):
                         if not neighbor.removed:
-                            if not neighbor.parent:
+                            if not neighbor.parents:
                                 next_set.add(neighbor)
                                 tree_size += 1
 
                 potential_parents = previous_set.intersection(node.neighbors)
                 for p_parent in potential_parents:
-                    if not node.parent:
                         p_parent.set_child(node)
-                    else:
-                        if node.parent.intensity < p_parent.intensity:
-                            p_parent.set_child(node)
 
             if not next_set:
                 next_set_exists = False
@@ -190,7 +188,7 @@ class TreeHandler:
             if None not in node.neighbors:
 
                 # Use only nodes that haven't been put in a tree (no children or parents)
-                if not node.children and not node.parent:
+                if not node.children and not node.parents:
 
                     # Build tree and increment tree count if it's valid
                     if self.build_tree((node.y, node.x)):
@@ -242,8 +240,7 @@ class TreeHandler:
 
         # create set of nodes that touch the black
         outermost_node_set = set()
-        for key in self.node_dict:
-            node = self.node_dict[key]
+        for node in self.node_dict.values():
             if None in node.neighbors and not node.removed:
                 outermost_node_set.add(node)
 
@@ -266,105 +263,96 @@ class TreeHandler:
             current_radius_value += 1
             outermost_node_set = new_outermost_set
 
-    def set_covered_areas(self):
-        """
-        For each node in the dictionary, find all nodes within its radius and add it to the original node's covered-set
-        """
-        for node in self.node_dict.values():
-            node.add_to_covered_set(node)
-
-            if not node.removed:
-
-                radius_range = node.radius
-
-                # Set up the square to search in
-                for x in range(node.x - radius_range, node.x + radius_range+1):
-                    for y in range(node.y - radius_range, node.y + radius_range+1):
-
-                        # If a given node exists, add it to the covered set
-                        if (y, x) in self.node_dict:
-                            if not self.node_dict[(y, x)].removed:
-                                node.add_to_covered_set(self.node_dict[(y, x)])
-
-    # def old_set_covered_areas(self):
-    #     for node in self.node_dict.values():
-    #         node.covered_set.add(node)
-    #
-    #         old_cover_set = set()
-    #         old_cover_set.add(node)
-    #
-    #         if node.radius:
-    #
-    #             for r in range(node.radius):
-    #                 cover_set = set()
-    #                 for cover_node in old_cover_set:
-    #                     for neighbor in cover_node.neighbors:
-    #                         if neighbor:
-    #                             cover_set.add(neighbor)
-    #                 for covered_node in cover_set:
-    #                     node.covered_set.add(covered_node)
-    #                     covered_node.covered_by.add(node)
-    #                 old_cover_set = cover_set
-
     def prune_redundant_nodes(self):
         """
-        Implements the covered-leaf removal algorithm as described in Peng et al 2.3.2
+
+        :return:
         """
-        j = 0
 
-        covering_threshold = .2
+        # create initial set of nodes that touch the black
+        initial_list = []
+        current_radius_value = 0
 
-        nodes_left_to_remove = True
-        while nodes_left_to_remove:
+        for node in self.node_dict.values():
+            node.clean_up_node()
+            if node.radius == current_radius_value and not node.removed:
+                initial_list.append(node)
 
-            j+=1
-            print(j)
+        current_list = initial_list
 
-            nodes_left_to_remove = False
+        i=0
 
-            leaf_set = set()
-            remove_set = set()
+        init_time = time.time()
 
-            for node in self.node_dict.values():
-                if not node.removed:
-                    node.clean_up_node()
-                    if not node.children:
-                        leaf_set.add(node)
-                    elif None in node.neighbors:
-                        leaf_set.add(node)
+        while current_list:
+            current_radius_value += 1
+            print(current_radius_value-1, len(current_list), time.time() - init_time)
+            init_time = time.time()
 
-            for node in leaf_set:
-                mass_node = self.mass_operator(node.covered_set)
+            next_list = []
+            n = 0
+            for node in current_list:
 
-                covered_by_set = set()
-                for covered_node in node.covered_set:
-                    for i in covered_node.covered_by:
-                        if not i.removed:
-                            covered_by_set.add(i)
-                # for covered_node in node.neighbors:
-                #     if covered_node and not covered_node.removed:
-                #         covered_by_set.add(covered_node)
+                if n % 5000 == 0:
+                    print(n, "/", len(current_list))
+                n+=1
 
-                covered_by_mass = self.mass_operator(covered_by_set.intersection(node.covered_set))
-                if covered_by_mass/mass_node >= covering_threshold:
-                    remove_set.add(node)
+                node.clean_up_node()
 
-            for node in remove_set:
-                node.removed = True
-                self.current_nodecount -= 1
-                nodes_left_to_remove = True
-                for covers in node.covered_set:
-                    covers.covered_by.discard(node)
+                for neighbor in node.neighbors:
+                    if neighbor and not neighbor.is_skeleton and neighbor.radius == current_radius_value:
+                        if neighbor not in current_list and neighbor not in next_list :
+                            next_list.append(neighbor)
+
+                if self.check_if_skeleton(node):
+                    node.is_skeleton = True
+                else:
+                    node.removed = True
+                    self.current_nodecount -= 1
+
+            current_list = next_list
+
+    def check_if_skeleton(self, node):
+        """
+
+        :param node:
+        :return:
+        """
+
+        node_loc_list = []
+        black_loc_list = []
+
+        #
+        for i in range(8):
+            if node.neighbors[i]:
+                node_loc_list.append(i)
+            else:
+                black_loc_list.append(i)
+
+        if len(black_loc_list) == 8:
+            return False
+        else:
+            return self.check_sequences(node_loc_list)
 
     @staticmethod
-    def mass_operator(set_to_mass):
+    def check_sequences(loc_list):
         """
-        Finds the mass (sum of intensity) of a set of nodes
-        :param set_to_mass: The set to find the mass of
-        :return: the mass of the area
-        """
-        total = 0.0
-        for node in set_to_mass:
-            total += node.intensity
 
-        return total
+        :param loc_list:
+        :return:
+        """
+
+        # check if the location list only contains a diagonal attachment
+        if len(loc_list) == 1:
+            if loc_list[0] %2:
+                return False
+
+        sequence_count = 0
+        if loc_list[0] is not 0 or loc_list[-1] is not 7:
+            sequence_count += 1
+
+        for i in range(len(loc_list) - 1):
+            if loc_list[i+1] - loc_list[i] is not 1:
+                sequence_count += 1
+
+        return sequence_count > 1

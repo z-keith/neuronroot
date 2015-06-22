@@ -104,7 +104,7 @@ class Controller:
             nodefile.write('R: {0} '.format(node_dict[key].radius))
             nodefile.write('\n')
 
-            nodefile.write('Parent: {0} '.format(node_dict[key].parent))
+            nodefile.write('Parent: {0} '.format(node_dict[key].parents))
             nodefile.write('Children: {0} '.format(node_dict[key].children))
             nodefile.write('\n')
 
@@ -175,8 +175,7 @@ class Controller:
 
         self.tree_h.set_radii()
         print("\n- Set radii in {0}".format(self.print_timestamp()))
-        self.tree_h.set_covered_areas()
-        print("- Set covering/covered_by relationships in {0}".format(self.print_timestamp()))
+
 
         self.tree_h.prune_redundant_nodes()
         redundant_removal_count = self.tree_h.initial_nodecount - dark_removal_count - self.tree_h.current_nodecount
