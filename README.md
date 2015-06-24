@@ -1,10 +1,20 @@
 #neuronroot
 
 #to do:
-- implement covered-leaf pruning that works properly with flowing parent-child algorithm
+- implement average radius & total length output
+- check for node->north->east sequences (etc) and replace them with node->northeast connections
+- investigate the possibility of auto-removing all radius-0 nodes as the last step
+- investigate the possibility of true deletion of nodes at all stages instead of lazy deletion
+- check for unnecessary algorithmic complexity in redundant-node function - it's very, very slow
 - implement smartroot-style cross detection / graph-cycle cross detection
 - add statistical output
 - add user interface
+
+#v0.5
+- Complete rewrite to take advantage of new flowing reconstruction schema and (y,x) indexed dictionary
+    - Instead of using Dijkstra's shortest path to connect nodes to a path, simply iterates outward from seed points
+    - Then prunes the reconstruction by iteratively removing the outermost layer of nodes until all remaining nodes are part of single-pixel thick skeletal lines
+    - Finally, uses a covered-node removal algorithm inspired by Peng et al to deal with imperfections in the reconstruction
 
 #v0.3.1
 - Implemented dark-leaf pruning, radius finder, and covered-set finder
