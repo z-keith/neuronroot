@@ -145,7 +145,10 @@ class Controller:
         print("\n- Constructed graph and node_dict in {0}".format(self.print_timestamp()))
         print("- Number of nodes found on first pass: {0}".format(self.tree_h.initial_nodecount))
 
-        self.tree_h.find_best_node()
+        best_key = self.tree_h.find_best_node((Config.seedY, Config.seedX))
+        self.tree_h.best_node_key = best_key
+        self.tree_h.best_node = self.tree_h.node_dict[best_key]
+        self.tree_h.all_seed_nodes.add(self.tree_h.node_dict[best_key])
         print("\n- Found best approximation for click point in {0}".format(self.print_timestamp()))
         print("- Best approximation found for click point: ({0}, {1})".format(self.tree_h.best_node.x,
                                                                               self.tree_h.best_node.y))
@@ -181,6 +184,12 @@ class Controller:
         redundant_removal_count = self.tree_h.initial_nodecount - dark_removal_count - self.tree_h.current_nodecount
         print("\n- Removed redundant nodes in {0}".format(self.print_timestamp()))
         print("- Redundant nodes removed: {0}".format(redundant_removal_count))
+
+        self.tree_h.prune_internal_nodes()
+        internal_removal_count = self.tree_h.initial_nodecount - dark_removal_count - redundant_removal_count\
+                                 - self.tree_h.current_nodecount
+        print("\n- Removed internal nodes in {0}".format(self.print_timestamp()))
+        print("- Internal nodes removed: {0}".format(internal_removal_count))
 
         compression_percentage = round(100 * (1 - self.tree_h.current_nodecount / self.tree_h.initial_nodecount), 1)
         print("\n- Total nodes in final representation: {0}".format(self.tree_h.current_nodecount))

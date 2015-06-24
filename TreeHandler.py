@@ -54,12 +54,12 @@ class TreeHandler:
         self.initial_nodecount = self.graph.number_of_nodes()
         self.current_nodecount = self.graph.number_of_nodes()
 
-    def find_best_node(self):
+
+    def find_best_node(self, start_key):
         """
         Check the entire node_dict for the best approximation to the click location
         """
 
-        start_key = (Config.seedY, Config.seedX)
         key_range = 0
         looking_for_seed_node = True
 
@@ -68,10 +68,7 @@ class TreeHandler:
                 for y in range(start_key[0] - key_range, start_key[0] + key_range + 1):
                     key = (y, x)
                     if key in self.node_dict:
-                        looking_for_seed_node = False
-                        self.best_node_key = key
-                        self.best_node = self.node_dict[key]
-                        self.all_seed_nodes.add(self.node_dict[key])
+                        return key
                     else:
                         key_range += 1
 
@@ -280,22 +277,12 @@ class TreeHandler:
 
         current_list = initial_list
 
-        i=0
-
-        init_time = time.time()
-
         while current_list:
             current_radius_value += 1
-            print(current_radius_value-1, len(current_list), time.time() - init_time)
-            init_time = time.time()
 
             next_list = []
-            n = 0
-            for node in current_list:
 
-                if n % 5000 == 0:
-                    print(n, "/", len(current_list))
-                n+=1
+            for node in current_list:
 
                 node.clean_up_node()
 
@@ -356,3 +343,100 @@ class TreeHandler:
                 sequence_count += 1
 
         return sequence_count > 1
+
+    def prune_internal_nodes(self):
+        """
+
+        :return:
+        """
+        # rebuild all trees from the neighbor lists and the remaining nodes closest to the seed points
+        # this will ensure that parent-child relationships are consistent and usable
+        self.rebuild_trees()
+
+        # find the initial set (all nodes with radius 0)
+        current_set = set()
+        current_radius = 0
+        for node in self.node_dict.values():
+            if node.radius == current_radius:
+                current_set.add(node)
+
+        # check each node to see if it has a neighbor.radius > node.radius
+        while current_set:
+            next_set = set()
+            for node in current_set:
+                # clean up the node first
+                node.clean_up_node()
+
+                # add its neighbors with radius = current_radius+1 to next set
+                node_is_covered = False
+                for neighbor in node.neighbors:
+                    if neighbor and neighbor.radius > node.radius:
+                        next_set.add(neighbor)
+                        node_is_covered = True
+
+                # if it does have a covering neighbor, attach its parents to its children and remove it
+                if node_is_covered:
+                    for parent in node.parents:
+                        for child in node.children:
+                            parent.set_child(child)
+                            child.parents.discard(node)
+                        parent.children.discard(node)
+                    node.removed = True
+                    self.current_nodecount -= 1
+
+            current_set = next_set
+
+        # clean up node_dict one final time before we send it to the root parser
+        self.remove_removed_nodes()
+
+    def rebuild_trees(self):
+        """
+
+        :return:
+        """
+        # update the set of all_seed_nodes (find the closest remaining node to each seed node)
+        new_seed_nodes = set()
+        for node in self.all_seed_nodes:
+            key = (node.y, node.x)
+            out_key = self.find_best_node(key)
+            new_seed_nodes.add(self.node_dict[out_key])
+
+        self.all_seed_nodes = new_seed_nodes
+
+        # remove all .removed nodes from node_dict
+        self.remove_removed_nodes()
+
+        # reset parent and child fields
+        for node in self.node_dict.values():
+            node.children = set()
+            node.parents = set()
+
+        # iteratively attach neighbors as children to each seed
+        previous_set = set()
+        current_set = self.all_seed_nodes
+        while current_set:
+            next_set = set()
+            for node in current_set:
+                for neighbor in node.neighbors:
+                    if neighbor and neighbor not in current_set and neighbor not in previous_set:
+                        if not neighbor.removed and not neighbor.parents:
+                            node.set_child(neighbor)
+                            next_set.add(neighbor)
+            previous_set = current_set
+            current_set = next_set
+
+    def remove_removed_nodes(self):
+        """
+
+        :return:
+        """
+        # find all removed nodes
+        removed_set = set()
+
+        for key in self.node_dict:
+            if self.node_dict[key].removed:
+                removed_set.add(key)
+
+        # pop them from the dictionary
+        for key in removed_set:
+            self.node_dict.pop(key, None)
