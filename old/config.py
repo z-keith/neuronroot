@@ -29,9 +29,6 @@ sizeY = 0
 seedX = 0
 seedY = 0
 
-# key of best approximation of seed node found by BuildOCR
-best_node = None
-
 # time tracking used throughout the program by PrintTimeBenchmark()
 start_time = 0
 last_time = 0
@@ -41,14 +38,6 @@ initial_nodecount = 0
 
 # number of nodes remaining after pruning
 final_nodecount = 0
-
-# colors for gradient printing
-red = 255
-redAscending = False
-blue = 255
-blueAscending = False
-green = 255
-greenAscending = False
 
 
 # FUNCTIONS # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -74,8 +63,8 @@ def init():
 
     if current_file == 293:
         filename = "2014-06-24-Tri-293"
-        seedX = 1035
-        seedY = 74
+        seedX = 1146
+        seedY = 80
 
     if current_file == 329:
         filename = "2014-06-26-Tri-329"

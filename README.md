@@ -1,9 +1,19 @@
 #neuronroot
 
 #to do:
-- implement smartroot-style cross detection (this may need to come before covered-leaf pruning)
+- implement covered-leaf pruning that works properly with flowing parent-child algorithm
+- implement smartroot-style cross detection / graph-cycle cross detection
 - add statistical output
 - add user interface
+
+#v0.3.1
+- Implemented dark-leaf pruning, radius finder, and covered-set finder
+- Improved dictionary schema (now uses (y,x) tuples as keys)
+- Updated edge search to take advantage of new dictionary (reduces approx. runtime of edge search from 1:50 to 0:05)
+
+#v0.3.0
+- Revised tree construction for more complete reconstructions
+- Added smooth gradient printing to more easily trace the parent-child connections
 
 #v0.2.0:
 - Added preliminary covered-leaf pruning

@@ -72,11 +72,11 @@ def PrintInitial(node_dict):
     for key in node_dict:
 
         # Print as grey
-        outarray[node_dict[key].Y, node_dict[key].X] = 0xFF222222
+        outarray[node_dict[key].Y, node_dict[key].X] = 0xFF444444
 
     # save image
     outimage = Image.fromarray(outarray, 'RGBA')
-    outimage.save('TestImages/{0}-skeleton.tif'.format(config.filename))
+    outimage.save('../TestImages/{0}-skeleton.tif'.format(config.filename))
 
 
 def PrintSkeleton(node_dict):
@@ -85,64 +85,30 @@ def PrintSkeleton(node_dict):
     :param node_dict: dictionary of the form {int: Node}
     """
     # initialize array
-    img = Image.open('TestImages/{0}-skeleton.tif'.format(config.filename))
+    img = Image.open('../TestImages/{0}-skeleton.tif'.format(config.filename))
     outarray = numpy.array(img)
 
     for key in node_dict:
-        if not node_dict[key].Removed:
+        if node_dict[key].Radius > 20:
+            outarray = ColorArea(node_dict, key, outarray)
+
+    # set all locations containing a node to a color dependent on the radius at the point
+    for key in node_dict:
+
+        # Colorized by radius
+        # outarray[node_dict[key].Y, node_dict[key].X] = 0xFF888888 + 0x8912 * (0xFF % (4*node_dict[key].Radius + 1))
+
+        # White
+        if not node_dict[key].Removed and not node_dict[key].Children:
             outarray[node_dict[key].Y, node_dict[key].X] = 0xFFFFFFFF
 
-    outarray = RecursivePrint(node_dict, set([config.best_node]), outarray)
+        # branch nodes only
+        # if len(node_dict[key].Children) > 1:
+            # outarray[node_dict[key].Y, node_dict[key].X] = 0xFFFFFFFF
 
     # save image
     outimage = Image.fromarray(outarray, 'RGBA')
-    outimage.save('TestImages/{0}-skeleton.tif'.format(config.filename))
-
-
-def RecursivePrint(node_dict, current_set, outarray):
-    while True:
-        next_set = set()
-
-        for key in current_set:
-            if not node_dict[key].Printed:
-                outarray[node_dict[key].Y, node_dict[key].X] = [config.red, config.green, config.blue, 255]
-                for child_key in node_dict[key].Children:
-                    if not node_dict[child_key].Removed:
-                        next_set.add(child_key)
-                node_dict[key].Printed = True
-
-        if len(next_set) > 0:
-            if config.redAscending:
-                config.red += 1
-                if config.red > 230:
-                    config.redAscending = False
-            else:
-                config.red -=1
-                if config.red < 60:
-                    config.redAscending = True
-
-            if config.blueAscending:
-                config.blue += 2
-                if config.blue > 230:
-                    config.blueAscending = False
-            else:
-                config.blue -=2
-                if config.blue < 60:
-                    config.blueAscending = True
-
-            if config.greenAscending:
-                config.green += 3
-                if config.green > 230:
-                    config.greenAscending = False
-            else:
-                config.green -=3
-                if config.green < 60:
-                    config.greenAscending = True
-
-            current_set = next_set
-
-        else:
-            return outarray
+    outimage.save('../TestImages/{0}-skeleton.tif'.format(config.filename))
 
 def ColorArea(node_dict, key, outarray):
 

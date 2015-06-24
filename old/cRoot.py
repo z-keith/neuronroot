@@ -96,16 +96,13 @@ class Node:
 
     # Has this node been removed?
     Removed = False
-
-    # Has this node been printed?
-    Printed = False
     
     # Expects ' newNode = Node(xLocation, yLocation, intensity) '
     def __init__(self, x, y, i):
         self.X = x
         self.Y = y
         self.Intensity = i
-        self.Children = set()
-        self.Neighbors = set()
+        self.Children = list()
+        self.Neighbors = list()
         self.Covers = set()
         self.CoveredBy = set()

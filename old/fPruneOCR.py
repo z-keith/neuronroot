@@ -26,7 +26,7 @@ def PruneOCR(node_dict):
     node_dict = SetRadii(node_dict)
     print("Set radii in {0}".format(config.PrintTimeBenchmark()))
 
-    node_dict = RemoveRedundant(node_dict)
+    #node_dict = RemoveRedundant(node_dict)
 
     post_rmdark_nodecount = remaining_nodecount
     remaining_nodecount = len(node_dict)
@@ -89,8 +89,11 @@ def RemoveRedundant(node_dict):
     """
 
     COVERING_THRESHOLD=0.9
+    j=0
 
     while True:
+        j+=1
+        print(j)
         leaf_set = set()
         remove_set = set()
         for key in node_dict:
@@ -118,23 +121,27 @@ def RemoveNode(node_dict, key):
     :param node_dict: dictionary of form {int: Node}
     :param key: integer key representing a Node in node_dict
     """
-    node_dict[key].Removed = True
+    if key in node_dict:
+        node_dict[key].Removed = True
+        config.final_nodecount -= 1
 
-    # attach this node's children to this node's parent
-    if node_dict[key].Children:
-        for child_key in node_dict[key].Children:
-            node_dict[child_key].Parent = node_dict[key].Parent
-            # attach the parent to the child
-            node_dict[key].Parent.Children.append(child_key)
+        # attach this node's children to this node's parent
+        if node_dict[key].Children:
+            for child_key in node_dict[key].Children:
+                node_dict[child_key].Parent = node_dict[key].Parent
+                # attach the parent to the child
+                node_dict[key].Parent.Children.append(child_key)
 
-    # remove this node's parent's reference to this node
-    if node_dict[key].Parent:
-        node_dict[node_dict[key].Parent].Children.discard(key)
+        # remove this node's parent's reference to this node
+        if node_dict[key].Parent:
+            if key in node_dict[node_dict[key].Parent].Children:
+                node_dict[node_dict[key].Parent].Children.remove(key)
 
-    # remove Neighbor references
-    if node_dict[key].Neighbors:
-        for neighbor_key in node_dict[key].Neighbors:
-            node_dict[neighbor_key].Neighbors.discard(key)
+        # remove Neighbor references
+        if node_dict[key].Neighbors:
+            for neighbor_key in node_dict[key].Neighbors:
+                if key in node_dict[neighbor_key].Neighbors:
+                    node_dict[neighbor_key].Neighbors.remove(key)
 
         # # remove Cover/CoveredBy references
         # if node_dict[key].Covers:
@@ -211,12 +218,12 @@ def SetCoveredSquares(node_dict):
             for node_key in cover_set:
                 node_dict[key].Covers.add(node_key)
                 node_dict[node_key].CoveredBy.add(key)
+#            old_cover_set = cover_set
 
     return node_dict
 
 def RefineCoveredRegions(node_dict):
     """
-
     :param node_dict:
     :return:
     """
