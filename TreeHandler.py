@@ -386,6 +386,12 @@ class TreeHandler:
 
             current_set = next_set
 
+        # fix excessively thick roots
+        self.cleanup_right_angles()
+
+        # remove short 'branches' (actually just bumps on root edges)
+        self.remove_short_branches()
+
         # clean up node_dict one final time before we send it to the root parser
         self.remove_removed_nodes()
 
@@ -440,3 +446,17 @@ class TreeHandler:
         # pop them from the dictionary
         for key in removed_set:
             self.node_dict.pop(key, None)
+
+    def cleanup_right_angles(self):
+        """
+
+        :return:
+        """
+        pass
+
+    def remove_short_branches(self):
+        """
+
+        :return:
+        """
+        pass
