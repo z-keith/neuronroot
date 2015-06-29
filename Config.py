@@ -20,10 +20,10 @@ seedX = 0
 seedY = 0
 
 # height to scale images to
-image_scaled_height = 4000
+image_scaled_height = 6000
 
 # minimum size of a tree to be considered not-noise
-minimum_tree_size = 1000
+minimum_tree_size = 1500
 
 
 def init():

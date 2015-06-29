@@ -106,8 +106,16 @@ class TreeHandler:
         node_set = {start_node}
 
         previous_set = {start_node}
-        current_set = set(start_node.neighbors)
-        next_set_exists = True
+
+        current_set = set()
+        for neighbor in start_node.neighbors:
+            if neighbor:
+                current_set.add(neighbor)
+
+        next_set_exists = False
+
+        if current_set:
+            next_set_exists = True
 
         # Continue iterating as long as there are unattached neighbors
         while next_set_exists:
