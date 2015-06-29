@@ -153,7 +153,6 @@ class ImageHandler:
             for node in current_set:
                 self.array[node.y, node.x] = self.current_color
                 for child in node.children:
-                    if not child.removed:
                         next_set.add(child)
 
             # Update the print color
@@ -197,8 +196,7 @@ class ImageHandler:
 
     def all_node_print(self, tree_handler):
         for node in tree_handler.node_dict.values():
-            if not node.removed and None in node.neighbors:
-                self.array[node.y, node.x] = [255, 255, 255, 255]
+            self.array[node.y, node.x] = [255, 255, 255, 255]
 
 
         outimage = Image.fromarray(self.array, 'RGBA')

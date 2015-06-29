@@ -145,19 +145,16 @@ class Controller:
         print("\n- Constructed graph and node_dict in {0}".format(self.print_timestamp()))
         print("- Number of nodes found on first pass: {0}".format(self.tree_h.initial_nodecount))
 
-        best_key = self.tree_h.find_best_node((Config.seedY, Config.seedX))
-        self.tree_h.best_node_key = best_key
-        self.tree_h.best_node = self.tree_h.node_dict[best_key]
-        self.tree_h.all_seed_nodes.add(self.tree_h.node_dict[best_key])
+        self.tree_h.best_node = self.tree_h.find_best_node((Config.seedY, Config.seedX))
+        self.tree_h.all_seed_nodes.add(self.tree_h.best_node)
         print("\n- Found best approximation for click point in {0}".format(self.print_timestamp()))
         print("- Best approximation found for click point: ({0}, {1})".format(self.tree_h.best_node.x,
                                                                               self.tree_h.best_node.y))
 
         self.tree_h.find_edges()
-        print("\n- Added and weighted edges in {0}".format(self.print_timestamp()))
-        print("- Number of edges added: {0}".format(self.tree_h.graph.number_of_edges()))
+        print("\n- Added neighbors in {0}".format(self.print_timestamp()))
 
-        self.tree_h.build_tree(self.tree_h.best_node_key)
+        self.tree_h.build_tree(self.tree_h.best_node)
         print("\n- Constructed initial tree in {0}".format(self.print_timestamp()))
 
         self.tree_h.find_additional_trees()

@@ -11,20 +11,19 @@ class TreeHandler:
     # Dictionary of the form {(y, x): Node} that contains all the node objects in the image
     node_dict = None
 
-    # Graph that holds node_dict keys and their relationships
-    graph = None
-
     # The node that best approximates the seed point, and its key in node_dict
     best_node = None
-    best_node_key = None
 
     # A set containing the seed node for each tree
     all_seed_nodes = None
 
     # Node and tree counts, stored for analytics purposes
-    initial_nodecount = None
-    current_nodecount = None
-    tree_count = None
+    initial_nodecount = 0
+    current_nodecount = 0
+    tree_count = 0
+
+    # Trash can for removing nodes after iteration
+    trash = set()
 
     def __init__(self):
         """
@@ -32,7 +31,6 @@ class TreeHandler:
         """
 
         self.node_dict = dict()
-        self.graph = nx.Graph()
         self.all_seed_nodes = set()
 
     def load_nodes(self, image_h):
@@ -49,11 +47,8 @@ class TreeHandler:
                     # node label in the graph, to keep the two associated.
                     key = (y, x)
                     self.node_dict[key] = Node(x, y, image_h.array[y][x])
-                    self.graph.add_node(self.graph.number_of_nodes())
-
-        self.initial_nodecount = self.graph.number_of_nodes()
-        self.current_nodecount = self.graph.number_of_nodes()
-
+                    self.initial_nodecount += 1
+                    self.current_nodecount += 1
 
     def find_best_node(self, start_key):
         """
@@ -68,7 +63,7 @@ class TreeHandler:
                 for y in range(start_key[0] - key_range, start_key[0] + key_range + 1):
                     key = (y, x)
                     if key in self.node_dict:
-                        return key
+                        return self.node_dict[key]
                     else:
                         key_range += 1
 
@@ -97,36 +92,21 @@ class TreeHandler:
         node2_key = (node2_y, node2_x)
 
         if node2_key in self.node_dict:
-            edge_weight = self.calculate_weight(node1_key, node2_key)
-            self.graph.add_edge(node1_key, node2_key)
-            self.graph[node1_key][node2_key]['weight'] = edge_weight
             self.node_dict[node1_key].set_neighbors(self.node_dict[node2_key])
 
-    def calculate_weight(self, node1_key, node2_key):
-        """
-        Formula taken from Peng et al section 2.2 to calculate the weight of an edge between 2 nodes
-        :param node1_key: key of the first node
-        :param node2_key: key of the second node
-        :return: float indicating the proper weight
-        """
-
-        result1 = math.exp(10*(1-self.node_dict[node1_key].intensity/255)**2)
-        result2 = math.exp(10*(1-self.node_dict[node2_key].intensity/255)**2)
-        return (result1+result2)/2
-
-    def build_tree(self, start_key):
+    def build_tree(self, start_node):
         """
         Builds a flowing tree representation of the graph in the node. It must have a total size greater than
         or equal to Config.minimum_tree_size to be considered valid.
-        :param start_key:
+        :param start_node:
         :return: True if a tree was successfully built from the start key, or False
         """
 
         # Current tree size is 1, because you're starting with one pixel
-        tree_size = 1
+        node_set = {start_node}
 
-        previous_set = {self.node_dict[start_key]}
-        current_set = set(self.node_dict[start_key].neighbors)
+        previous_set = {start_node}
+        current_set = set(start_node.neighbors)
         next_set_exists = True
 
         # Continue iterating as long as there are unattached neighbors
@@ -137,14 +117,11 @@ class TreeHandler:
 
                 for neighbor in node.neighbors:
                     if neighbor and (neighbor not in previous_set) and (neighbor not in current_set):
-                        if not neighbor.removed:
-                            if not neighbor.parents:
+                            if not neighbor.visited:
                                 next_set.add(neighbor)
-                                tree_size += 1
+                                node_set.add(neighbor)
 
-                potential_parents = previous_set.intersection(node.neighbors)
-                for p_parent in potential_parents:
-                        p_parent.set_child(node)
+                node.visited = True
 
             if not next_set:
                 next_set_exists = False
@@ -153,31 +130,56 @@ class TreeHandler:
                 current_set = next_set
 
         # Make sure the tree is large enough to not be noise
-        if tree_size < Config.minimum_tree_size:
-            self.set_tree_removed(self.node_dict[start_key])
+        if len(node_set) < Config.minimum_tree_size:
+            for node in node_set:
+                self.trash.add(node)
             return False
         else:
             return True
 
-    def set_tree_removed(self, start_node):
+    def remove_nodes(self, node_set):
         """
-        Remove a tree, starting from a given seed node. Will not remove anything upstream of start_node
-        :param start_node: The node to remove everything below it. To remove an entire tree, use its seed node
+
         """
-        # Recursively call this function on all children
-        for child in start_node.children:
-            if not child.removed:
-                self.set_tree_removed(child)
-        # Remove this node
-        start_node.removed = True
+        for node in node_set:
+            self.remove_node(node)
+
+    def remove_node(self, node):
+        """
+
+        :param node:
+        :return:
+        """
+
+        key = (node.y, node.x)
+
+        if node.children:
+            for child in node.children:
+                child.parents.discard(node)
+
+        if node.parents:
+            for parent in node.parents:
+                parent.children.discard(node)
+
+        if node.children and node.parents:
+            for child in node.children:
+                for parent in node.parents:
+                    parent.set_child(child)
+
+        for i in range(8):
+            if node.neighbors[i]:
+                neighbor = node.neighbors[i]
+                this_node_loc = (i+4)%8
+                neighbor.neighbors[this_node_loc] = None
+
         self.current_nodecount -= 1
+
+        self.node_dict.pop(key, None)
 
     def find_additional_trees(self):
         """
         Finds all nodes with 8 neighbors and attempts to group them into trees.
         """
-
-        self.tree_count = 0
 
         for node in self.node_dict.values():
 
@@ -185,19 +187,22 @@ class TreeHandler:
             if None not in node.neighbors:
 
                 # Use only nodes that haven't been put in a tree (no children or parents)
-                if not node.children and not node.parents:
+                if not node.visited:
 
                     # Build tree and increment tree count if it's valid
-                    if self.build_tree((node.y, node.x)):
+                    if self.build_tree(node):
                         self.tree_count += 1
                         self.all_seed_nodes.add(node)
+
+        self.remove_nodes(self.trash)
+        self.trash = set()
 
     def prune_dark_nodes(self):
         """
         Removes dark leaf nodes from the dictionary. Anything darker than minimum_visible_intensity is removed.
         """
 
-        minimum_visible_intensity = 0.5
+        minimum_visible_intensity = .25
 
         # Loop until there are no dark nodes on the edges of the tree
         dark_node_in_leaf_set = True
@@ -206,10 +211,6 @@ class TreeHandler:
             leaf_set = set()
 
             for node in self.node_dict.values():
-                if not node.removed:
-
-                    # Make sure all potential 'neighbors' actually exist
-                    node.clean_up_node()
 
                     # If None is present in a neighbor list, this node must be touching the black
                     if None in node.neighbors:
@@ -221,11 +222,8 @@ class TreeHandler:
 
                 # Prune the dark nodes found in the leaf set
                 if node.intensity < minimum_visible_intensity:
-                    node.removed = True
-                    self.current_nodecount -= 1
+                    self.remove_node(node)
                     dark_node_in_leaf_set = True
-                    for covers in node.covered_set:
-                        covers.covered_by.discard(node)
 
     def set_radii(self):
         """
@@ -238,7 +236,7 @@ class TreeHandler:
         # create set of nodes that touch the black
         outermost_node_set = set()
         for node in self.node_dict.values():
-            if None in node.neighbors and not node.removed:
+            if None in node.neighbors:
                 outermost_node_set.add(node)
 
         # recursively iterate through until all radii are set
@@ -267,37 +265,30 @@ class TreeHandler:
         """
 
         # create initial set of nodes that touch the black
-        initial_list = []
+        current_set = set()
         current_radius_value = 0
 
         for node in self.node_dict.values():
-            node.clean_up_node()
-            if node.radius == current_radius_value and not node.removed:
-                initial_list.append(node)
+            if node.radius == current_radius_value:
+                current_set.add(node)
 
-        current_list = initial_list
-
-        while current_list:
+        while current_set:
+            print(len(current_set))
             current_radius_value += 1
 
-            next_list = []
+            next_set = set()
 
-            for node in current_list:
-
-                node.clean_up_node()
+            for node in current_set:
 
                 for neighbor in node.neighbors:
-                    if neighbor and not neighbor.is_skeleton and neighbor.radius == current_radius_value:
-                        if neighbor not in current_list and neighbor not in next_list :
-                            next_list.append(neighbor)
+                    if neighbor and neighbor.radius == current_radius_value:
+                        if neighbor not in current_set:
+                            next_set.add(neighbor)
 
-                if self.check_if_skeleton(node):
-                    node.is_skeleton = True
-                else:
-                    node.removed = True
-                    self.current_nodecount -= 1
+                if not self.check_if_skeleton(node):
+                    self.remove_node(node)
 
-            current_list = next_list
+            current_set = next_set
 
     def check_if_skeleton(self, node):
         """
@@ -364,8 +355,6 @@ class TreeHandler:
         while current_set:
             next_set = set()
             for node in current_set:
-                # clean up the node first
-                node.clean_up_node()
 
                 # add its neighbors with radius = current_radius+1 to next set
                 node_is_covered = False
@@ -374,15 +363,8 @@ class TreeHandler:
                         next_set.add(neighbor)
                         node_is_covered = True
 
-                # if it does have a covering neighbor, attach its parents to its children and remove it
                 if node_is_covered:
-                    for parent in node.parents:
-                        for child in node.children:
-                            parent.set_child(child)
-                            child.parents.discard(node)
-                        parent.children.discard(node)
-                    node.removed = True
-                    self.current_nodecount -= 1
+                    self.remove_node(node)
 
             current_set = next_set
 
@@ -392,9 +374,6 @@ class TreeHandler:
         # remove short 'branches' (actually just bumps on root edges)
         self.remove_short_branches()
 
-        # clean up node_dict one final time before we send it to the root parser
-        self.remove_removed_nodes()
-
     def rebuild_trees(self):
         """
 
@@ -402,15 +381,13 @@ class TreeHandler:
         """
         # update the set of all_seed_nodes (find the closest remaining node to each seed node)
         new_seed_nodes = set()
+
         for node in self.all_seed_nodes:
             key = (node.y, node.x)
-            out_key = self.find_best_node(key)
-            new_seed_nodes.add(self.node_dict[out_key])
+            new_seed = self.find_best_node(key)
+            new_seed_nodes.add(new_seed)
 
         self.all_seed_nodes = new_seed_nodes
-
-        # remove all .removed nodes from node_dict
-        self.remove_removed_nodes()
 
         # reset parent and child fields
         for node in self.node_dict.values():
@@ -425,27 +402,11 @@ class TreeHandler:
             for node in current_set:
                 for neighbor in node.neighbors:
                     if neighbor and neighbor not in current_set and neighbor not in previous_set:
-                        if not neighbor.removed and not neighbor.parents:
+                        if not neighbor.parents:
                             node.set_child(neighbor)
                             next_set.add(neighbor)
             previous_set = current_set
             current_set = next_set
-
-    def remove_removed_nodes(self):
-        """
-
-        :return:
-        """
-        # find all removed nodes
-        removed_set = set()
-
-        for key in self.node_dict:
-            if self.node_dict[key].removed:
-                removed_set.add(key)
-
-        # pop them from the dictionary
-        for key in removed_set:
-            self.node_dict.pop(key, None)
 
     def cleanup_right_angles(self):
         """

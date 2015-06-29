@@ -1,14 +1,17 @@
 #neuronroot
 
 #to do:
-- implement average radius & total length output
-- check for node->north->east sequences (etc) and replace them with node->northeast connections
-- investigate the possibility of auto-removing all radius-0 nodes as the last step
-- investigate the possibility of true deletion of nodes at all stages instead of lazy deletion
-- check for unnecessary algorithmic complexity in redundant-node function - it's very, very slow
-- implement smartroot-style cross detection / graph-cycle cross detection
-- add statistical output
-- add user interface
+- check for node->north->east sequences (etc) and replace them with node->northeast connections [0.7]
+- investigate the possibility of auto-removing all radius-0 nodes as the last step [0.7]
+- implement average radius & total length output [0.8]
+- implement smartroot-style cross detection / graph-cycle cross detection [0.9]
+- add statistical output [1.0]
+- add user interface [1.0]
+
+#v0.6
+- Implemented true deletion of nodes, replacing lazy deletion
+- Added code to preserve general parent-child relationships when intermediate nodes are deleted
+- Caught a bug in redundant-node pruning, cutting runtime from ~11 minutes to <10 seconds
 
 #v0.5
 - Complete rewrite to take advantage of new flowing reconstruction schema and (y,x) indexed dictionary

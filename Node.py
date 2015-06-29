@@ -28,12 +28,12 @@ class Node:
     #                               6   5   4
     neighbors = None
 
+    # Toggle to make sure this node is only visited once for tree sizing
+    visited = False
+
     # Parents and children of this node, stored as references to the relatives themselves.
     parents = None
     children = None
-
-    # Toggle for lazy deletion - true deletion would break the mass operator for covered sets
-    removed = False
 
     # Toggle to represent a skeleton node that can be ignored in printing
     is_skeleton = False
@@ -57,18 +57,6 @@ class Node:
         self.neighbors = [None, None, None, None, None, None, None, None]  # 8 items allow location-based placement
         self.parents = set()
         self.children = set()
-
-    def __repr__(self):
-        """
-        :return: String displaying a node's information
-        """
-        return str((self.y, self.x))
-
-    def __str__(self):
-        """
-        :return: A simple representation of the node: its key ID
-        """
-        return str((self.y, self.x))
 
     def set_child(self, child):
         """
@@ -136,35 +124,3 @@ class Node:
             if diff_x == 1:
                 self.neighbors[4] = neighbor
                 neighbor.neighbors[0] = self
-
-    def clean_up_node(self):
-        """
-        Cleans up the children, parents, and neighbors of this node to remove references to .removed nodes.
-        """
-
-        # Clean up children field
-        remove_set = set()
-        for node in self.children:
-            if node.removed:
-                remove_set.add(node)
-        for node in remove_set:
-            self.children.discard(node)
-
-        # Clean up parents field
-        remove_set.clear()
-        for node in self.parents:
-            if node.removed:
-                remove_set.add(node)
-        for node in remove_set:
-            self.parents.discard(node)
-
-        # Clean up neighbors field
-        remove_set.clear()
-        for i in range(8):
-            if self.neighbors[i]:
-                if self.neighbors[i].removed:
-                    remove_set.add(i)
-        for i in remove_set:
-            self.neighbors[i] = None
-
-
