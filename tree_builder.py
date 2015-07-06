@@ -15,6 +15,7 @@ class TreeBuilder:
 
     # Contains the tree structures being built in the format {(int y, int x) : Pixel}
     # WARNING: This is only a shallow copy of AreaBuilder's pixel_dict, and changes to one affect the other.
+    # This is also copied by RootBuilder, and is likely to be unreliable after RootBuilder is initialized.
     pixel_dict = None
 
     # A Pixel object that best approximates a user's click location. Is the most reliable starting point for tree

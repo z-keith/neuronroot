@@ -155,7 +155,9 @@ class Controller:
         print("\t- Printed skeletal outline in {0}".format(self.print_timestamp()))
 
     def build_roots(self):
-        pass
+
+        print("\nBuilding root structures:")
+        self.root_builder = root_builder.RootBuilder(self.tree_builder.pixel_dict)
 
     def print_timestamp(self):
         """
