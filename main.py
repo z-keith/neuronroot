@@ -38,7 +38,7 @@ def main():
 
     # complete!
     print("\n#####################################################################")
-    print("#\t Program complete! Total runtime: {0}  \t#".format(current_controller.print_total_time()))
+    print("#\t Program complete! Total runtime: {0}\t#".format(current_controller.print_total_time()))
     print("#####################################################################")
 
 main()

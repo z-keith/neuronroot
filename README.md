@@ -1,14 +1,17 @@
 #neuronroot
 
 #to do:
-- implement basic root construction abilities [0.8]
-- implement average radius & total length output [0.8]
-- implement short-'root' removal [0.9]
+- implement short-'root' removal and relevant print functions [0.8.1]
 - implement Smartroot-style cross detection / graph-cycle cross detection [0.9]
 - investigate the possibility of auto-removing all radius-0 nodes as the last step (see note in 0.7 patch notes) [0.9]
 - add statistical output [1.0]
 - add user interface [1.0]
 - add automated nodule detection [???]
+
+#v0.8
+- Implemented basic root construction abilities (roots connect at endpoints to form skeleton - no root has a branch anywhere but at the beginning or end)
+- Implemented average radius & total length output on individual and aggregate level
+- Noticed that the result of prune_redundant_nodes is not fixed, even on the same file. Need to fix that (perhaps with a sorted list of pixels to iterate through, instead of the unsorted dictionary?) 
 
 #v0.7
 - Program now checks for pixel->north->east sequences (etc) and replaces them with pixel->northeast connections. This eliminates the appearance of a 2-px wide skeleton for nearly diagonal roots.

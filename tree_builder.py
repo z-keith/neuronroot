@@ -150,6 +150,7 @@ class TreeBuilder:
         else:
             return True
 
+    #TODO: Find a way to make prune_redundant_pixels deterministic (currently varies by about 1%)
     def prune_redundant_pixels(self):
         """
         Iteratively strips the outermost set of pixels from the dictionary, leaving only those touching black space on
