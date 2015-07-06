@@ -1,7 +1,7 @@
 #neuronroot
 
 #to do:
-- implement basic root construction abilities
+- implement basic root construction abilities [0.8]
 - implement average radius & total length output [0.8]
 - implement short-'root' removal [0.9]
 - implement Smartroot-style cross detection / graph-cycle cross detection [0.9]
