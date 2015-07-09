@@ -240,15 +240,15 @@ class TreeBuilder:
         Removes any pixels that are completely covered by a neighboring pixel.
         :return: Nothing.
         """
-        current_set = set()
+        current_list = []
         current_radius = 0
-        for pixel in self.pixel_dict.values():
+        for pixel in sorted(self.pixel_dict.values(), key=self.getkey):
             if pixel.radius == current_radius:
-                current_set.add(pixel)
+                current_list.append(pixel)
 
-        while current_set:
-            next_set = set()
-            for pixel in current_set:
+        while current_list:
+            next_list = []
+            for pixel in current_list:
 
                 pixel_is_covered = False
 
@@ -257,13 +257,13 @@ class TreeBuilder:
                 # pixel's is guaranteed to cover all the area that the original pixel does
                 for neighbor in pixel.neighbors:
                     if neighbor and neighbor.radius > pixel.radius:
-                        next_set.add(neighbor)
+                        next_list.append(neighbor)
                         pixel_is_covered = True
 
                 if pixel_is_covered:
                     self.remove_pixel(pixel)
 
-            current_set = next_set
+            current_list = next_list
 
     def set_tree_relationships(self):
         """

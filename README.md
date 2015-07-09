@@ -2,13 +2,14 @@
 An automated solution to root system image analysis
 
 #to do:
+- stabilize whatever is changing in the root construction function to sometimes break 293 [0.8]
 - implement Smartroot-style cross detection / graph-cycle cross detection [0.9]
 - add statistical output [1.0]
 - add user interface [1.0]
 - add automated nodule detection [???]
 
 #known bugs/issues:
-- tree relations are not always set optimally, which leads to incorrect root outputs
+- tree relations are not always set optimally, which leads to incorrect root outputs. running the program again fixes the most egregious of these
 - program is not set up for automatically pulling from a directory
 - program does not include user selection of seed point
 
