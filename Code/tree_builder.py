@@ -8,7 +8,7 @@
 #               to representative 1-px wide skeletons
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-import config
+from Code import config
 
 
 class TreeBuilder:

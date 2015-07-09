@@ -11,7 +11,7 @@ from PIL import Image
 from scipy import ndimage
 import numpy as np
 
-import config
+from Code import config
 
 
 class ArrayBuilder:

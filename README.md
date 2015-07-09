@@ -1,18 +1,24 @@
 #neuronroot
 
 #to do:
-- implement short-'root' removal and relevant print functions [0.8.1]
-- fix prune_redundant_nodes to have consistent output [0.8.1]
 - implement Smartroot-style cross detection / graph-cycle cross detection [0.9]
-- investigate the possibility of auto-removing all radius-0 nodes as the last step (see note in 0.7 patch notes) [0.9]
 - add statistical output [1.0]
 - add user interface [1.0]
 - add automated nodule detection [???]
 
+#known bugs/issues:
+- prune_redundant_pixels removes an inconsistent number of pixels
+- tree relations are not always set optimally, which leads to incorrect root outputs
+- program is not set up for automatically pulling from a directory
+- program does not include user selection of seed point
+
 #v0.8
 - Implemented basic root construction abilities (roots connect at endpoints to form skeleton - no root has a branch anywhere but at the beginning or end)
 - Implemented average radius & total length output on individual and aggregate level
-- Noticed that the result of prune_redundant_nodes is not fixed, even on the same file. Need to fix that (perhaps with a sorted list of pixels to iterate through, instead of the unsorted dictionary?) 
+- Noticed that the result of prune_redundant_pixels is not fixed, even on the same file. Need to fix that (perhaps with a sorted list of pixels to iterate through, instead of the unsorted dictionary?)
+- Implemented short-'root' removal and root printer. It works pretty well! I think it reveals some flaws in tree construction, though. Going to have to backtrack a bit and see what's going wrong, exactly.
+- Doesn't look like there is any benefit to removing radius-0 pixels, as short-root removal handles it just fine
+- Reorganized folders to separate input and output, and code from design tools
 
 #v0.7
 - Program now checks for pixel->north->east sequences (etc) and replaces them with pixel->northeast connections. This eliminates the appearance of a 2-px wide skeleton for nearly diagonal roots.

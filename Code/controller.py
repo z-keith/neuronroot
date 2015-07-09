@@ -9,10 +9,7 @@
 
 import time
 
-import config
-import array_builder
-import area_builder
-import tree_builder
+from Code import tree_builder, array_builder, root_builder, printer, config, area_builder
 import root_builder
 import printer
 
@@ -167,6 +164,15 @@ class Controller:
         print("- Calculated initial root average radii and total lengths in {0}".format(self.print_timestamp()))
         print("\t- Total root length (unrefined): {0} px.".format(round(self.root_builder.total_root_length, 2)))
         print("\t- Overall average radius (unrefined): {0} px.".format(round(self.root_builder.average_radius, 2)))
+
+        self.root_builder.remove_short_roots()
+        print("- Removed short roots in {0}".format(self.print_timestamp()))
+        print("\t- Total number of remaining roots: {0}".format(len(self.root_builder.root_dict)))
+
+        self.root_builder.update_only_total_statistics()
+        print("- Calculated post-removal root average radii and total lengths in {0}".format(self.print_timestamp()))
+        print("\t- Total root length: {0} px.".format(round(self.root_builder.total_root_length, 2)))
+        print("\t- Overall average radius: {0} px.".format(round(self.root_builder.average_radius, 2)))
 
     def print_roots(self):
 

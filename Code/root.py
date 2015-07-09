@@ -12,6 +12,8 @@ import math
 
 class Root:
 
+    key = None
+
     pixel_list = None
 
     parent_root = None
@@ -22,9 +24,10 @@ class Root:
 
     average_radius = None
 
-    def __init__(self, pixel_list):
+    def __init__(self, pixel_list, key):
         self.pixel_list = pixel_list
         self.branch_list = []
+        self.key = key
 
     def calculate_root_statistics(self):
         """
@@ -47,3 +50,22 @@ class Root:
 
         self.total_length = total_length
         self.average_radius = total_radius/len(self.pixel_list)
+
+    def remove_edge_root(self):
+
+        to_remove = None
+
+        for branch_tuple in self.parent_root.branch_list:
+            if branch_tuple[1] is self:
+                to_remove = branch_tuple
+                break
+
+        if to_remove:
+            self.parent_root.branch_list.remove(to_remove)
+        else:
+            print("FAIL")
+
+        if self.parent_root.branch_list:
+            return None
+        else:
+            return self.parent_root

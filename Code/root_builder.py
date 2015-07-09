@@ -8,7 +8,7 @@
 #               accurate representation of the source root
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-import root as rt
+from Code import root as rt
 
 
 class RootBuilder:
@@ -41,7 +41,8 @@ class RootBuilder:
         # Trace each tree, one at a time
         for seed in self.all_seed_pixels:
 
-            initial_root = rt.Root([seed])
+            initial_root = rt.Root([seed], len(self.root_dict))
+            self.root_dict[len(self.root_dict)] = initial_root
 
             self.all_seed_roots.add(initial_root)
 
@@ -76,7 +77,7 @@ class RootBuilder:
                     for child in current_pixel.children:
                         current_pixel = child
 
-            new_root = rt.Root(pixel_list)
+            new_root = rt.Root(pixel_list, len(self.root_dict))
 
             self.root_dict[len(self.root_dict)] = new_root
             created_roots.add(new_root)
@@ -85,6 +86,31 @@ class RootBuilder:
             new_root.parent_root = start_root
 
         return created_roots
+
+    def remove_short_roots(self):
+
+        edge_roots = set()
+
+        for root in self.root_dict.values():
+            if not root.branch_list:
+                edge_roots.add(root)
+
+        while edge_roots:
+
+            next_root_set = set()
+
+            for root in edge_roots:
+
+                if root and len(root.pixel_list) < 2.5 * root.pixel_list[0].radius:
+
+                    self.remove_pixels(root.pixel_list)
+
+                    parent = root.remove_edge_root()
+                    next_root_set.add(parent)
+
+                    self.root_dict.pop(root.key, None)
+
+            edge_roots = next_root_set
 
     def update_root_statistics_and_totals(self):
 
@@ -117,3 +143,37 @@ class RootBuilder:
             total_radius += root.total_length * root.average_radius
 
         self.average_radius = total_radius / self.total_root_length
+
+    def remove_pixels(self, pixel_set):
+        """
+        Iteratively sends pixels from a set to remove_pixel
+        :param pixel_set: A set of pixel objects slated for removal
+        :return: Nothing.
+        """
+        for pixel in pixel_set:
+            self.remove_pixel(pixel)
+
+    def remove_pixel(self, pixel):
+        """
+        Cleanly remove all references to a Pixel object, without preserving overall tree structure. This is like deleting
+        the pixel, but without those nasty errors when a former neighbor references it.
+        :param pixel: The pixel to be removed.
+        :return: Nothing.
+        """
+        key = (pixel.y, pixel.x)
+
+        if pixel.children:
+            for child in pixel.children:
+                child.parents.discard(pixel)
+
+        if pixel.parents:
+            for parent in pixel.parents:
+                parent.children.discard(pixel)
+
+        for i in range(8):
+            if pixel.neighbors[i]:
+                neighbor = pixel.neighbors[i]
+                this_pixel_loc = (i+4) % 8
+                neighbor.neighbors[this_pixel_loc] = None
+
+        self.pixel_dict.pop(key, None)

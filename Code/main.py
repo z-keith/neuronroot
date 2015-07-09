@@ -7,7 +7,7 @@
 #   purpose=    Calls and manipulates the controller to perform an iteration of the analysis algorithm
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-import controller
+from Code import controller
 
 
 def main():

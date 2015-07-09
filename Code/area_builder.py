@@ -8,7 +8,7 @@
 #               representing continuous areas of the image
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-import pixel as px
+from Code import pixel as px
 
 
 class AreaBuilder:

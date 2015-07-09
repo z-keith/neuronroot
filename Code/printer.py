@@ -10,7 +10,7 @@
 from PIL import Image, ImageDraw
 import numpy as np
 
-import config
+from Code import config
 
 
 class Printer:
@@ -41,12 +41,15 @@ class Printer:
             for x in range(self.image_width):
                 for y in range(self.image_height):
                     if (y, x) in pixel_dict:
-                        self.array[y][x] = [40, 40, 40, 255]
+                        self.array[y][x] = [140, 140, 140, 255]
                     else:
-                        self.array[y][x] = [0, 0, 0, 255]
+                        self.array[y][x] = [255, 255, 255, 255]
             else:
                 for pixel in pixel_dict.values():
                     self.array[pixel.y, pixel.x] = [0, 0, 0, 255]
+
+        output_image = Image.fromarray(self.array, 'RGBA')
+        output_image.save('Output/{0}-initial-grey.tif'.format(config.file_name))
 
     def print_skeletal_outline(self, seed_pixel_set):
         """
@@ -71,7 +74,7 @@ class Printer:
             current_set = next_set
 
         output_image = Image.fromarray(self.array, 'RGBA')
-        output_image.save('TestImages/{0}-skeleton.tif'.format(config.file_name))
+        output_image.save('Output/{0}-skeleton.tif'.format(config.file_name))
 
     def increment_current_color(self, multiplier):
         """
@@ -114,7 +117,7 @@ class Printer:
         self.current_color = [255, 255, 255, 255]
         self.current_ascending = [False, False, False]
 
-        image = Image.new('RGBA', (self.image_width, self.image_height), (0, 0, 0, 255))
+        image = Image.open("Output/{0}-initial-grey.tif".format(config.file_name))
         drawer = ImageDraw.Draw(image)
 
         current_roots = all_seed_roots
@@ -134,12 +137,17 @@ class Printer:
 
                         drawer.line([previous_xy, current_xy], tuple(self.current_color))
 
-                for branch_tuple in root.branch_list:
+                    else:
 
-                    next_roots.add(branch_tuple[1])
+                        current_xy = (root.pixel_list[i].x, root.pixel_list[i].y)
+                        drawer.point(current_xy, tuple(self.current_color))
 
-                self.increment_current_color(5)
+                    for branch_tuple in root.branch_list:
+
+                        next_roots.add(branch_tuple[1])
+
+                    self.increment_current_color(5)
 
             current_roots = next_roots
 
-        image.save('TestImages/{0}-roots.tif'.format(config.file_name))
+        image.save('Output/{0}-roots.tif'.format(config.file_name))
