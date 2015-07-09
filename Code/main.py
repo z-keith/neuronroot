@@ -7,7 +7,8 @@
 #   purpose=    Calls and manipulates the controller to perform an iteration of the analysis algorithm
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-from Code import controller
+# noinspection PyUnresolvedReferences
+import controller
 
 
 def main():

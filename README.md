@@ -8,7 +8,6 @@ An automated solution to root system image analysis
 - add automated nodule detection [???]
 
 #known bugs/issues:
-- prune_redundant_pixels removes an inconsistent number of pixels
 - tree relations are not always set optimally, which leads to incorrect root outputs
 - program is not set up for automatically pulling from a directory
 - program does not include user selection of seed point
@@ -21,6 +20,8 @@ An automated solution to root system image analysis
 - Implemented short-'root' removal and root printer. It works pretty well! I think it reveals some flaws in tree construction, though. Going to have to backtrack a bit and see what's going wrong, exactly.
 - Doesn't look like there is any benefit to removing radius-0 pixels, as short-root removal handles it just fine
 - Reorganized folders to separate input and output, and code from design tools
+- prune_redundant_pixels removes a consistent number of pixels, and prioritizes removing lower-intensity pixels
+- Similarly, the root creation and short-root pruning now have consistent outputs. These last two changes greatly increased reconstruction quality. 
 
 ##v0.7
 - Program now checks for pixel->north->east sequences (etc) and replaces them with pixel->northeast connections. This eliminates the appearance of a 2-px wide skeleton for nearly diagonal roots.

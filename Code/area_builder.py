@@ -8,7 +8,8 @@
 #               representing continuous areas of the image
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-from Code import pixel as px
+# noinspection PyUnresolvedReferences,PyUnresolvedReferences,PyUnresolvedReferences
+import pixel as px
 
 
 class AreaBuilder:

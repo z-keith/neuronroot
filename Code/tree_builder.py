@@ -8,11 +8,11 @@
 #               to representative 1-px wide skeletons
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-from Code import config
+# noinspection PyUnresolvedReferences
+import config
 
 
 class TreeBuilder:
-
     # Contains the tree structures being built in the format {(int y, int x) : Pixel}
     # WARNING: This is only a shallow copy of AreaBuilder's pixel_dict, and changes to one affect the other.
     # This is also copied by RootBuilder, and is likely to be unreliable after RootBuilder is initialized.
@@ -133,9 +133,9 @@ class TreeBuilder:
                 pixel.is_visited = True
                 for neighbor in pixel.neighbors:
                     if neighbor and (neighbor not in previous_set) and (neighbor not in current_set):
-                            if not neighbor.is_visited:
-                                next_set.add(neighbor)
-                                pixel_set.add(neighbor)
+                        if not neighbor.is_visited:
+                            next_set.add(neighbor)
+                            pixel_set.add(neighbor)
 
             if not next_set:
                 next_set_exists = False
@@ -150,7 +150,6 @@ class TreeBuilder:
         else:
             return True
 
-    #TODO: Find a way to make prune_redundant_pixels deterministic (currently varies by about 1%)
     def prune_redundant_pixels(self):
         """
         Iteratively strips the outermost set of pixels from the dictionary, leaving only those touching black space on
@@ -158,12 +157,14 @@ class TreeBuilder:
         intricate-garbage offshoots we'll deal with in the next several steps)
         :return: Nothing.
         """
+        current_list = []
         current_set = set()
         current_radius_value = 0
 
         # Build initial edge set
-        for pixel in self.pixel_dict.values():
+        for pixel in sorted(self.pixel_dict.values(), key=self.getkey):
             if pixel.radius == current_radius_value:
+                current_list.append(pixel)
                 current_set.add(pixel)
 
         # Iteratively build the next set and call check_if_skeleton on the current set, removing pixels that aren't part
@@ -171,19 +172,26 @@ class TreeBuilder:
         while current_set:
             current_radius_value += 1
 
+            next_list = []
             next_set = set()
 
-            for pixel in current_set:
+            for pixel in current_list:
 
                 for neighbor in pixel.neighbors:
                     if neighbor and neighbor.radius == current_radius_value:
-                        if neighbor not in current_set:
+                        if neighbor not in current_set and neighbor not in next_set:
+                            next_list.append(neighbor)
                             next_set.add(neighbor)
 
                 if not self.check_if_skeleton(pixel):
                     self.remove_pixel(pixel)
 
+            current_list = next_list
             current_set = next_set
+
+    @staticmethod
+    def getkey(pixel):
+        return pixel.intensity
 
     def check_if_skeleton(self, pixel):
         """
@@ -226,7 +234,7 @@ class TreeBuilder:
 
         # Find every interruption in a linear progression of locations, recording each as a broken sequence
         for i in range(len(loc_list) - 1):
-            if loc_list[i+1] - loc_list[i] is not 1:
+            if loc_list[i + 1] - loc_list[i] is not 1:
                 sequence_count += 1
 
         # Return True for lists representing multiple sequences
@@ -296,10 +304,10 @@ class TreeBuilder:
         Removes certain inefficient connection patterns that make some roots appear to have 2-pixel wide skeletons
         :return: Nothing.
         """
-        all_pixels = set()
+        all_pixels = list()
 
         for pixel in self.pixel_dict.values():
-            all_pixels.add(pixel)
+            all_pixels.append(pixel)
 
         for pixel in all_pixels:
 
@@ -365,7 +373,7 @@ class TreeBuilder:
         for i in range(8):
             if pixel.neighbors[i]:
                 neighbor = pixel.neighbors[i]
-                this_pixel_loc = (i+4) % 8
+                this_pixel_loc = (i + 4) % 8
                 neighbor.neighbors[this_pixel_loc] = None
 
         self.pixel_dict.pop(key, None)

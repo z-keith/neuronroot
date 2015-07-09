@@ -11,7 +11,6 @@ import math
 
 
 class Root:
-
     key = None
 
     pixel_list = None
@@ -41,15 +40,15 @@ class Root:
 
             total_radius += self.pixel_list[i].radius
 
-            if i>0:
+            if i > 0:
                 # Use the distance formula
-                delta_x = self.pixel_list[i].x - self.pixel_list[i-1].x
-                delta_y = self.pixel_list[i].y - self.pixel_list[i-1].y
-                segment_length = math.sqrt(delta_x**2 + delta_y**2)
+                delta_x = self.pixel_list[i].x - self.pixel_list[i - 1].x
+                delta_y = self.pixel_list[i].y - self.pixel_list[i - 1].y
+                segment_length = math.sqrt(delta_x ** 2 + delta_y ** 2)
                 total_length += segment_length
 
         self.total_length = total_length
-        self.average_radius = total_radius/len(self.pixel_list)
+        self.average_radius = total_radius / len(self.pixel_list)
 
     def remove_edge_root(self):
         """

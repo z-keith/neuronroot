@@ -10,11 +10,11 @@
 from PIL import Image, ImageDraw
 import numpy as np
 
-from Code import config
+# noinspection PyUnresolvedReferences
+import config
 
 
 class Printer:
-
     array = None
 
     image_height = None
@@ -31,7 +31,7 @@ class Printer:
         Creates a representation of the Pixel objects contained in pixel_dict
         :param pixel_dict: A dictionary of form {(y, x): Pixel} to be printed
         :return: Nothing. Upon successful run, self.array contains a dark outline for error checking purposes and the
-        same array will be printed to the Output folder with -initial-grey appended to the filename
+        same array will be printed to the Output folder with -grey appended to the filename
         """
         self.array = np.zeros((self.image_height, self.image_width, 4), dtype=np.uint8)
 
@@ -50,7 +50,7 @@ class Printer:
                     self.array[pixel.y, pixel.x] = [0, 0, 0, 255]
 
         output_image = Image.fromarray(self.array, 'RGBA')
-        output_image.save('Output/{0}-initial-grey.tif'.format(config.file_name))
+        output_image.save('Output/{0}-1-grey.tif'.format(config.file_name[-3:]))
 
     def print_skeletal_outline(self, seed_pixel_set):
         """
@@ -68,14 +68,14 @@ class Printer:
             for pixel in current_set:
                 self.array[pixel.y, pixel.x] = self.current_color
                 for child in pixel.children:
-                        next_set.add(child)
+                    next_set.add(child)
 
             self.increment_current_color(1)
 
             current_set = next_set
 
         output_image = Image.fromarray(self.array, 'RGBA')
-        output_image.save('Output/{0}-skeleton.tif'.format(config.file_name))
+        output_image.save('Output/{0}-2-skeleton.tif'.format(config.file_name[-3:]))
 
     def increment_current_color(self, multiplier):
         """
@@ -124,7 +124,7 @@ class Printer:
         self.current_color = [255, 255, 255, 255]
         self.current_ascending = [False, False, False]
 
-        image = Image.open("Output/{0}-initial-grey.tif".format(config.file_name))
+        image = Image.open("Output/{0}-1-grey.tif".format(config.file_name[-3:]))
         drawer = ImageDraw.Draw(image)
 
         current_roots = all_seed_roots
@@ -137,10 +137,10 @@ class Printer:
 
                 for i in range(len(root.pixel_list)):
 
-                    if i>0:
+                    if i > 0:
 
                         current_xy = (root.pixel_list[i].x, root.pixel_list[i].y)
-                        previous_xy = (root.pixel_list[i-1].x, root.pixel_list[i-1].y)
+                        previous_xy = (root.pixel_list[i - 1].x, root.pixel_list[i - 1].y)
                         drawer.line([previous_xy, current_xy], tuple(self.current_color))
 
                     else:
@@ -149,11 +149,10 @@ class Printer:
                         drawer.point(current_xy, tuple(self.current_color))
 
                     for branch_tuple in root.branch_list:
-
                         next_roots.add(branch_tuple[1])
 
                     self.increment_current_color(5)
 
             current_roots = next_roots
 
-        image.save('Output/{0}-roots.tif'.format(config.file_name))
+        image.save('Output/{0}-3-roots.tif'.format(config.file_name[-3:]))

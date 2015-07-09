@@ -9,9 +9,18 @@
 
 import time
 
-from Code import tree_builder, array_builder, root_builder, printer, config, area_builder
+# noinspection PyUnresolvedReferences
+import tree_builder
+# noinspection PyUnresolvedReferences
+import array_builder
+# noinspection PyUnresolvedReferences
 import root_builder
+# noinspection PyUnresolvedReferences
 import printer
+# noinspection PyUnresolvedReferences,PyUnresolvedReferences
+import config
+# noinspection PyUnresolvedReferences
+import area_builder
 
 
 class Controller:
@@ -217,9 +226,9 @@ class Controller:
 
         print("- Final statistics:")
         print("\t- Total root length: {0} cm."
-              .format(round(self.root_builder.total_root_length*config.cm_per_pixel, 3)))
+              .format(round(self.root_builder.total_root_length*config.cm_per_pixel, 2)))
         print("\t- Overall average diameter : {0} cm."
-              .format(round(2*self.root_builder.average_radius*config.cm_per_pixel, 3)))
+              .format(round(2*self.root_builder.average_radius*config.cm_per_pixel, 2)))
 
     def print_roots(self):
 

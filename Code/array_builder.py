@@ -11,7 +11,8 @@ from PIL import Image
 from scipy import ndimage
 import numpy as np
 
-from Code import config
+# noinspection PyUnresolvedReferences
+import config
 
 
 class ArrayBuilder:

@@ -8,7 +8,8 @@
 #               accurate representation of the source root
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-from Code import root as rt
+# noinspection PyUnresolvedReferences
+import root as rt
 
 
 class RootBuilder:
@@ -52,10 +53,10 @@ class RootBuilder:
             self.all_seed_roots.add(initial_root)
 
             # Iteratively create all child roots from the initial point
-            root_queue = {initial_root}
+            root_queue = [initial_root]
             while root_queue:
-                for output_root in self.trace_along_children(root_queue.pop()):
-                    root_queue.add(output_root)
+                for output_root in self.trace_along_children(root_queue.pop(0)):
+                    root_queue.append(output_root)
 
     def trace_along_children(self, start_root):
         """
@@ -65,7 +66,7 @@ class RootBuilder:
         create_initial_roots to be used as start_roots in the future.
         """
 
-        created_roots = set()
+        created_roots = []
 
         for current_pixel in start_root.pixel_list[-1].children:
 
@@ -97,7 +98,7 @@ class RootBuilder:
 
             # Add the new root to the dictionary for future use and to the return set
             self.root_dict[len(self.root_dict)] = new_root
-            created_roots.add(new_root)
+            created_roots.append(new_root)
 
         return created_roots
 
