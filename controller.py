@@ -168,6 +168,12 @@ class Controller:
         print("\t- Total root length (unrefined): {0} px.".format(round(self.root_builder.total_root_length, 2)))
         print("\t- Overall average radius (unrefined): {0} px.".format(round(self.root_builder.average_radius, 2)))
 
+    def print_roots(self):
+
+        print("\nPrinting root representation:")
+        self.printer.print_by_root(self.root_builder.all_seed_roots)
+        print("\t- Printed root representation in {0}".format(self.print_timestamp()))
+
     def print_timestamp(self):
         """
         Creates a representation of the time since the last time this function was called

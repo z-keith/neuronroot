@@ -34,7 +34,7 @@ class Root:
         total_length = 0
         total_radius = 0
 
-        for i in range(0, len(self.pixel_list)-1):
+        for i in range(len(self.pixel_list)):
 
             total_radius += self.pixel_list[i].radius
 

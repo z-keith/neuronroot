@@ -2,6 +2,7 @@
 
 #to do:
 - implement short-'root' removal and relevant print functions [0.8.1]
+- fix prune_redundant_nodes to have consistent output [0.8.1]
 - implement Smartroot-style cross detection / graph-cycle cross detection [0.9]
 - investigate the possibility of auto-removing all radius-0 nodes as the last step (see note in 0.7 patch notes) [0.9]
 - add statistical output [1.0]

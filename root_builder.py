@@ -37,10 +37,7 @@ class RootBuilder:
         self.all_seed_roots = set()
 
     def create_initial_roots(self):
-        """
 
-        :return:
-        """
         # Trace each tree, one at a time
         for seed in self.all_seed_pixels:
 

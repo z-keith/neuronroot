@@ -7,7 +7,7 @@
 #   purpose=    Outputs diagnostic images of program results to image files
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-from PIL import Image
+from PIL import Image, ImageDraw
 import numpy as np
 
 import config
@@ -108,3 +108,38 @@ class Printer:
             self.current_color[2] -= (4 * multiplier)
             if self.current_color[2] < 60:
                 self.current_ascending[2] = True
+
+    def print_by_root(self, all_seed_roots):
+
+        self.current_color = [255, 255, 255, 255]
+        self.current_ascending = [False, False, False]
+
+        image = Image.new('RGBA', (self.image_width, self.image_height), (0, 0, 0, 255))
+        drawer = ImageDraw.Draw(image)
+
+        current_roots = all_seed_roots
+
+        while current_roots:
+
+            next_roots = set()
+
+            for root in current_roots:
+
+                for i in range(len(root.pixel_list)):
+
+                    if i>0:
+
+                        current_xy = (root.pixel_list[i].x, root.pixel_list[i].y)
+                        previous_xy = (root.pixel_list[i-1].x, root.pixel_list[i-1].y)
+
+                        drawer.line([previous_xy, current_xy], tuple(self.current_color))
+
+                for branch_tuple in root.branch_list:
+
+                    next_roots.add(branch_tuple[1])
+
+                self.increment_current_color(5)
+
+            current_roots = next_roots
+
+        image.save('TestImages/{0}-roots.tif'.format(config.file_name))

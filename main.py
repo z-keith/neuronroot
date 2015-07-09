@@ -36,6 +36,9 @@ def main():
     # build root structures with a RootBuilder
     current_controller.build_roots()
 
+    # reuse the Printer to print a representation of the roots
+    current_controller.print_roots()
+
     # complete!
     print("\n#####################################################################")
     print("#\t Program complete! Total runtime: {0}\t#".format(current_controller.print_total_time()))
