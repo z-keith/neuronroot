@@ -52,9 +52,14 @@ class Root:
         self.average_radius = total_radius/len(self.pixel_list)
 
     def remove_edge_root(self):
+        """
+        Remove a root from its parent's branch list.
+        :return: Returns the parent if it is now an edge root itself, and None otherwise.
+        """
 
         to_remove = None
 
+        # Find this in the parent's branch list
         for branch_tuple in self.parent_root.branch_list:
             if branch_tuple[1] is self:
                 to_remove = branch_tuple
@@ -62,8 +67,6 @@ class Root:
 
         if to_remove:
             self.parent_root.branch_list.remove(to_remove)
-        else:
-            print("FAIL")
 
         if self.parent_root.branch_list:
             return None

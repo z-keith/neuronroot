@@ -30,7 +30,8 @@ class Printer:
         """
         Creates a representation of the Pixel objects contained in pixel_dict
         :param pixel_dict: A dictionary of form {(y, x): Pixel} to be printed
-        :return: Nothing. Upon successful run, self.array contains a dark outline for error checking purposes
+        :return: Nothing. Upon successful run, self.array contains a dark outline for error checking purposes and the
+        same array will be printed to the Output folder with -initial-grey appended to the filename
         """
         self.array = np.zeros((self.image_height, self.image_width, 4), dtype=np.uint8)
 
@@ -56,8 +57,8 @@ class Printer:
         Prints a representation of the parent-child connections in a set of trees, colorized with a gradient for easy
         visual tracing and error checking.
         :param seed_pixel_set: The set of seed pixels to start drawing from.
-        :return: Nothing. Upon successful completion, the image can be found in the same folder as the source image,
-        with "-skeleton" appended to the original filename.
+        :return: Nothing. Upon successful completion, the image can be found in the output folder, with "-skeleton"
+        appended to the original filename.
         """
         current_set = seed_pixel_set
 
@@ -113,6 +114,12 @@ class Printer:
                 self.current_ascending[2] = True
 
     def print_by_root(self, all_seed_roots):
+        """
+        Prints a representation of the root connections flowing from the roots in all_seed_roots
+        :param all_seed_roots: An iterable containing Root objects to print from
+        :return: Nothing. Upon successful completion, the image can be found in the Output folder with -roots appended
+        to the filename
+        """
 
         self.current_color = [255, 255, 255, 255]
         self.current_ascending = [False, False, False]
@@ -134,7 +141,6 @@ class Printer:
 
                         current_xy = (root.pixel_list[i].x, root.pixel_list[i].y)
                         previous_xy = (root.pixel_list[i-1].x, root.pixel_list[i-1].y)
-
                         drawer.line([previous_xy, current_xy], tuple(self.current_color))
 
                     else:

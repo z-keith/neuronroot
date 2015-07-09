@@ -17,6 +17,9 @@ file_name = ""
 # location of the initial seed point for tracing
 seedYX = (0, 0)
 
+# size of a
+cm_per_pixel = 0
+
 # height to scale images to
 image_scaled_height = 6000
 
@@ -32,19 +35,24 @@ def initialize():
 
     global file_name
     global seedYX
+    global cm_per_pixel
 
     if current_file == 2:
         file_name = "2015-04-22-Pai-002"
         seedYX = (92, 233)
+        cm_per_pixel = 1
 
     if current_file == 293:
         file_name = "2014-06-24-Tri-293"
         seedYX = (74, 1035)
+        cm_per_pixel = 1/105
 
     if current_file == 2930:
         file_name = "2014-06-24-Tri-293-ORIGINAL"
         seedYX = (148, 2070)
+        cm_per_pixel = 1/1050
 
     if current_file == 329:
         file_name = "2014-06-26-Tri-329"
         seedYX = (432, 901)
+        cm_per_pixel = 1/115

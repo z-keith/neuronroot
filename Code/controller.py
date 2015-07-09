@@ -152,27 +152,74 @@ class Controller:
         print("\t- Printed skeletal outline in {0}".format(self.print_timestamp()))
 
     def build_roots(self):
+        """
+        Function to build a series of Root objects to represent the trees in a pixel_dict. It creates the roots, removes
+        short invalid roots, and untangles them by correctly combining them into longer roots.
+        :return: Nothing. Upon successful completion, root_builder.root_dict contains all the roots, and
+        root_builder.all_seed_roots contains the start points to use them.
+        """
 
         print("\nBuilding root structures:")
         self.root_builder = root_builder.RootBuilder(self.tree_builder.pixel_dict, self.tree_builder.all_seed_pixels)
 
         self.root_builder.create_initial_roots()
-        print("- Constructed initial roots in {0}".format(self.print_timestamp()))
-        print("\t- Total number of initial roots: {0}".format(len(self.root_builder.root_dict)))
+        initial_root_count = len(self.root_builder.root_dict)
+        print("- Constructed initial roots in {0}"
+              .format(self.print_timestamp()))
+        print("\t- Total number of initial roots: {0}"
+              .format(initial_root_count))
 
         self.root_builder.update_root_statistics_and_totals()
-        print("- Calculated initial root average radii and total lengths in {0}".format(self.print_timestamp()))
-        print("\t- Total root length (unrefined): {0} px.".format(round(self.root_builder.total_root_length, 2)))
-        print("\t- Overall average radius (unrefined): {0} px.".format(round(self.root_builder.average_radius, 2)))
+        initial_root_length = round(self.root_builder.total_root_length, 1)
+        initial_average_radius = round(self.root_builder.average_radius, 1)
+        print("- Calculated initial root average radii and total lengths in {0}"
+              .format(self.print_timestamp()))
+        print("\t- Total root length (unrefined): {0} px."
+              .format(initial_root_length))
+        print("\t- Overall average radius (unrefined): {0} px."
+              .format(initial_average_radius))
 
         self.root_builder.remove_short_roots()
-        print("- Removed short roots in {0}".format(self.print_timestamp()))
-        print("\t- Total number of remaining roots: {0}".format(len(self.root_builder.root_dict)))
+        removed_short_roots = initial_root_count - len(self.root_builder.root_dict)
+        removed_percentage = round(100 * (removed_short_roots / initial_root_count), 1)
+        print("- Removed invalid short roots in {0}"
+              .format(self.print_timestamp()))
+        print("\t- Total short roots removed: {0} ({1}% of original count)"
+              .format(removed_short_roots, removed_percentage))
 
         self.root_builder.update_only_total_statistics()
-        print("- Calculated post-removal root average radii and total lengths in {0}".format(self.print_timestamp()))
-        print("\t- Total root length: {0} px.".format(round(self.root_builder.total_root_length, 2)))
-        print("\t- Overall average radius: {0} px.".format(round(self.root_builder.average_radius, 2)))
+        removed_short_length = round(initial_root_length - self.root_builder.total_root_length, 1)
+        removed_short_radius_percent_of_initial = round(100*self.root_builder.average_radius/initial_average_radius, 1)
+        print("- Calculated post-removal root average radii and total lengths in {0}"
+              .format(self.print_timestamp()))
+        print("\t- Total root length removed: {0} px. ({1}% of original length)"
+              .format(removed_short_length, round(100*removed_short_length/initial_root_length, 1)))
+        print("\t- Overall average radius: {0} px. ({1}% of original value)"
+              .format(round(self.root_builder.average_radius, 1), removed_short_radius_percent_of_initial))
+
+        self.root_builder.untangle_roots()
+        roots_lost_to_combination = initial_root_count - removed_short_roots - len(self.root_builder.root_dict)
+        removed_percentage = round(100 * (roots_lost_to_combination / initial_root_count), 1)
+        print("- Combined and untangled roots in {0}"
+              .format(self.print_timestamp()))
+        print("\t- Roots lost to combination: {0} ({1}% of original count)"
+              .format(roots_lost_to_combination, removed_percentage))
+        print("\t- Final root count: {0}"
+              .format(len(self.root_builder.root_dict)))
+
+        self.root_builder.update_root_statistics_and_totals()
+        print("- Calculated final root average radii and total lengths in {0}"
+              .format(self.print_timestamp()))
+        print("\t- Final total root length: {0} px."
+              .format(round(self.root_builder.total_root_length, 1)))
+        print("\t- Overall average radius : {0} px."
+              .format(round(self.root_builder.average_radius, 1)))
+
+        print("- Final statistics:")
+        print("\t- Total root length: {0} cm."
+              .format(round(self.root_builder.total_root_length*config.cm_per_pixel, 3)))
+        print("\t- Overall average diameter : {0} cm."
+              .format(round(2*self.root_builder.average_radius*config.cm_per_pixel, 3)))
 
     def print_roots(self):
 

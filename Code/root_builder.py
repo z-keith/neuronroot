@@ -37,6 +37,11 @@ class RootBuilder:
         self.all_seed_roots = set()
 
     def create_initial_roots(self):
+        """
+        Creates initial set of roots. On this pass, roots end whenever they meet a branching point, which yields two or
+        more child roots.
+        :return:
+        """
 
         # Trace each tree, one at a time
         for seed in self.all_seed_pixels:
@@ -46,20 +51,26 @@ class RootBuilder:
 
             self.all_seed_roots.add(initial_root)
 
+            # Iteratively create all child roots from the initial point
             root_queue = {initial_root}
-
             while root_queue:
                 for output_root in self.trace_along_children(root_queue.pop()):
                     root_queue.add(output_root)
 
     def trace_along_children(self, start_root):
+        """
+
+        :param start_root: A Root to find children of
+        :return: The roots created as offshoots of start_root, as a set. They're passed back into the root_queue in
+        create_initial_roots to be used as start_roots in the future.
+        """
 
         created_roots = set()
 
         for current_pixel in start_root.pixel_list[-1].children:
 
+            # Build a pixel_list to the next branch or endpoint
             pixel_list = [start_root.pixel_list[-1]]
-
             not_at_branch = True
             root_not_ended = True
 
@@ -79,15 +90,27 @@ class RootBuilder:
 
             new_root = rt.Root(pixel_list, len(self.root_dict))
 
-            self.root_dict[len(self.root_dict)] = new_root
-            created_roots.add(new_root)
+            # Connect the parent root to the new root
             branch_location = len(start_root.pixel_list) - 1
             start_root.branch_list.append((branch_location, new_root))
             new_root.parent_root = start_root
 
+            # Add the new root to the dictionary for future use and to the return set
+            self.root_dict[len(self.root_dict)] = new_root
+            created_roots.add(new_root)
+
         return created_roots
 
     def remove_short_roots(self):
+        """
+        Remove 'roots' that are relatively too short to truly represent roots. These tend to show up as perpendicular
+        roots within real roots,
+        :return: Nothing.
+        """
+
+        # Proportion of the branch point's radius that the total length has to be to avoid removal.
+        # Lower multipliers remove less incorrect roots, but also don't incorrectly remove real roots
+        radius_multiplier = 2.5
 
         edge_roots = set()
 
@@ -101,7 +124,7 @@ class RootBuilder:
 
             for root in edge_roots:
 
-                if root and len(root.pixel_list) < 2.5 * root.pixel_list[0].radius:
+                if root and len(root.pixel_list) < radius_multiplier * root.pixel_list[0].radius:
 
                     self.remove_pixels(root.pixel_list)
 
@@ -112,7 +135,18 @@ class RootBuilder:
 
             edge_roots = next_root_set
 
+    def untangle_roots(self):
+        """
+
+        :return:
+        """
+        pass
+
     def update_root_statistics_and_totals(self):
+        """
+        Recalculates the statistics for each individual root, then calculates the aggregate statistics.
+        :return: Nothing.
+        """
 
         self.average_radius = 0
         self.total_root_length = 0
@@ -130,6 +164,10 @@ class RootBuilder:
         self.average_radius = total_radius / self.total_root_length
 
     def update_only_total_statistics(self):
+        """
+        Only recalculates the aggregate statistics- use only when roots have been deleted, but not changed.
+        :return: Nothing.
+        """
 
         self.average_radius = 0
         self.total_root_length = 0
@@ -155,8 +193,8 @@ class RootBuilder:
 
     def remove_pixel(self, pixel):
         """
-        Cleanly remove all references to a Pixel object, without preserving overall tree structure. This is like deleting
-        the pixel, but without those nasty errors when a former neighbor references it.
+        Cleanly remove all references to a Pixel object, without preserving overall tree structure. This is like
+        deleting the pixel, but without those nasty errors when a former neighbor references it.
         :param pixel: The pixel to be removed.
         :return: Nothing.
         """
