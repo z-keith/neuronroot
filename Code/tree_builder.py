@@ -29,10 +29,6 @@ class TreeBuilder:
     initial_pixel_count = None
     previous_pixel_count = None
 
-    # Trash set for handling deletion from pixel_dict when other functions are iterating over it.
-    # TODO: implement a better way to handle trash, like in right_angles
-    trash = None
-
     def __init__(self, pixel_dict):
         self.pixel_dict = pixel_dict
         self.all_seed_pixels = set()
@@ -89,7 +85,12 @@ class TreeBuilder:
         are removed.
         :return: Nothing.
         """
+        all_pixels = set()
+
         for pixel in self.pixel_dict.values():
+            all_pixels.add(pixel)
+
+        for pixel in all_pixels:
 
             if None not in pixel.neighbors:
 
@@ -98,10 +99,6 @@ class TreeBuilder:
                     if self.check_area_for_size(pixel):
                         self.all_seed_pixels.add(pixel)
 
-        # Take out trash (avoid repeat deletion attempts!)
-        self.remove_pixels(self.trash)
-        self.trash = set()
-
     def check_area_for_size(self, start_pixel):
         """
         Iteratively add the neighbors of a set of pixels to an overall pixel set. If their total area is too small to
@@ -109,7 +106,6 @@ class TreeBuilder:
         :param start_pixel: The pixel to start the area tracing from.
         :return: True if the area is valid, False otherwise.
         """
-        # TODO: rewrite this to keep a pixel count and break immediately upon reaching config.minimum_tree_size
 
         pixel_set = {start_pixel}
 
@@ -144,8 +140,7 @@ class TreeBuilder:
                 current_set = next_set
 
         if len(pixel_set) < config.minimum_tree_size:
-            for pixel in pixel_set:
-                self.trash.add(pixel)
+            self.remove_pixels(pixel_set)
             return False
         else:
             return True
@@ -277,8 +272,6 @@ class TreeBuilder:
         :return: Nothing.
         """
         # Ensure that the seed pixels haven't been removed and update them if they have
-        # TODO: change all_seed_pixels to store locations, not nodes. Write a function to return the set of pixels
-        # represented by the seed_pixels
         new_seed_pixels = set()
         for pixel in self.all_seed_pixels:
             key = (pixel.y, pixel.x)
