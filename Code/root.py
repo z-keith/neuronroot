@@ -95,11 +95,16 @@ class Root:
             dot = (vector_near_end_self[0]*vector_near_start_other[0] + vector_near_end_self[1]*vector_near_start_other[1])
             len_self = math.sqrt(vector_near_end_self[0]**2 + vector_near_end_self[1]**2)
             len_other = math.sqrt(vector_near_start_other[0]**2 + vector_near_start_other[1]**2)
-            angle_cos = dot/(len_other*len_self)
-            angle_radians = math.acos(angle_cos)
-
-            # Score the direction component out of 100
-            vector_score = 100 - 100*(angle_radians/(2*math.pi))
+            if len_other and len_self:
+                angle_cos = round(dot/(len_other*len_self), 3)
+                try:
+                    angle_radians = math.acos(angle_cos)
+                except ValueError:
+                    print(dot, len_other, len_self, angle_cos)
+                # Score the direction component out of 100
+                vector_score = 100 - 100*(angle_radians/(2*math.pi))
+            else:
+                vector_score = 50
 
         else:
 
@@ -163,8 +168,13 @@ class Root:
         """
         total_length = len(self.pixel_list)
 
-        if total_length < 5:
-            return self.average_radius
+        if not total_length:
+            return 0
+        elif total_length < 5:
+            total_radius = 0
+            for i in range(total_length):
+                total_radius += self.pixel_list[i].radius
+            return total_radius/total_length
         else:
             total_radius = 0
             for i in range(5):
@@ -178,10 +188,56 @@ class Root:
         """
         total_length = len(self.pixel_list)
 
-        if total_length < 5:
-            return self.average_radius
+        if not total_length:
+            return 0
+        elif total_length < 5:
+            total_radius = 0
+            for i in range(total_length):
+                total_radius += self.pixel_list[i].radius
+            return total_radius/total_length
         else:
             total_radius = 0
             for i in range(total_length-5, total_length):
                 total_radius += self.pixel_list[i].radius
             return total_radius/5
+
+    def combine(self, other):
+        """
+
+        :param other:
+        :return:
+        """
+
+        # Remove the first element of other's pixel list [it's the same as self's last element]
+        other.pixel_list = other.pixel_list[1:]
+
+        # Increase the index of all branches in other by the length of self
+        # Append each member of other's branch list to self's
+        branch_index_change = len(self.pixel_list)
+        for branch in other.branch_list:
+            new_branch = (branch[0], branch[1])
+            self.branch_list.append(new_branch)
+
+        # Append each member of other's pixel list to self's
+        for pixel in other.pixel_list:
+            self.pixel_list.append(pixel)
+
+        to_remove = None
+        # Remove other from self's branch list
+        for branch_tuple in self.branch_list:
+            if branch_tuple[1] is other:
+                to_remove = branch_tuple
+                break
+        if to_remove:
+            self.branch_list.remove(to_remove)
+
+        # Set each of other's branches' parent to self
+        for branch_tuple in other.branch_list:
+            branch_tuple[1].parent_root = self
+
+        # Invalidate self's statistics
+        self.average_radius = None
+        self.total_length = None
+
+        # Return other's key (to be popped from the root_dict)
+        return other.key

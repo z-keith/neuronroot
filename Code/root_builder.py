@@ -148,7 +148,44 @@ class RootBuilder:
         :return: Nothing. Upon successful completion, all_seed_roots can be traced to create the final representation
         """
 
-        pass
+        for root in self.all_seed_roots:
+            root_queue = [root]
+            while root_queue:
+                for output_root in self.connect_roots(root_queue.pop(0)):
+                    root_queue.append(output_root)
+
+    def connect_roots(self, start_root):
+        """
+
+        :param start_root:
+        :return:
+        """
+
+        next_roots = []
+        to_attach = (-1, None)
+
+        for offshoot in start_root.branch_list:
+            score = start_root.score_candidate_branch(offshoot[1])
+            if score > to_attach[0]:
+                to_attach = (score, offshoot[1])
+            if offshoot[1].branch_list:
+                next_roots.append(offshoot[1])
+
+        if to_attach[1]:
+            removal_key = start_root.combine(to_attach[1])
+            self.root_dict.pop(removal_key, None)
+
+            to_remove = None
+            for next_root in next_roots:
+                if next_root == to_attach[1]:
+                    to_remove = next_root
+                    break
+            if to_remove:
+                next_roots.remove(to_remove)
+                next_roots.append(start_root)
+
+        return next_roots
+
 
     def update_root_statistics_and_totals(self):
         """

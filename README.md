@@ -9,6 +9,7 @@ An automated solution to root system image analysis
 - add automated nodule detection (via radius expansion detection) [???]
 
 #known bugs/issues:
+- weird yarn stuff with the root combiner (it's hilarious, trust me)
 - radii start at 0 instead of 0.5 (diameter starts at 0 instead of 1) which gives an incorrect average radius value
 - tree relations are not always set optimally, which leads to incorrect root outputs. running the program again fixes the worst of these
 - program is not set up for automatically pulling from a directory
@@ -18,6 +19,8 @@ An automated solution to root system image analysis
 ##v0.9
 - Sorted most occasions where the program iterates through a dictionary or set, making the program have largely consistent outcomes. There's still variation in the root builder that I just can't find for some reason.
 - Implemented branch-root scoring functions for root segment merging
+- Implemented root combining
+    - Currently looks like a ball of yarn that's being played with by a cat. Need to correctly locate the branch point for secondary roots instead of jumping to the end of the parent root for placement
 
 ##v0.8
 - Implemented basic root construction abilities (roots connect at endpoints to form skeleton - no root has a branch anywhere but at the beginning or end)

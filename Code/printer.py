@@ -151,7 +151,7 @@ class Printer:
                     for branch_tuple in root.branch_list:
                         next_roots.add(branch_tuple[1])
 
-                    self.increment_current_color(20)
+                self.increment_current_color(20)
 
             current_roots = next_roots
 
