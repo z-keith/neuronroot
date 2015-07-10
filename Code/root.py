@@ -79,56 +79,109 @@ class Root:
         :param other: The branch root to calculate the fit with
         :return: a float between 0 and 100 inclusive, where 100 is a perfect fit
         """
+        # The maximum difference in radius between self and other to earn any radius score
+        max_allowable_radius_difference = 4
+        # Weights on the components of the final score
         vector_weight = 0.50
-        radius_weight = 0.50
+        radius_weight = 1 - vector_weight
 
-        vector_near_end_self = self.get_ending_vector()
-        vector_near_start_other = other.get_starting_vector()
+        # Find the direction trend of the current region of each root
+        vector_near_end_self = self.get_ending_direction_vector()
+        vector_near_start_other = other.get_starting_direction_vector()
 
-        dot = (vector_near_end_self[0]*vector_near_start_other[0] + vector_near_end_self[1]*vector_near_start_other[1])
-        len_self = math.sqrt(vector_near_end_self[0]**2 + vector_near_end_self[1]**2)
-        len_other = math.sqrt(vector_near_start_other[0]**2 + vector_near_start_other[1]**2)
+        if vector_near_end_self and vector_near_start_other:
 
-        angle_cos = dot/(len_other*len_self)
-        angle_radians = math.acos(angle_cos)
+            # Find the angle between the direction vectors
+            dot = (vector_near_end_self[0]*vector_near_start_other[0] + vector_near_end_self[1]*vector_near_start_other[1])
+            len_self = math.sqrt(vector_near_end_self[0]**2 + vector_near_end_self[1]**2)
+            len_other = math.sqrt(vector_near_start_other[0]**2 + vector_near_start_other[1]**2)
+            angle_cos = dot/(len_other*len_self)
+            angle_radians = math.acos(angle_cos)
 
-        distance_from_antiparallel = abs(angle_radians - math.pi)
-        distance_from_parallel = math.pi - distance_from_antiparallel
-        vector_score = 100 - 100*(distance_from_parallel/math.pi)
+            # Score the direction component out of 100
+            vector_score = 100 - 100*(angle_radians/(2*math.pi))
 
+        else:
+
+            # Handle 1-length roots
+            vector_score = 50
+
+        # Get the average radii in the area of interest
         average_end_radius_self = self.get_average_end_radius()
         average_start_radius_other = other.get_average_start_radius()
 
+        # Score the radius component out of 100
         radius_difference = abs(average_end_radius_self - average_start_radius_other)
-
-        radius_score = max(0, 100 - 25*radius_difference)
+        radius_score = max(0, 100 - (100/max_allowable_radius_difference)*radius_difference)
 
         return vector_weight*vector_score + radius_weight*radius_score
 
-    def get_starting_vector(self):
+    def get_starting_direction_vector(self):
+        """
+        Gets the general direction represented by the first few pixels of this root
+        :return: a (y,x) coordinate pair representing the difference in y and the difference in x between the last pixel
+        of interest and the first
         """
 
-        :return:
-        """
-        pass
+        total_length = len(self.pixel_list)
 
-    def get_ending_vector(self):
+        if total_length < 2:
+            return None
+        elif total_length < 5:
+            delta_x = self.pixel_list[-1].x - self.pixel_list[0].x
+            delta_y = self.pixel_list[-1].y - self.pixel_list[0].y
+            return delta_y, delta_x
+        else:
+            delta_x = self.pixel_list[-5].x - self.pixel_list[0].x
+            delta_y = self.pixel_list[-5].y - self.pixel_list[0].y
+            return delta_y, delta_x
+
+    def get_ending_direction_vector(self):
+        """
+        Gets the general direction represented by the last few pixels of this root
+        :return: a (y,x) coordinate pair representing the difference in y and the difference in x between the last pixel
+        of interest and the first
         """
 
-        :return:
-        """
-        pass
+        total_length = len(self.pixel_list)
+
+        if total_length < 2:
+            return None
+        elif total_length < 5:
+            delta_x = self.pixel_list[-1].x - self.pixel_list[0].x
+            delta_y = self.pixel_list[-1].y - self.pixel_list[0].y
+            return delta_y, delta_x
+        else:
+            delta_x = self.pixel_list[-5].x - self.pixel_list[-1].x
+            delta_y = self.pixel_list[-5].y - self.pixel_list[-1].y
+            return delta_y, delta_x
 
     def get_average_start_radius(self):
         """
-
-        :return:
+        Gets the general radius trend represented by the first few pixels of this root
+        :return: a positive float representing the average radius in the area of interest
         """
-        pass
+        total_length = len(self.pixel_list)
+
+        if total_length < 5:
+            return self.average_radius
+        else:
+            total_radius = 0
+            for i in range(5):
+                total_radius += self.pixel_list[i].radius
+            return total_radius/5
 
     def get_average_end_radius(self):
         """
-
-        :return:
+        Gets the general radius trend represented by the last few pixels of this root
+        :return: a positive float representing the average radius in the area of interest
         """
-        pass
+        total_length = len(self.pixel_list)
+
+        if total_length < 5:
+            return self.average_radius
+        else:
+            total_radius = 0
+            for i in range(total_length-5, total_length):
+                total_radius += self.pixel_list[i].radius
+            return total_radius/5

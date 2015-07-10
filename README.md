@@ -4,10 +4,12 @@ An automated solution to root system image analysis
 #to do:
 - implement Smartroot-style cross detection / graph-cycle cross detection [0.9]
 - add statistical output [1.0]
-- add user interface [1.0]
-- add automated nodule detection [???]
+- add user interface (display initial click seed point, click ruler, show text output, update to roots image, accept / retry / flag as terrible buttons, final statistical output [1.0]
+- calibrate against existing RSA programs [1.0]
+- add automated nodule detection (via radius expansion detection) [???]
 
 #known bugs/issues:
+- radii start at 0 instead of 0.5 (diameter starts at 0 instead of 1) which gives an incorrect average radius value
 - tree relations are not always set optimally, which leads to incorrect root outputs. running the program again fixes the worst of these
 - program is not set up for automatically pulling from a directory
 - program does not include user selection of seed point or scale
@@ -15,6 +17,7 @@ An automated solution to root system image analysis
 #changelog:
 ##v0.9
 - Sorted most occasions where the program iterates through a dictionary or set, making the program have largely consistent outcomes. There's still variation in the root builder that I just can't find for some reason.
+- Implemented branch-root scoring functions for root segment merging
 
 ##v0.8
 - Implemented basic root construction abilities (roots connect at endpoints to form skeleton - no root has a branch anywhere but at the beginning or end)

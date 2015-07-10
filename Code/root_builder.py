@@ -143,7 +143,8 @@ class RootBuilder:
 
     def untangle_roots(self):
         """
-        Connects the many root segments created by create_initial_roots into coherent roots based on their orientation, length, and radius.
+        Connects the many root segments created by create_initial_roots into coherent roots based on their orientation,
+        length, and radius.
         :return: Nothing. Upon successful completion, all_seed_roots can be traced to create the final representation
         """
 
