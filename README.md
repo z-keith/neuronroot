@@ -2,18 +2,20 @@
 An automated solution to root system image analysis
 
 #to do:
-- stabilize whatever is changing in the root construction function to sometimes break 293 [0.8]
 - implement Smartroot-style cross detection / graph-cycle cross detection [0.9]
 - add statistical output [1.0]
 - add user interface [1.0]
 - add automated nodule detection [???]
 
 #known bugs/issues:
-- tree relations are not always set optimally, which leads to incorrect root outputs. running the program again fixes the most egregious of these
+- tree relations are not always set optimally, which leads to incorrect root outputs. running the program again fixes the worst of these
 - program is not set up for automatically pulling from a directory
-- program does not include user selection of seed point
+- program does not include user selection of seed point or scale
 
 #changelog:
+##v0.9
+- Sorted most occasions where the program iterates through a dictionary or set, making the program have largely consistent outcomes. There's still variation in the root builder that I just can't find for some reason.
+
 ##v0.8
 - Implemented basic root construction abilities (roots connect at endpoints to form skeleton - no root has a branch anywhere but at the beginning or end)
 - Implemented average radius & total length output on individual and aggregate level

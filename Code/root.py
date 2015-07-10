@@ -59,10 +59,11 @@ class Root:
         to_remove = None
 
         # Find this in the parent's branch list
-        for branch_tuple in self.parent_root.branch_list:
-            if branch_tuple[1] is self:
-                to_remove = branch_tuple
-                break
+        if self.parent_root:
+            for branch_tuple in self.parent_root.branch_list:
+                if branch_tuple[1] is self:
+                    to_remove = branch_tuple
+                    break
 
         if to_remove:
             self.parent_root.branch_list.remove(to_remove)
@@ -71,3 +72,63 @@ class Root:
             return None
         else:
             return self.parent_root
+
+    def score_candidate_branch(self, other):
+        """
+        Calculates the fit between this root and the branch root
+        :param other: The branch root to calculate the fit with
+        :return: a float between 0 and 100 inclusive, where 100 is a perfect fit
+        """
+        vector_weight = 0.50
+        radius_weight = 0.50
+
+        vector_near_end_self = self.get_ending_vector()
+        vector_near_start_other = other.get_starting_vector()
+
+        dot = (vector_near_end_self[0]*vector_near_start_other[0] + vector_near_end_self[1]*vector_near_start_other[1])
+        len_self = math.sqrt(vector_near_end_self[0]**2 + vector_near_end_self[1]**2)
+        len_other = math.sqrt(vector_near_start_other[0]**2 + vector_near_start_other[1]**2)
+
+        angle_cos = dot/(len_other*len_self)
+        angle_radians = math.acos(angle_cos)
+
+        distance_from_antiparallel = abs(angle_radians - math.pi)
+        distance_from_parallel = math.pi - distance_from_antiparallel
+        vector_score = 100 - 100*(distance_from_parallel/math.pi)
+
+        average_end_radius_self = self.get_average_end_radius()
+        average_start_radius_other = other.get_average_start_radius()
+
+        radius_difference = abs(average_end_radius_self - average_start_radius_other)
+
+        radius_score = max(0, 100 - 25*radius_difference)
+
+        return vector_weight*vector_score + radius_weight*radius_score
+
+    def get_starting_vector(self):
+        """
+
+        :return:
+        """
+        pass
+
+    def get_ending_vector(self):
+        """
+
+        :return:
+        """
+        pass
+
+    def get_average_start_radius(self):
+        """
+
+        :return:
+        """
+        pass
+
+    def get_average_end_radius(self):
+        """
+
+        :return:
+        """
+        pass

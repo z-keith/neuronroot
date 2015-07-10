@@ -17,7 +17,7 @@ import array_builder
 import root_builder
 # noinspection PyUnresolvedReferences
 import printer
-# noinspection PyUnresolvedReferences,PyUnresolvedReferences
+# noinspection PyUnresolvedReferences
 import config
 # noinspection PyUnresolvedReferences
 import area_builder

@@ -85,10 +85,10 @@ class TreeBuilder:
         are removed.
         :return: Nothing.
         """
-        all_pixels = set()
+        all_pixels = []
 
-        for pixel in self.pixel_dict.values():
-            all_pixels.add(pixel)
+        for pixel in sorted(self.pixel_dict.values(), key=self.getkey):
+            all_pixels.append(pixel)
 
         for pixel in all_pixels:
 
@@ -186,7 +186,7 @@ class TreeBuilder:
 
     @staticmethod
     def getkey(pixel):
-        return pixel.intensity
+        return pixel.radius, pixel.intensity
 
     def check_if_skeleton(self, pixel):
         """

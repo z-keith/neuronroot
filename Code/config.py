@@ -31,7 +31,6 @@ def initialize():
     """
     Sets the global variables for filename and seed point location
     """
-    # TODO: implement seed point and scale selection window
 
     global file_name
     global seedYX

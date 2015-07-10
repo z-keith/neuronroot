@@ -11,6 +11,56 @@
 import controller
 
 
+def compare_two_iterations():
+    c1 = controller.Controller()
+
+    c1.load_image_to_array()
+    c1.build_areas()
+    c1.build_trees()
+
+    c2 = controller.Controller()
+
+    c2.load_image_to_array()
+    c2.build_areas()
+    c2.build_trees()
+
+    set1 = set()
+    set2 = set()
+
+    for key in c1.tree_builder.pixel_dict.keys():
+        set1.add(key)
+    for key in c2.tree_builder.pixel_dict.keys():
+        set2.add(key)
+
+    print("\nPixels")
+    print("Length of c1: " + str(len(set1)))
+    print("Length of c2: " + str(len(set2)))
+
+    c1.build_roots()
+    c2.build_roots()
+
+    set1 = set()
+    set2 = set()
+    for key in c1.root_builder.pixel_dict.keys():
+        set1.add(key)
+    for key in c2.root_builder.pixel_dict.keys():
+        set2.add(key)
+
+    set3 = set()
+    set4 = set()
+    for key in c1.root_builder.root_dict.keys():
+        set3.add(key)
+    for key in c2.root_builder.root_dict.keys():
+        set4.add(key)
+
+    print("\nPost-root-build Pixels")
+    print("Length of c1: " + str(len(set1)))
+    print("Length of c2: " + str(len(set2)))
+
+    print("\nRoots")
+    print("Length of c1: " + str(len(set3)))
+    print("Length of c2: " + str(len(set4)))
+
 def main():
     """
     Function called on program initialization
@@ -46,3 +96,5 @@ def main():
     print("#####################################################################")
 
 main()
+
+# compare_two_iterations()

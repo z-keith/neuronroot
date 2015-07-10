@@ -45,6 +45,7 @@ class RootBuilder:
         """
 
         # Trace each tree, one at a time
+        # Not it
         for seed in self.all_seed_pixels:
 
             initial_root = rt.Root([seed], len(self.root_dict))
@@ -68,6 +69,7 @@ class RootBuilder:
 
         created_roots = []
 
+        # Not it
         for current_pixel in start_root.pixel_list[-1].children:
 
             # Build a pixel_list to the next branch or endpoint
@@ -86,6 +88,7 @@ class RootBuilder:
                     root_not_ended = False
 
                 else:
+                    # get the single child from the set
                     for child in current_pixel.children:
                         current_pixel = child
 
@@ -100,6 +103,7 @@ class RootBuilder:
             self.root_dict[len(self.root_dict)] = new_root
             created_roots.append(new_root)
 
+        # Not it
         return created_roots
 
     def remove_short_roots(self):
@@ -113,15 +117,16 @@ class RootBuilder:
         # Lower multipliers remove less incorrect roots, but also don't incorrectly remove real roots
         radius_multiplier = 2.5
 
-        edge_roots = set()
+        edge_roots = []
 
+        # Not it
         for root in self.root_dict.values():
             if not root.branch_list:
-                edge_roots.add(root)
+                edge_roots.append(root)
 
         while edge_roots:
 
-            next_root_set = set()
+            next_root_list = []
 
             for root in edge_roots:
 
@@ -130,17 +135,18 @@ class RootBuilder:
                     self.remove_pixels(root.pixel_list)
 
                     parent = root.remove_edge_root()
-                    next_root_set.add(parent)
+                    next_root_list.append(parent)
 
                     self.root_dict.pop(root.key, None)
 
-            edge_roots = next_root_set
+            edge_roots = next_root_list
 
     def untangle_roots(self):
         """
-
-        :return:
+        Connects the many root segments created by create_initial_roots into coherent roots based on their orientation, length, and radius.
+        :return: Nothing. Upon successful completion, all_seed_roots can be traced to create the final representation
         """
+
         pass
 
     def update_root_statistics_and_totals(self):
