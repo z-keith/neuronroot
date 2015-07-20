@@ -1,4 +1,4 @@
-#neuronroot v0.8
+#neuronroot v0.9
 An automated solution to root system image analysis
 
 #to do:
