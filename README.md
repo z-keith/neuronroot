@@ -9,6 +9,7 @@ An automated solution to root system image analysis
 - add automated nodule detection (via radius expansion detection) [???]
 
 #known bugs/issues:
+- *URGENT:* Does it make sense to preserve parent-child relationships when deleting pixels? What if we removed the internal-pixel removal and broke parent-child relationships?
 - radii start at 0 instead of 0.5 (diameter starts at 0 instead of 1) which gives an incorrect average radius value
 - program is not set up for automatically pulling from a directory
 - program does not include user selection of seed point or scale
@@ -16,7 +17,7 @@ An automated solution to root system image analysis
 #changelog:
 ##v0.9
 - Sorted most occasions where the program iterates through a dictionary or set, making the program have largely consistent outcomes. There's still variation in the root builder that I just can't find for some reason.
-- Implemented branch-root scoring functions for root segment merging
+- Implemented branch-root scoring functions and total-length remaining function for root segment merging
 - Implemented root combining
     - Doesn't work perfectly yet
 - Fixed worst of suboptimal tree construction
