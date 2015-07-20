@@ -3,11 +3,12 @@ An automated solution to root system image analysis
 
 #to do:
 - *Test method:* Build dictionary of {pixel: roots that cover it}. Look for odd results (any entry with len > 1 that isn't a branch node?)
-- *Test method:* Print only pixels with branch points in red, pixels covered by more than one root in green, and those that meet both criteria in white. There shouldn't be any red or green....  
+- *Test method:* Print only pixels with branch points in red, pixels covered by more than one root in green, and those that meet both criteria in white. There shouldn't be any red or green....
 - implement Smartroot-style cross detection / graph-cycle cross detection [0.9]
+- initial nodule search method: absolute thresholding based on root average diameter [0.9]
 - add statistical output [1.0]
 - add user interface (display initial click seed point, click ruler, show text output, update to roots image, accept / retry / flag as terrible buttons, final statistical output [1.0]
-- calibrate against existing RSA programs [1.0]
+- calibrate against existing RSA programs [1.0] ***By Aug 3***
 - add automated nodule detection (via radius expansion detection) [???]
 
 #known bugs/issues:
