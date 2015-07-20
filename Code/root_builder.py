@@ -45,19 +45,21 @@ class RootBuilder:
         """
 
         # Trace each tree, one at a time
-        # Not it
+        initial_roots = []
+
         for seed in self.all_seed_pixels:
 
             initial_root = rt.Root([seed], len(self.root_dict))
             self.root_dict[len(self.root_dict)] = initial_root
 
             self.all_seed_roots.add(initial_root)
+            initial_roots.append(initial_root)
 
             # Iteratively create all child roots from the initial point
-            root_queue = [initial_root]
-            while root_queue:
-                for output_root in self.trace_along_children(root_queue.pop(0)):
-                    root_queue.append(output_root)
+        root_queue = initial_roots
+        while root_queue:
+            for output_root in self.trace_along_children(root_queue.pop(0)):
+                root_queue.append(output_root)
 
     def trace_along_children(self, start_root):
         """
@@ -96,6 +98,7 @@ class RootBuilder:
 
             # Connect the parent root to the new root
             branch_location = len(start_root.pixel_list) - 1
+            start_root.branches_at_endpoint.append(new_root)
             start_root.branch_list.append((branch_location, new_root))
             new_root.parent_root = start_root
 
@@ -115,13 +118,13 @@ class RootBuilder:
 
         # Proportion of the branch point's radius that the total length has to be to avoid removal.
         # Lower multipliers remove less incorrect roots, but also don't incorrectly remove real roots
-        radius_multiplier = 2.5
+        radius_multiplier = 1
 
         edge_roots = []
 
         # Not it
         for root in self.root_dict.values():
-            if not root.branch_list:
+            if not root.branches_at_endpoint:
                 edge_roots.append(root)
 
         while edge_roots:
@@ -130,16 +133,54 @@ class RootBuilder:
 
             for root in edge_roots:
 
-                if root and len(root.pixel_list) < radius_multiplier * root.pixel_list[0].radius:
+                if root and len(root.pixel_list) < radius_multiplier * root.pixel_list[0].radius and root.parent_root:
 
                     self.remove_pixels(root.pixel_list)
 
                     parent = root.remove_edge_root()
-                    next_root_list.append(parent)
+                    if parent and not parent.branches_at_endpoint:
+                        next_root_list.append(parent)
 
                     self.root_dict.pop(root.key, None)
 
             edge_roots = next_root_list
+
+    def set_remaining_lengths(self):
+        """
+
+        :return:
+        """
+
+        current_list = []
+
+        for root in self.root_dict.values():
+            if not root.branches_at_endpoint:
+                current_list.append(root)
+
+        while current_list:
+
+            next_list = []
+
+            for root in current_list:
+
+                if root.remaining_length_ready():
+                    length_list = []
+                    for branch in root.branches_at_endpoint:
+                        length_list.append(branch.remaining_length)
+
+                    if length_list:
+                        root.remaining_length = max(length_list) + root.total_length
+                    else:
+                        root.remaining_length = root.total_length
+
+                    if root.parent_root:
+                        next_list.append(root.parent_root)
+
+                else:
+                    next_list.append(root)
+
+            current_list = next_list
+
 
     def untangle_roots(self):
         """
@@ -160,29 +201,35 @@ class RootBuilder:
         :param start_root:
         :return:
         """
-
         next_roots = []
         to_attach = (-1, None)
 
-        for offshoot in start_root.branch_list:
-            score = start_root.score_candidate_branch(offshoot[1])
-            if score > to_attach[0]:
-                to_attach = (score, offshoot[1])
-            if offshoot[1].branch_list:
-                next_roots.append(offshoot[1])
+        if not start_root.branches_at_endpoint:
+            pass
+
+        elif len(start_root.branches_at_endpoint) == 1:
+            to_attach = (100, start_root.branches_at_endpoint[0])
+
+        else:
+            for root in start_root.branches_at_endpoint:
+                # score = start_root.score_candidate_branch(root)
+                score = root.remaining_length
+                if score > to_attach[0]:
+                    to_attach = (score, root)
 
         if to_attach[1]:
+
+            next_roots.append(start_root)
+
+            for root in start_root.branches_at_endpoint:
+                if root is not to_attach[1]:
+                    next_roots.append(root)
+
+            for root in to_attach[1].branches_at_endpoint:
+                next_roots.append(root)
+
             removal_key = start_root.combine(to_attach[1])
             self.root_dict.pop(removal_key, None)
-
-            to_remove = None
-            for next_root in next_roots:
-                if next_root == to_attach[1]:
-                    to_remove = next_root
-                    break
-            if to_remove:
-                next_roots.remove(to_remove)
-                next_roots.append(start_root)
 
         return next_roots
 

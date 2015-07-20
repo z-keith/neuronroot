@@ -42,12 +42,12 @@ class Printer:
             for x in range(self.image_width):
                 for y in range(self.image_height):
                     if (y, x) in pixel_dict:
-                        self.array[y][x] = [140, 140, 140, 255]
+                        self.array[y][x] = [40, 40, 40, 255]
                     else:
-                        self.array[y][x] = [255, 255, 255, 255]
-            else:
-                for pixel in pixel_dict.values():
-                    self.array[pixel.y, pixel.x] = [0, 0, 0, 255]
+                        self.array[y][x] = [0, 0, 0, 255]
+        else:
+            for pixel in pixel_dict.values():
+                self.array[pixel.y, pixel.x] = [0, 0, 0, 255]
 
         output_image = Image.fromarray(self.array, 'RGBA')
         output_image.save('Output/{0}-1-grey.tif'.format(config.file_name[-3:]))

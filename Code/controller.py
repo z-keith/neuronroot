@@ -206,6 +206,10 @@ class Controller:
         print("\t- Overall average radius: {0} px. ({1}% of original value)"
               .format(round(self.root_builder.average_radius, 1), removed_short_radius_percent_of_initial))
 
+        self.root_builder.set_remaining_lengths()
+        print("- Set remaining lengths for each root in {0}"
+              .format(self.print_timestamp()))
+
         self.root_builder.untangle_roots()
         roots_lost_to_combination = initial_root_count - removed_short_roots - len(self.root_builder.root_dict)
         removed_percentage = round(100 * (roots_lost_to_combination / initial_root_count), 1)

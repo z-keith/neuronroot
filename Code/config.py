@@ -7,8 +7,8 @@
 #   purpose=    Stores global variables relating to the original image file
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-# Change this to swap between test images for testing purposes (currently supports 2, 293, 2930, and 329)
-current_file = 2
+# Change this to swap between test images for testing purposes (currently supports 293, 2930, and 329)
+current_file = 293
 
 # filename stub (the date and sample)
 # used for opening an image and naming files made from it
@@ -35,11 +35,6 @@ def initialize():
     global file_name
     global seedYX
     global cm_per_pixel
-
-    if current_file == 2:
-        file_name = "2015-04-22-Pai-002"
-        seedYX = (92, 233)
-        cm_per_pixel = 1
 
     if current_file == 293:
         file_name = "2014-06-24-Tri-293"
