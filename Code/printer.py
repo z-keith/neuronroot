@@ -50,7 +50,7 @@ class Printer:
                 self.array[pixel.y, pixel.x] = [0, 0, 0, 255]
 
         output_image = Image.fromarray(self.array, 'RGBA')
-        output_image.save('Output/{0}-1-grey.tif'.format(config.file_name[-3:]))
+        output_image.save('../Output/{0}-1-grey.tif'.format(config.file_name[-3:]))
 
     def print_skeletal_outline(self, seed_pixel_set):
         """
@@ -75,7 +75,7 @@ class Printer:
             current_set = next_set
 
         output_image = Image.fromarray(self.array, 'RGBA')
-        output_image.save('Output/{0}-2-skeleton.tif'.format(config.file_name[-3:]))
+        output_image.save('../Output/{0}-2-skeleton.tif'.format(config.file_name[-3:]))
 
     def increment_current_color(self, multiplier):
         """
@@ -90,7 +90,7 @@ class Printer:
                 self.current_ascending[0] = False
         else:
             self.current_color[0] -= (1 * multiplier)
-            if self.current_color[0] < 60:
+            if self.current_color[0] < 100:
                 self.current_ascending[0] = True
 
         # Change green field
@@ -100,7 +100,7 @@ class Printer:
                 self.current_ascending[1] = False
         else:
             self.current_color[1] -= (2 * multiplier)
-            if self.current_color[1] < 60:
+            if self.current_color[1] < 100:
                 self.current_ascending[1] = True
 
         # Change blue field (changes twice as fast as green, by default)
@@ -110,7 +110,7 @@ class Printer:
                 self.current_ascending[2] = False
         else:
             self.current_color[2] -= (4 * multiplier)
-            if self.current_color[2] < 60:
+            if self.current_color[2] < 100:
                 self.current_ascending[2] = True
 
     def print_by_root(self, all_seed_roots):
@@ -124,7 +124,7 @@ class Printer:
         self.current_color = [255, 255, 255, 255]
         self.current_ascending = [False, False, False]
 
-        image = Image.open("Output/{0}-1-grey.tif".format(config.file_name[-3:]))
+        image = Image.open("../Output/{0}-1-grey.tif".format(config.file_name[-3:]))
         drawer = ImageDraw.Draw(image)
 
         current_roots = all_seed_roots
@@ -155,4 +155,4 @@ class Printer:
 
             current_roots = next_roots
 
-        image.save('Output/{0}-3-roots.tif'.format(config.file_name[-3:]))
+        image.save('../Output/{0}-3-roots.tif'.format(config.file_name[-3:]))

@@ -35,7 +35,7 @@ class ArrayBuilder:
         Loads and scales the image from the file name defined when this ArrayBuilder was initialized.
         :return: Nothing.
         """
-        image = Image.open("TestImages/{0}.tif".format(self.file_name))
+        image = Image.open("../TestImages/{0}.tif".format(self.file_name))
 
         # Scale the image down, if necessary, to the height defined in config
         # The program can be made to run faster at the cost of precision by reducing config.image_scaled_height
