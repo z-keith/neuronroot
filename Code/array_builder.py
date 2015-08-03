@@ -95,7 +95,7 @@ class ArrayBuilder:
             for y in range(self.image_height - margin, self.image_height):
                 self.array[y, x] = 0
 
-        # Ruler (bottom 15% of image, left 60% of image)
+        # Ruler (bottom 20% of image, left 60% of image)
         for x in range(0, int(0.6*self.image_width)):
-            for y in range(int(0.85*self.image_height), self.image_height):
+            for y in range(int(0.8*self.image_height), self.image_height):
                 self.array[y, x] = 0

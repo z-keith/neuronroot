@@ -9,6 +9,8 @@
 
 # noinspection PyUnresolvedReferences
 import controller
+# noinspection PyUnresolvedReferences
+import config
 
 
 def compare_two_iterations():
@@ -95,6 +97,8 @@ def main():
     print("#\t Program complete! Total runtime: {0}\t#".format(current_controller.print_total_time()))
     print("#####################################################################")
 
-main()
+for val in [293, 329, 426, 427, 428]:
+    config.current_file = val
+    main()
 
 # compare_two_iterations()
