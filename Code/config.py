@@ -24,7 +24,15 @@ cm_per_pixel = 0
 image_scaled_height = 2000
 
 # minimum size of a tree to be considered not-noise
-minimum_tree_size = 0.25 * image_scaled_height
+minimum_tree_size = 0.15 * image_scaled_height
+
+# contains pair of (y,x) tuples representing the printable rectangle of the image
+area_whitelist = None
+
+# contains pairs of (y,x) tuples representing the non-printable regions within the whitelist region
+area_blacklist = []
+
+margin_ratio = 0.015
 
 
 def initialize():
@@ -35,38 +43,47 @@ def initialize():
     global file_name
     global seedYX
     global cm_per_pixel
+    global area_whitelist
+    global area_blacklist
 
     if current_file == 293:
         multiplier = image_scaled_height/8871
         file_name = "2014-06-24-Tri-293"
         seedYX = (int(330*multiplier), int(4578*multiplier))
         cm_per_pixel = 1/(470*multiplier)
+        area_whitelist = [(0.015, 0.015), (0.985, 0.985)]
+        area_blacklist = [((0.8, 0), (1, 0.6))]
 
     if current_file == 329:
         multiplier = image_scaled_height/8032
         file_name = "2014-06-26-Tri-329"
         seedYX = (int(1729*multiplier), int(3613*multiplier))
         cm_per_pixel = 1/(465*multiplier)
+        area_whitelist = [(0.015, 0.015), (0.985, 0.985)]
+        area_blacklist = [((0.8, 0), (1, 0.6))]
 
     if current_file == 426:
         multiplier = image_scaled_height/7172
         file_name = "2014-08-14-Tri-426"
         seedYX = (int(1393*multiplier), int(6674*multiplier))
         cm_per_pixel = 1/(471*multiplier)
+        area_whitelist = [(0.015, 0.015), (0.985, 0.985)]
+        area_blacklist = [((0.8, 0), (1, 0.6))]
 
     if current_file == 427:
         multiplier = image_scaled_height/14344
         file_name = "2014-08-14-Tri-427"
         seedYX = (int(4578*multiplier), int(13346*multiplier))
         cm_per_pixel = 1/(935*multiplier)
+        area_whitelist = [(0.015, 0.015), (0.985, 0.985)]
+        area_blacklist = [((0.8, 0), (1, 0.6))]
 
     if current_file == 428:
         multiplier = image_scaled_height/9914
         file_name = "2014-08-14-Tri-428"
         seedYX = (int(5697*multiplier), int(6513*multiplier))
         cm_per_pixel = 1/(470*multiplier)
+        area_whitelist = [(0.015, 0.015), (0.985, 0.985)]
+        area_blacklist = [((0.8, 0), (1, 0.6))]
 
-    if current_file == 429:
-        file_name = "2014-08-14-Tri-429"
-        seedYX = (0, 0)
-        cm_per_pixel = 0
+

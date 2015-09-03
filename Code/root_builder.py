@@ -251,7 +251,7 @@ class RootBuilder:
 
             self.total_root_length += root.total_length
 
-            total_radius += root.total_length * (root.average_radius + 0.5)
+            total_radius += root.total_length * root.average_radius
 
         self.average_radius = total_radius / self.total_root_length
 
@@ -270,7 +270,7 @@ class RootBuilder:
 
             self.total_root_length += root.total_length
 
-            total_radius += root.total_length * (root.average_radius + 0.5)
+            total_radius += root.total_length * root.average_radius
 
         self.average_radius = total_radius / self.total_root_length
 

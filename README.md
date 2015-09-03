@@ -8,12 +8,9 @@ An automated solution to root system image analysis
 - initial nodule search method: absolute thresholding based on root average diameter [0.9]
 - add statistical output [1.0]
 - add user interface (display initial click seed point, click ruler, show text output, update to roots image, accept / retry / flag as terrible buttons, final statistical output [1.0]
-- calibrate against existing RSA programs [1.0] ***By Aug 3***
 - add automated nodule detection (via radius expansion detection) [???]
 
 #known bugs/issues:
-- *URGENT:* Does it make sense to preserve parent-child relationships when deleting pixels? What if we removed/edited the internal-pixel removal (the only function that can currently break a tree) and broke parent-child relationships?
-- radii start at 0 instead of 0.5 (diameter starts at 0 instead of 1) which gives an incorrect average radius value
 - program is not set up for automatically pulling from a directory
 - program does not include user selection of seed point or scale
 
@@ -24,6 +21,7 @@ An automated solution to root system image analysis
 - Implemented root combining
     - Doesn't work perfectly yet
 - Fixed worst of suboptimal tree construction
+- Added area whitelists/blacklists to accommodate different image formats
 
 ##v0.8
 - Implemented basic root construction abilities (roots connect at endpoints to form skeleton - no root has a branch anywhere but at the beginning or end)

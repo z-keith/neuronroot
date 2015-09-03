@@ -46,7 +46,7 @@ class Root:
 
         for i in range(len(self.pixel_list)):
 
-            total_radius += self.pixel_list[i].radius
+            total_radius += self.pixel_list[i].radius + 0.5
 
             if i > 0:
                 # Use the distance formula

@@ -71,31 +71,36 @@ class ArrayBuilder:
         :return: Nothing.
         """
 
-        # Currently removes the 1.5% of the image closest to each edge.
-        margin_ratio = 0.015
-        margin = int(self.image_height * margin_ratio)
+        # Find the locations of the edges of the whitelisted area
+        left_margin = int(config.area_whitelist[0][1]*self.image_width)
+        right_margin = int(config.area_whitelist[1][1]*self.image_width)
+        top_margin = int(config.area_whitelist[0][0]*self.image_height)
+        bottom_margin = int(config.area_whitelist[1][1]*self.image_height)
 
         # Left edge
-        for x in range(0, margin):
+        for x in range(0, left_margin):
             for y in range(0, self.image_height):
                 self.array[y, x] = 0
 
         # Right edge
-        for x in range(self.image_width-margin, self.image_width):
+        for x in range(right_margin, self.image_width):
             for y in range(0, self.image_height):
                 self.array[y, x] = 0
 
         # Top edge
-        for x in range(0, self.image_width):
-            for y in range(0, margin):
+        for x in range(left_margin, right_margin):
+            for y in range(0, top_margin):
                 self.array[y, x] = 0
 
         # Bottom edge
-        for x in range(0, self.image_width):
-            for y in range(self.image_height - margin, self.image_height):
+        for x in range(left_margin, right_margin):
+            for y in range(bottom_margin, self.image_height):
                 self.array[y, x] = 0
 
-        # Ruler (bottom 20% of image, left 60% of image)
-        for x in range(0, int(0.6*self.image_width)):
-            for y in range(int(0.8*self.image_height), self.image_height):
-                self.array[y, x] = 0
+        # Blacklisted areas
+        for area in config.area_blacklist:
+            yrange = (int(area[0][0]*self.image_height), int(area[1][0]*self.image_height))
+            xrange = (int(area[0][1]*self.image_width), int(area[1][1]*self.image_width))
+            for y in range(yrange[0], yrange[1]):
+                for x in range(xrange[0], xrange[1]):
+                    self.array[y, x] = 0

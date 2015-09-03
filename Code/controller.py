@@ -128,7 +128,7 @@ class Controller:
         self.tree_builder.set_tree_relationships()
         print("- Set parent-child relationships for trees in {0}".format(self.print_timestamp()))
 
-        self.tree_builder.prune_internal_pixels()
+        # self.tree_builder.prune_internal_pixels()
         removal_count = self.tree_builder.previous_pixel_count - len(self.tree_builder.pixel_dict)
         self.tree_builder.previous_pixel_count = len(self.tree_builder.pixel_dict)
         removed_percentage = round(100 * (removal_count / self.tree_builder.initial_pixel_count), 1)
@@ -232,7 +232,7 @@ class Controller:
         print("\t- Total root length: {0} cm."
               .format(round(self.root_builder.total_root_length*config.cm_per_pixel, 2)))
         print("\t- Overall average diameter : {0} cm."
-              .format(round(2*self.root_builder.average_radius*config.cm_per_pixel, 2)))
+              .format(round(2*self.root_builder.average_radius*config.cm_per_pixel, 4)))
 
     def print_roots(self):
 
