@@ -7,7 +7,7 @@ An automated solution to root system image analysis
 - implement Smartroot-style cross detection / graph-cycle cross detection [0.9]
 - initial nodule search method: absolute thresholding based on root average diameter [0.9]
 - add statistical output [1.0]
-- add user interface (display initial click seed point, click ruler, show text output, update to roots image, accept / retry / flag as terrible buttons, final statistical output [1.0]
+- add user interface (display initial click seed point, click ruler, show text output, update to roots image, accept / retry / flag as terrible buttons, toggle nodule search, final statistical output) [1.0]
 - add automated nodule detection (via radius expansion detection) [???]
 
 #known bugs/issues:
