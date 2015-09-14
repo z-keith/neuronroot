@@ -12,57 +12,6 @@ import controller
 # noinspection PyUnresolvedReferences
 import config
 
-
-def compare_two_iterations():
-    c1 = controller.Controller()
-
-    c1.load_image_to_array()
-    c1.build_areas()
-    c1.build_trees()
-
-    c2 = controller.Controller()
-
-    c2.load_image_to_array()
-    c2.build_areas()
-    c2.build_trees()
-
-    set1 = set()
-    set2 = set()
-
-    for key in c1.tree_builder.pixel_dict.keys():
-        set1.add(key)
-    for key in c2.tree_builder.pixel_dict.keys():
-        set2.add(key)
-
-    print("\nPixels")
-    print("Length of c1: " + str(len(set1)))
-    print("Length of c2: " + str(len(set2)))
-
-    c1.build_roots()
-    c2.build_roots()
-
-    set1 = set()
-    set2 = set()
-    for key in c1.root_builder.pixel_dict.keys():
-        set1.add(key)
-    for key in c2.root_builder.pixel_dict.keys():
-        set2.add(key)
-
-    set3 = set()
-    set4 = set()
-    for key in c1.root_builder.root_dict.keys():
-        set3.add(key)
-    for key in c2.root_builder.root_dict.keys():
-        set4.add(key)
-
-    print("\nPost-root-build Pixels")
-    print("Length of c1: " + str(len(set1)))
-    print("Length of c2: " + str(len(set2)))
-
-    print("\nRoots")
-    print("Length of c1: " + str(len(set3)))
-    print("Length of c2: " + str(len(set4)))
-
 def main():
     """
     Function called on program initialization
@@ -92,6 +41,13 @@ def main():
     # reuse the Printer to print a representation of the roots
     current_controller.print_roots()
 
+    # if the user selected it, search for nodules
+    if config.search_for_nodules:
+        current_controller.find_nodules()
+
+        # and print them
+        current_controller.print_nodules()
+
     # complete!
     print("\n#####################################################################")
     print("#\t Program complete! Total runtime: {0}\t#".format(current_controller.print_total_time()))
@@ -100,5 +56,3 @@ def main():
 for val in [293]: # , 329, 426, 427, 428]:
     config.current_file = val
     main()
-
-# compare_two_iterations()

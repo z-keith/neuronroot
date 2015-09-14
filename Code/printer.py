@@ -156,3 +156,20 @@ class Printer:
             current_roots = next_roots
 
         image.save('../Output/{0}-3-roots.tif'.format(config.file_name[-3:]))
+
+    def print_by_nodule(self, nodule_set):
+        """
+
+        :param nodule_set:
+        :return:
+        """
+
+        self.current_color = [255, 255, 255, 255]
+
+        image = Image.open("../Output/{0}-3-roots.tif".format(config.file_name[-3:]))
+        drawer = ImageDraw.Draw(image)
+
+        for pixel in nodule_set:
+            drawer.ellipse((pixel.x-pixel.radius, pixel.y-pixel.radius, pixel.x+pixel.radius, pixel.y+pixel.radius), tuple(self.current_color), tuple(self.current_color))
+
+        image.save('../Output/{0}-4-nodules.tif'.format(config.file_name[-3:]))

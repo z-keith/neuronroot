@@ -4,15 +4,13 @@ An automated solution to root system image analysis
 #to do:
 - *Test method:* Build dictionary of {pixel: roots that cover it}. Look for odd results (any entry with len > 1 that isn't a branch node?)
 - *Test method:* Print only pixels with branch points in red, pixels covered by more than one root in green, and those that meet both criteria in white. There shouldn't be any red or green....
-- implement Smartroot-style cross detection / graph-cycle cross detection [0.9]
-- initial nodule search method: absolute thresholding based on root average diameter [0.9]
+- add automated nodule detection (via radius expansion detection) [1.0]
 - add statistical output [1.0]
 - add user interface (display initial click seed point, click ruler, show text output, update to roots image, accept / retry / flag as terrible buttons, toggle nodule search, final statistical output) [1.0]
-- add automated nodule detection (via radius expansion detection) [???]
+- implement Smartroot-style cross detection / graph-cycle cross detection [postponed - possibly not necessary for initial project]
 
 #known bugs/issues:
-- program is not set up for automatically pulling from a directory
-- program does not include user selection of seed point or scale
+- there are mysterious scrap roots that are not available through root_builder.root_dict, but that turn up in a tree-based representation
 
 #changelog:
 ##v0.9
@@ -22,6 +20,8 @@ An automated solution to root system image analysis
     - Doesn't work perfectly yet
 - Fixed worst of suboptimal tree construction
 - Added area whitelists/blacklists to accommodate different image formats
+- Added global/root-based local thresholding to find nodules - it's pretty useless
+- Discovered that the junk roots can be safely removed by removing all roots of length shorter than a threshold, after completing RootBuilder. This is important for a window-based thresholding system
 
 ##v0.8
 - Implemented basic root construction abilities (roots connect at endpoints to form skeleton - no root has a branch anywhere but at the beginning or end)

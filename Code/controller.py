@@ -21,6 +21,8 @@ import printer
 import config
 # noinspection PyUnresolvedReferences
 import area_builder
+# noinspection PyUnresolvedReferences
+import nodule_finder
 
 
 class Controller:
@@ -34,6 +36,8 @@ class Controller:
     tree_builder = None
 
     root_builder = None
+
+    nodule_finder = None
 
     # Time objects for performance tracking
     start_time = None
@@ -146,8 +150,10 @@ class Controller:
 
         compression_percentage = round(100 * (1 - len(self.tree_builder.pixel_dict) /
                                               self.tree_builder.initial_pixel_count), 1)
-        print("- Total pixels in final area representation: {0}".format(self.tree_builder.previous_pixel_count))
-        print("\t- Total compression: {0}%".format(compression_percentage))
+        print("- Total pixels in final area representation: {0}"
+              .format(self.tree_builder.previous_pixel_count))
+        print("\t- Total compression: {0}%"
+              .format(compression_percentage))
 
     def print_skeleton(self):
         """
@@ -158,7 +164,8 @@ class Controller:
 
         print("\nPrinting skeleton onto gray outline:")
         self.printer.print_skeletal_outline(self.tree_builder.all_seed_pixels)
-        print("\t- Printed skeletal outline in {0}".format(self.print_timestamp()))
+        print("\t- Printed skeletal outline in {0}"
+              .format(self.print_timestamp()))
 
     def build_roots(self):
         """
@@ -225,20 +232,36 @@ class Controller:
               .format(self.print_timestamp()))
         print("\t- Final total root length: {0} px."
               .format(round(self.root_builder.total_root_length, 1)))
-        print("\t- Overall average radius : {0} px."
+        print("\t- Overall average radius: {0} px."
               .format(round(self.root_builder.average_radius, 1)))
 
         print("- Final statistics:")
         print("\t- Total root length: {0} cm."
               .format(round(self.root_builder.total_root_length*config.cm_per_pixel, 2)))
-        print("\t- Overall average diameter : {0} cm."
+        print("\t- Overall average diameter: {0} cm."
               .format(round(2*self.root_builder.average_radius*config.cm_per_pixel, 4)))
 
     def print_roots(self):
 
         print("\nPrinting root representation:")
         self.printer.print_by_root(self.root_builder.all_seed_roots)
-        print("\t- Printed root representation in {0}".format(self.print_timestamp()))
+        print("\t- Printed root representation in {0}"
+              .format(self.print_timestamp()))
+
+    def find_nodules(self):
+
+        print("\nSearching for nodules:")
+        self.nodule_finder = nodule_finder.NoduleFinder(self.root_builder.root_dict, self.root_builder.all_seed_roots)
+
+        self.nodule_finder.find_by_thresholds(self.root_builder.average_radius)
+        print("\t- Completed threshold-based search in {0}".format(self.print_timestamp()))
+        print("\t- Nodules found: {0}".format(len(self.nodule_finder.nodule_set)))
+
+    def print_nodules(self):
+
+        print("\nPrinting nodule view:")
+        self.printer.print_by_nodule(self.nodule_finder.nodule_set)
+        print("\t- Printed nodule representation in {0}".format(self.print_timestamp()))
 
     def print_timestamp(self):
         """
