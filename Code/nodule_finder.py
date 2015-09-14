@@ -54,3 +54,19 @@ class NoduleFinder:
                         self.nodule_set.add(pixel)
                     elif pixel.radius > local_radius_threshold:
                         self.nodule_set.add(pixel)
+
+    def find_by_windows(self):
+
+        # start from seed points
+        # build a pixel set up to length n or the first branch, whichever is first
+        # send that pixel set to an instance of window_search
+
+    def window_search(self, recent_pixels):
+
+        # iterate over a n pixel window (start with 30? a number dependent on the root length? higher numbers will yield more positives)
+        # add pixels from the beginning of this root until recent_pixels + new pixels = n
+        # track the current total radius and a list of radii that match the window for efficient recalculation
+        # pop the oldest pixel, add a new one to the other end, then check the status of the pixel at index n/2
+        # when a pixel is more than m times the average radius of the window, flag it (start with 2? lower numbers will yield more positives)
+        # when x out of y pixels are flagged, declare a nodule at all of them (including any unflagged) (start with 4/5? lower numbers will yield more positives)
+        # at branch points, spin off a new function and feed it the most recent n-1 radii
