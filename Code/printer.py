@@ -148,8 +148,8 @@ class Printer:
                         current_xy = (root.pixel_list[i].x, root.pixel_list[i].y)
                         drawer.point(current_xy, tuple(self.current_color))
 
-                    for branch_tuple in root.branch_list:
-                        next_roots.add(branch_tuple[1])
+                for branch_tuple in root.branch_list:
+                    next_roots.add(branch_tuple[1])
 
                 self.increment_current_color(20)
 
