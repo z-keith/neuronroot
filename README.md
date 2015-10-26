@@ -1,18 +1,19 @@
-#neuronroot v0.9.0
+#neuronroot v0.9.9
 An automated solution to root system image analysis
 
 #to do:
-- *Test method:* Build dictionary of {pixel: roots that cover it}. Look for odd results (any entry with len > 1 that isn't a branch node?)
-- *Test method:* Print only pixels with branch points in red, pixels covered by more than one root in green, and those that meet both criteria in white. There shouldn't be any red or green....
-- add automated nodule detection (via radius expansion detection) [1.0]
 - add statistical output [1.0]
-- add user interface (display initial click seed point, click ruler, show text output, update to roots image, accept / retry / flag as terrible buttons, toggle nodule search, final statistical output) [1.0]
+- add user interface (display initial click seed point, default dpi, whitelisted/blacklisted areas, show text output, update to roots image, accept / retry / flag as terrible buttons, toggle nodule search, final statistical output) [1.0]
+- add true nodule area + count calculation (gate-flow algorithm) [1.1]
 - implement Smartroot-style cross detection / graph-cycle cross detection [postponed - possibly not necessary for initial project]
-
-#known bugs/issues:
-- there are mysterious scrap roots that are not available through root_builder.root_dict, but that turn up in a tree-based representation
+- port to C++ for speed/multithreading [not currently planned, but possibly a good idea]
 
 #changelog:
+##v0.9.9
+- Added automated nodule detection and (very hacky) area calculation
+- Fixed questionable programming decision in grey-outline printing function (saves 10-20% runtime)
+- Implemented DPI detection - size calculations don't require a user input if the image has DPI metadata
+
 ##v0.9
 - Sorted most occasions where the program iterates through a dictionary or set, making the program have largely consistent outcomes. There's still variation in the root builder that I just can't find for some reason.
 - Implemented branch-root scoring functions and total-length remaining function for root segment merging

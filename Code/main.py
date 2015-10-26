@@ -53,6 +53,6 @@ def main():
     print("#\t Program complete! Total runtime: {0}\t#".format(current_controller.print_total_time()))
     print("#####################################################################")
 
-for val in [293, 329, 426, 427, 428]: # 293, 329, 426, 427, 428]:
+for val in [293]: # 293, 329, 426, 427, 428]:
     config.current_file = val
     main()

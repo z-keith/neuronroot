@@ -24,7 +24,6 @@ import area_builder
 # noinspection PyUnresolvedReferences
 import nodule_finder
 
-
 class Controller:
 
     printer = None
@@ -257,7 +256,7 @@ class Controller:
         print("\t- Completed threshold-based search in {0}".format(self.print_timestamp()))
 
         area = self.printer.count_white_px(self.nodule_finder.nodule_set)
-        print("\t- Computed nodule area (Hacky solution) in {0}".format(self.print_timestamp()))
+        print("\t- Computed nodule area (hacky solution) in {0}".format(self.print_timestamp()))
         print("\t- Estimated nodule area: {0} cm^2".format(round(area, 2)))
 
 

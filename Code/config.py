@@ -32,8 +32,6 @@ area_whitelist = None
 # contains pairs of (y,x) tuples representing the non-printable regions within the whitelist region
 area_blacklist = []
 
-margin_ratio = 0.015
-
 # toggle to store whether the user wants to find nodules
 search_for_nodules = True
 

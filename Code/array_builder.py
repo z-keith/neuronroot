@@ -39,6 +39,10 @@ class ArrayBuilder:
         warnings.simplefilter('ignore', Image.DecompressionBombWarning)
         image = Image.open("../TestImages/{0}.tif".format(self.file_name))
 
+        if image.info['dpi'][0]:
+            config.cm_per_pixel = 1 / (image.info['dpi'][0] / 2.54)
+            print("- Detected DPI of {0}".format(image.info['dpi'][0]))
+
         # Scale the image down, if necessary, to the height defined in config
         # The program can be made to run faster at the cost of precision by reducing config.image_scaled_height
         scaling_ratio = (config.image_scaled_height / float(image.size[1]))
