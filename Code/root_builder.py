@@ -118,11 +118,10 @@ class RootBuilder:
 
         # Proportion of the branch point's radius that the total length has to be to avoid removal.
         # Lower multipliers remove less incorrect roots, but also don't incorrectly remove real roots
-        radius_multiplier = 1
+        radius_multiplier = 0
 
         edge_roots = []
 
-        # Not it
         for root in self.root_dict.values():
             if not root.branches_at_endpoint:
                 edge_roots.append(root)

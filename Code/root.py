@@ -34,7 +34,7 @@ class Root:
         self.key = key
 
     def __repr__(self):
-        return str(self.key)
+        return "root " + str(self.key)
 
     def calculate_root_statistics(self):
         """
@@ -248,7 +248,7 @@ class Root:
         # Append each member of other's branch list to self's
         branch_index_change = len(self.pixel_list)
         for branch in other.branch_list:
-            new_branch = (branch[0], branch[1])
+            new_branch = (branch[0]+branch_index_change, branch[1])
             self.branch_list.append(new_branch)
 
         self.branches_at_endpoint = other.branches_at_endpoint

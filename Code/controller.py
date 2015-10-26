@@ -133,12 +133,12 @@ class Controller:
         print("- Set parent-child relationships for trees in {0}".format(self.print_timestamp()))
 
         # self.tree_builder.prune_internal_pixels()
-        removal_count = self.tree_builder.previous_pixel_count - len(self.tree_builder.pixel_dict)
-        self.tree_builder.previous_pixel_count = len(self.tree_builder.pixel_dict)
-        removed_percentage = round(100 * (removal_count / self.tree_builder.initial_pixel_count), 1)
-        print("- Removed internal areas in {0}".format(self.print_timestamp()))
-        print("\t- Total internal area removed: {0} px ({1}% of original area)".format(removal_count,
-                                                                                       removed_percentage))
+        # removal_count = self.tree_builder.previous_pixel_count - len(self.tree_builder.pixel_dict)
+        # self.tree_builder.previous_pixel_count = len(self.tree_builder.pixel_dict)
+        # removed_percentage = round(100 * (removal_count / self.tree_builder.initial_pixel_count), 1)
+        # print("- Removed internal areas in {0}".format(self.print_timestamp()))
+        # print("\t- Total internal area removed: {0} px ({1}% of original area)".format(removal_count,
+        #                                                                                removed_percentage))
 
         self.tree_builder.remove_right_angles()
         removal_count = self.tree_builder.previous_pixel_count - len(self.tree_builder.pixel_dict)
@@ -195,30 +195,30 @@ class Controller:
         print("\t- Overall average radius (unrefined): {0} px."
               .format(initial_average_radius))
 
-        self.root_builder.remove_short_roots()
-        removed_short_roots = initial_root_count - len(self.root_builder.root_dict)
-        removed_percentage = round(100 * (removed_short_roots / initial_root_count), 1)
-        print("- Removed invalid short roots in {0}"
-              .format(self.print_timestamp()))
-        print("\t- Total short roots removed: {0} ({1}% of original count)"
-              .format(removed_short_roots, removed_percentage))
-
-        self.root_builder.update_only_total_statistics()
-        removed_short_length = round(initial_root_length - self.root_builder.total_root_length, 1)
-        removed_short_radius_percent_of_initial = round(100*self.root_builder.average_radius/initial_average_radius, 1)
-        print("- Calculated post-removal root average radii and total lengths in {0}"
-              .format(self.print_timestamp()))
-        print("\t- Total root length removed: {0} px. ({1}% of original length)"
-              .format(removed_short_length, round(100*removed_short_length/initial_root_length, 1)))
-        print("\t- Overall average radius: {0} px. ({1}% of original value)"
-              .format(round(self.root_builder.average_radius, 1), removed_short_radius_percent_of_initial))
+        # self.root_builder.remove_short_roots()
+        # removed_short_roots = initial_root_count - len(self.root_builder.root_dict)
+        # removed_percentage = round(100 * (removed_short_roots / initial_root_count), 1)
+        # print("- Removed invalid short roots in {0}"
+        #       .format(self.print_timestamp()))
+        # print("\t- Total short roots removed: {0} ({1}% of original count)"
+        #       .format(removed_short_roots, removed_percentage))
+        #
+        # self.root_builder.update_only_total_statistics()
+        # removed_short_length = round(initial_root_length - self.root_builder.total_root_length, 1)
+        # removed_short_radius_percent_of_initial = round(100*self.root_builder.average_radius/initial_average_radius, 1)
+        # print("- Calculated post-removal root average radii and total lengths in {0}"
+        #       .format(self.print_timestamp()))
+        # print("\t- Total root length removed: {0} px. ({1}% of original length)"
+        #       .format(removed_short_length, round(100*removed_short_length/initial_root_length, 1)))
+        # print("\t- Overall average radius: {0} px. ({1}% of original value)"
+        #       .format(round(self.root_builder.average_radius, 1), removed_short_radius_percent_of_initial))
 
         self.root_builder.set_remaining_lengths()
         print("- Set remaining lengths for each root in {0}"
               .format(self.print_timestamp()))
 
         self.root_builder.untangle_roots()
-        roots_lost_to_combination = initial_root_count - removed_short_roots - len(self.root_builder.root_dict)
+        roots_lost_to_combination = initial_root_count - len(self.root_builder.root_dict)
         removed_percentage = round(100 * (roots_lost_to_combination / initial_root_count), 1)
         print("- Combined and untangled roots in {0}"
               .format(self.print_timestamp()))
@@ -251,11 +251,15 @@ class Controller:
     def find_nodules(self):
 
         print("\nSearching for nodules:")
-        self.nodule_finder = nodule_finder.NoduleFinder(self.root_builder.root_dict, self.root_builder.all_seed_roots)
+        self.nodule_finder = nodule_finder.NoduleFinder(self.root_builder.root_dict, self.root_builder.all_seed_roots, self.root_builder.total_root_length, self.root_builder.average_radius)
 
-        self.nodule_finder.find_by_thresholds(self.root_builder.average_radius)
+        self.nodule_finder.find_by_windows()
         print("\t- Completed threshold-based search in {0}".format(self.print_timestamp()))
-        print("\t- Nodules found: {0}".format(len(self.nodule_finder.nodule_set)))
+
+        area = self.printer.count_white_px(self.nodule_finder.nodule_set)
+        print("\t- Computed nodule area (Hacky solution) in {0}".format(self.print_timestamp()))
+        print("\t- Estimated nodule area: {0} cm^2".format(round(area, 2)))
+
 
     def print_nodules(self):
 

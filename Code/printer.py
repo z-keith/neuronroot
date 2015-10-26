@@ -20,7 +20,7 @@ class Printer:
     image_height = None
     image_width = None
 
-    current_color = [255, 255, 255, 255]
+    current_color = [255, 255, 255]
     current_ascending = [False, False, False]
 
     def __init__(self, size):
@@ -33,23 +33,11 @@ class Printer:
         :return: Nothing. Upon successful run, self.array contains a dark outline for error checking purposes and the
         same array will be printed to the Output folder with -grey appended to the filename
         """
-        self.array = np.zeros((self.image_height, self.image_width, 4), dtype=np.uint8)
+        self.array = np.zeros((self.image_height, self.image_width, 3), dtype=np.uint8)
+        for (y, x) in pixel_dict:
+            self.array[y][x] = [50, 50, 50]
 
-        # Set to True for slow print with black background, or False for quick transparent print.
-        slow_print = True
-
-        if slow_print:
-            for x in range(self.image_width):
-                for y in range(self.image_height):
-                    if (y, x) in pixel_dict:
-                        self.array[y][x] = [40, 40, 40, 255]
-                    else:
-                        self.array[y][x] = [0, 0, 0, 255]
-        else:
-            for pixel in pixel_dict.values():
-                self.array[pixel.y, pixel.x] = [0, 0, 0, 255]
-
-        output_image = Image.fromarray(self.array, 'RGBA')
+        output_image = Image.fromarray(self.array, 'RGB')
         output_image.save('../Output/{0}-1-grey.tif'.format(config.file_name[-3:]))
 
     def print_skeletal_outline(self, seed_pixel_set):
@@ -74,7 +62,7 @@ class Printer:
 
             current_set = next_set
 
-        output_image = Image.fromarray(self.array, 'RGBA')
+        output_image = Image.fromarray(self.array, 'RGB')
         output_image.save('../Output/{0}-2-skeleton.tif'.format(config.file_name[-3:]))
 
     def increment_current_color(self, multiplier):
@@ -121,7 +109,7 @@ class Printer:
         to the filename
         """
 
-        self.current_color = [255, 255, 255, 255]
+        self.current_color = [255, 255, 255]
         self.current_ascending = [False, False, False]
 
         image = Image.open("../Output/{0}-1-grey.tif".format(config.file_name[-3:]))
@@ -164,7 +152,7 @@ class Printer:
         :return:
         """
 
-        self.current_color = [255, 255, 255, 255]
+        self.current_color = [255, 255, 255]
 
         image = Image.open("../Output/{0}-3-roots.tif".format(config.file_name[-3:]))
         drawer = ImageDraw.Draw(image)
@@ -173,3 +161,23 @@ class Printer:
             drawer.ellipse((pixel.x-pixel.radius, pixel.y-pixel.radius, pixel.x+pixel.radius, pixel.y+pixel.radius), tuple(self.current_color), tuple(self.current_color))
 
         image.save('../Output/{0}-4-nodules.tif'.format(config.file_name[-3:]))
+
+    def count_white_px(self, nodule_set):
+
+        self.current_color = [255, 255, 255]
+
+        image = Image.fromarray(np.zeros((self.image_height, self.image_width, 3), dtype=np.uint8))
+
+        drawer = ImageDraw.Draw(image)
+
+        for pixel in nodule_set:
+            drawer.ellipse((pixel.x-pixel.radius, pixel.y-pixel.radius, pixel.x+pixel.radius, pixel.y+pixel.radius), tuple(self.current_color), tuple(self.current_color))
+
+        array = np.array(image)
+
+        area_px = np.count_nonzero(array)
+
+        area_cm = area_px*(config.cm_per_pixel**2)
+
+        return area_cm
+

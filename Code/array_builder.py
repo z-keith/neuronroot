@@ -10,6 +10,7 @@
 from PIL import Image
 from scipy import ndimage
 import numpy as np
+import warnings
 
 # noinspection PyUnresolvedReferences
 import config
@@ -35,6 +36,7 @@ class ArrayBuilder:
         Loads and scales the image from the file name defined when this ArrayBuilder was initialized.
         :return: Nothing.
         """
+        warnings.simplefilter('ignore', Image.DecompressionBombWarning)
         image = Image.open("../TestImages/{0}.tif".format(self.file_name))
 
         # Scale the image down, if necessary, to the height defined in config
