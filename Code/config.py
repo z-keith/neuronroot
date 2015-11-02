@@ -35,6 +35,12 @@ area_blacklist = []
 # toggle to store whether the user wants to find nodules
 search_for_nodules = True
 
+# toggle to store whether the user wants to test radii
+test_radii = False
+
+# number of radius test images to output
+testcase_count = 20
+
 
 def initialize():
     """

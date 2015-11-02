@@ -9,6 +9,8 @@
 
 from PIL import Image, ImageDraw
 import numpy as np
+import random
+import os
 
 # noinspection PyUnresolvedReferences
 import config
@@ -35,7 +37,7 @@ class Printer:
         """
         self.array = np.zeros((self.image_height, self.image_width, 3), dtype=np.uint8)
         for (y, x) in pixel_dict:
-            self.array[y][x] = [50, 50, 50]
+            self.array[y][x] = [60, 60, 60]
 
         output_image = Image.fromarray(self.array, 'RGB')
         output_image.save('../Output/{0}-1-grey.tif'.format(config.file_name[-3:]))
@@ -180,4 +182,41 @@ class Printer:
         area_cm = area_px*(config.cm_per_pixel**2)
 
         return area_cm
+
+    def print_test_radii(self, pixel_dict):
+
+        os.makedirs("../TestOutputs/", exist_ok=True)
+        os.makedirs("../TestOutputs/{0}/".format(config.file_name[-3:]), exist_ok=True)
+
+        case_set = set()
+
+        while len(case_set) < config.testcase_count-4:
+            case = random.choice(list(pixel_dict.keys()))
+            if pixel_dict[case].radius > 2:
+                case_set.add(case)
+        while len(case_set) < config.testcase_count:
+            case = random.choice(list(pixel_dict.keys()))
+            case_set.add(case)
+
+        for case in case_set:
+
+            r = pixel_dict[case].radius
+            x = pixel_dict[case].x
+            y = pixel_dict[case].y
+
+            test_array = np.zeros((2*r + 3, 2*r + 3, 3), dtype=np.uint8)
+
+            for i in range(-r-1, r+2):
+                for j in range(-r-1, r+2):
+                    if i==j==0:
+                        test_array[r+1+j][r+1+i] = [255,0,0]
+                    elif (y+j, x+i) in pixel_dict:
+                        test_array[j+(r+1)][i+(r+1)] = [255,255,255]
+
+            output_image = Image.fromarray(test_array, 'RGB')
+            print("{0}_{1}.png : r={2}".format(x, y, r))
+            output_image.save('../TestOutputs/{0}/{1}_{2}.png'.format(config.file_name[-3:], x, y))
+
+
+
 

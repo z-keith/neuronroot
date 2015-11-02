@@ -29,6 +29,10 @@ def main():
     # print the initial representation of the output with a new Printer
     current_controller.print_background()
 
+    if config.test_radii:
+        # reuse the Printer to print radius test images
+        current_controller.print_test_radii()
+
     # prune the initial representation down to a skeleton with a TreeBuilder
     current_controller.build_trees()
 
@@ -53,6 +57,6 @@ def main():
     print("#\t Program complete! Total runtime: {0}\t#".format(current_controller.print_total_time()))
     print("#####################################################################")
 
-for val in [293]: # 293, 329, 426, 427, 428]:
+for val in [293, 329, 426, 427, 428]: # 293, 329, 426, 427, 428]:
     config.current_file = val
     main()

@@ -166,6 +166,13 @@ class Controller:
         print("\t- Printed skeletal outline in {0}"
               .format(self.print_timestamp()))
 
+    def print_test_radii(self):
+
+        print("\nPrinting test radii:")
+        self.printer.print_test_radii(self.area_builder.pixel_dict)
+        print("\t- Printed {0} test cases in {1}"
+              .format(config.testcase_count, self.print_timestamp()))
+
     def build_roots(self):
         """
         Function to build a series of Root objects to represent the trees in a pixel_dict. It creates the roots, removes
