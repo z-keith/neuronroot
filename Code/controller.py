@@ -7,7 +7,7 @@
 #   purpose=    Mediates the interaction of the Builder classes, the printer, and the user interface for a single file
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-import time
+import time, math
 
 # noinspection PyUnresolvedReferences
 import tree_builder
@@ -41,6 +41,13 @@ class Controller:
     # Time objects for performance tracking
     start_time = None
     last_time = None
+
+    # Debug/testing objects
+    total_area = None
+    calculated_average_diameter = None
+    expected_length = None
+    total_length = None
+    nodule_area = None
 
     def __init__(self):
 
@@ -119,6 +126,8 @@ class Controller:
         removed_percentage = round(100 * (removal_count / self.tree_builder.initial_pixel_count), 1)
         print("- Removed small areas in {0}".format(self.print_timestamp()))
         print("\t- Total small area removed: {0} px ({1}% of original area)".format(removal_count, removed_percentage))
+
+        self.total_area = float(len(self.tree_builder.pixel_dict)) * config.cm_per_pixel**2 * ((1+math.sqrt(2))/2)
 
         self.tree_builder.prune_redundant_pixels()
         removal_count = self.tree_builder.previous_pixel_count - len(self.tree_builder.pixel_dict)
@@ -247,6 +256,11 @@ class Controller:
         print("\t- Overall average diameter: {0} cm."
               .format(round(2*self.root_builder.average_radius*config.cm_per_pixel, 4)))
 
+        self.calculated_average_diameter = 2*self.root_builder.average_radius*config.cm_per_pixel * ((1+math.sqrt(2))/2)
+        self.total_length = self.root_builder.total_root_length*config.cm_per_pixel * ((1+math.sqrt(2))/2)
+        self.expected_length = self.total_area/self.calculated_average_diameter * ((1+math.sqrt(2))/2)
+
+
     def print_roots(self):
 
         print("\nPrinting root representation:")
@@ -262,9 +276,9 @@ class Controller:
         self.nodule_finder.find_by_windows()
         print("\t- Completed threshold-based search in {0}".format(self.print_timestamp()))
 
-        area = self.printer.count_white_px(self.nodule_finder.nodule_set)
+        self.nodule_area = self.printer.count_white_px(self.nodule_finder.nodule_set) * ((1+math.sqrt(2))/2)
         print("\t- Computed nodule area (hacky solution) in {0}".format(self.print_timestamp()))
-        print("\t- Estimated nodule area: {0} cm^2".format(round(area, 2)))
+        print("\t- Estimated nodule area: {0} cm^2".format(round(self.nodule_area, 2)))
 
 
     def print_nodules(self):
@@ -272,6 +286,17 @@ class Controller:
         print("\nPrinting nodule view:")
         self.printer.print_by_nodule(self.nodule_finder.nodule_set)
         print("\t- Printed nodule representation in {0}".format(self.print_timestamp()))
+
+    def print_final_data(self):
+        print("\n#####################################################################")
+        print("#\tProgram complete! Total runtime: {0}".format(self.print_total_time()))
+        print("#\t- Measured total area: {0} cm2".format(round(self.total_area, 4)))
+        print("#\t- Measured average diameter: {0} cm".format(round(self.calculated_average_diameter, 4)))
+        print("#\t- Expected total length: {0} cm".format(round(self.expected_length, 4)))
+        print("#\t- Measured total length: {0} cm".format(round(self.total_length, 4)))
+        print("#\t- Deviation from expected length: {0}%".format(round(100*((self.total_length-self.expected_length) / self.total_length), 2)))
+        print("#\t- Measured total nodule area: {0} cm2".format(round(self.nodule_area, 4)))
+        print("#####################################################################")
 
     def print_timestamp(self):
         """

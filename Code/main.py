@@ -53,9 +53,7 @@ def main():
         current_controller.print_nodules()
 
     # complete!
-    print("\n#####################################################################")
-    print("#\t Program complete! Total runtime: {0}\t#".format(current_controller.print_total_time()))
-    print("#####################################################################")
+    current_controller.print_final_data()
 
 for val in [293, 329, 426, 427, 428]: # 293, 329, 426, 427, 428]:
     config.current_file = val

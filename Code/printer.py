@@ -185,16 +185,15 @@ class Printer:
 
     def print_test_radii(self, pixel_dict):
 
-        os.makedirs("../TestOutputs/", exist_ok=True)
-        os.makedirs("../TestOutputs/{0}/".format(config.file_name[-3:]), exist_ok=True)
+        os.makedirs("../TestOutputs", exist_ok=True)
 
         case_set = set()
 
-        while len(case_set) < config.testcase_count-4:
+        while len(case_set) < config.testcase_count*.5 and len(case_set) < len(pixel_dict):
             case = random.choice(list(pixel_dict.keys()))
             if pixel_dict[case].radius > 2:
                 case_set.add(case)
-        while len(case_set) < config.testcase_count:
+        while len(case_set) < config.testcase_count and len(case_set) < len(pixel_dict):
             case = random.choice(list(pixel_dict.keys()))
             case_set.add(case)
 
@@ -214,8 +213,7 @@ class Printer:
                         test_array[j+(r+1)][i+(r+1)] = [255,255,255]
 
             output_image = Image.fromarray(test_array, 'RGB')
-            print("{0}_{1}.png : r={2}".format(x, y, r))
-            output_image.save('../TestOutputs/{0}/{1}_{2}.png'.format(config.file_name[-3:], x, y))
+            output_image.save('../TestOutputs/{0}_{1}_{2}.png'.format(config.file_name[-3:], x, y))
 
 
 
