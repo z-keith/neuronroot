@@ -49,7 +49,7 @@ class ArrayBuilder:
         if scaling_ratio < 1:
             scaled_width = int(float(image.size[0])*scaling_ratio)
             image = image.resize((scaled_width, config.image_scaled_height))
-            config.cm_per_pixel = config.cm_per_pixel / scaling_ratio
+            config.cm_per_pixel /= scaling_ratio
 
         self.image_height = image.size[1]
         self.image_width = image.size[0]

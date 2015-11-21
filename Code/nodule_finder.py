@@ -24,6 +24,9 @@ class NoduleFinder:
     total_length = 0
     average_radius = 0
 
+    # Count of discrete nodule structures (NOT pixel count)
+    nodule_count = 0
+
     def __init__(self, root_dict, all_seed_roots, total_length, average_radius):
 
         self.root_dict = root_dict

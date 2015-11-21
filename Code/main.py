@@ -55,6 +55,11 @@ def main():
     # complete!
     current_controller.print_final_data()
 
-for val in [293, 329, 426, 427, 428]: # 293, 329, 426, 427, 428]:
+all_files_1 = [293, 308, 311, 315, 317, 320, 324, 326, 328, 329]
+all_files_2 = [335, 426, 427, 428, 429, 446, 449, 455, 459]
+
+trouble_set = [293]
+
+for val in trouble_set:
     config.current_file = val
     main()

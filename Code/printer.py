@@ -183,9 +183,95 @@ class Printer:
 
         return area_cm
 
+    def count_nodules_old(self, nodule_set):
+
+        self.current_color = [255, 255, 255]
+
+        image = Image.fromarray(np.zeros((self.image_height, self.image_width, 3), dtype=np.uint8))
+
+        drawer = ImageDraw.Draw(image)
+
+        for pixel in nodule_set:
+            drawer.ellipse((pixel.x-pixel.radius, pixel.y-pixel.radius, pixel.x+pixel.radius, pixel.y+pixel.radius), tuple(self.current_color), tuple(self.current_color))
+
+        array = np.array(image)
+
+        count = 0
+        locations = []
+
+        for x in range(array.shape[1]):
+            for y in range(array.shape[0]):
+                if array[y][x][0]==[255]:
+                    locations.append((y,x))
+
+        while locations:
+            count += 1
+            current = set()
+            current.add(locations[0])
+            while True:
+                next = set()
+                for i in current:
+                        locations.remove(i)
+                for i in current:
+                    for x in [-1, 0, 1]:
+                        for y in [-1, 0, 1]:
+                            if (i[0]+y, i[1]+x) in locations and x**2+y**2:
+                                next.add((i[0]+y, i[1]+x))
+                if len(next):
+                    current = next
+                else:
+                    break
+
+        return count
+
+    def count_nodules(self, nodule_set):
+        self.current_color = [255, 255, 255]
+        image = Image.fromarray(np.zeros((self.image_height, self.image_width, 3), dtype=np.uint8))
+        drawer = ImageDraw.Draw(image)
+        for pixel in nodule_set:
+            drawer.ellipse((pixel.x-pixel.radius, pixel.y-pixel.radius, pixel.x+pixel.radius, pixel.y+pixel.radius), tuple(self.current_color), tuple(self.current_color))
+        array = np.array(image)
+        array = np.dot(array[..., :3], [0.299, 0.587, 0.144])
+
+        # problem block begins
+
+        count = 0
+        locations = set()
+        for y in range(0, array.shape[0]):
+            for x in range(0, array.shape[1]):
+                if array[y][x]:
+                    locations.add((y,x))
+
+        #problem block ends
+
+        while locations:
+            count += 1
+            current = set()
+            for i in locations:
+                current.add(i)
+                break
+            while True:
+                next = set()
+                for i in current:
+                        locations.remove(i)
+                for i in current:
+                    for x in [-1, 0, 1]:
+                        for y in [-1, 0, 1]:
+                            if (i[0]+y, i[1]+x) in locations and x**2+y**2:
+                                next.add((i[0]+y, i[1]+x))
+                if len(next):
+                    current = next
+                else:
+                    break
+
+        return count
+
+
+
     def print_test_radii(self, pixel_dict):
 
         os.makedirs("../TestOutputs", exist_ok=True)
+        os.makedirs("../TestOutputs/" + str(config.current_file), exist_ok=True)
 
         case_set = set()
 
@@ -213,7 +299,7 @@ class Printer:
                         test_array[j+(r+1)][i+(r+1)] = [255,255,255]
 
             output_image = Image.fromarray(test_array, 'RGB')
-            output_image.save('../TestOutputs/{0}_{1}_{2}.png'.format(config.file_name[-3:], x, y))
+            output_image.save('../TestOutputs/{0}/{1}_{2}.png'.format(config.current_file, x, y))
 
 
 

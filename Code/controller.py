@@ -276,6 +276,10 @@ class Controller:
         self.nodule_finder.find_by_windows()
         print("\t- Completed threshold-based search in {0}".format(self.print_timestamp()))
 
+        self.nodule_count = self.printer.count_nodules(self.nodule_finder.nodule_set)
+        print("\t- Counted nodules in {0}".format(self.print_timestamp()))
+        print("\t- Nodules found: {0}".format(self.nodule_count))
+
         self.nodule_area = self.printer.count_white_px(self.nodule_finder.nodule_set) * ((1+math.sqrt(2))/2)
         print("\t- Computed nodule area (hacky solution) in {0}".format(self.print_timestamp()))
         print("\t- Estimated nodule area: {0} cm^2".format(round(self.nodule_area, 2)))

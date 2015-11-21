@@ -53,8 +53,9 @@ class TreeBuilder:
                     if key in self.pixel_dict:
                         largest_local = self.find_local_max_radius(self.pixel_dict[key])
                         return largest_local
-                    else:
-                        key_range += 1
+            key_range += 1
+            if key_range > 50:
+                return 0
 
     @staticmethod
     def find_local_max_radius(start_pixel):
@@ -276,7 +277,8 @@ class TreeBuilder:
         for pixel in self.all_seed_pixels:
             key = (pixel.y, pixel.x)
             new_seed = self.find_best_pixel(key)
-            new_seed_pixels.add(new_seed)
+            if new_seed:
+                new_seed_pixels.add(new_seed)
         self.all_seed_pixels = new_seed_pixels
 
         previous_set = set()
