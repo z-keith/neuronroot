@@ -24,6 +24,9 @@ class ArrayBuilder:
     # Stores the thresholded, filtered, and masked image data for delivery to another function
     array = None
 
+    # Stores the image for use in the UI
+    UI_image = None
+
     # Image dimensions
     image_height = None
     image_width = None
@@ -111,3 +114,5 @@ class ArrayBuilder:
             for y in range(yrange[0], yrange[1]):
                 for x in range(xrange[0], xrange[1]):
                     self.array[y, x] = 0
+
+        self.UI_image = Image.fromarray(self.array, 'RGB')
