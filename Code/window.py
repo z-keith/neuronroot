@@ -1,7 +1,8 @@
 from PyQt5.QtWidgets import (QWidget, QToolTip,
-    QPushButton, QLabel, QHBoxLayout)
+    QPushButton, QLabel, QHBoxLayout, QVBoxLayout, QGridLayout)
 from PyQt5.QtGui import QFont, QPixmap
-from PyQt5.QtCore import QCoreApplication
+from PyQt5.QtCore import QCoreApplication, QSize, Qt, QRect
+
 from PIL import Image
 
 import config
@@ -10,6 +11,21 @@ class MainWindow(QWidget):
 
     # Stores the reference to the program logic
     controller = None
+
+    # Stores references to UI elements
+    initial_image_frame = None
+    skeleton_image_frame = None
+    output_log_label = None
+    add_blacklist_btn = None
+    clear_blacklist_btn = None
+    select_infile_btn = None
+    select_output_btn = None
+    find_nodules_checkbox = None
+    dpi_settext = None
+    discard_redo_btn = None
+    discard_next_btn = None
+    accept_next_btn = None
+    ready_run_btn = None
 
     def __init__(self, controller):
         self.controller = controller
@@ -23,26 +39,52 @@ class MainWindow(QWidget):
 
         QToolTip.setFont(QFont('SansSerif', 10))
 
-        temp = Image.open("../TestImages/2014-06-24-Tri-293.tif")
-        temp.save("../TestImages/2014-06-24-Tri-293.jpg")
-
         hbox = QHBoxLayout(self)
-        pixmap = QPixmap("../TestImages/2014-06-24-Tri-293.jpg").scaledToHeight(580)
 
-        lbl = QLabel(self)
-        lbl.setPixmap(pixmap)
+        self.initial_image_frame = QLabel(self)
+        self.initial_image_frame.setFixedWidth(350)
+        self.initial_image_frame.setFrameShape(1)
+        self.initial_image_frame.setLineWidth(1)
+        self.initial_image_frame.setAlignment(Qt.AlignCenter)
+        self.initial_image_frame.setText("The initial image will appear here.")
+
+        self.skeleton_image_frame = QLabel(self)
+        self.skeleton_image_frame.setFixedWidth(350)
+        self.skeleton_image_frame.setFrameShape(1)
+        self.skeleton_image_frame.setLineWidth(1)
+        self.skeleton_image_frame.setAlignment(Qt.AlignCenter)
+        self.skeleton_image_frame.setText("The skeleton image will appear here.")
 
         btn = QPushButton('Run', self)
         btn.clicked.connect(self.onclick_run)
         btn.setToolTip('Analyze the current image')
 
-        hbox.addWidget(lbl)
-        hbox.addWidget(btn)
+        button_column = QVBoxLayout(self)
+        button_column.addWidget(QLabel("hello"))
+        button_column.addWidget(btn)
+
+        hbox.addWidget(self.initial_image_frame)
+        hbox.addWidget(self.skeleton_image_frame)
+        hbox.addWidget(self.nodule_image_frame)
+        hbox.addLayout(button_column)
         self.setLayout(hbox)
 
-        self.setGeometry(50, 50, 800, 600)
+        self.setGeometry(50, 50, 1000, 600)
+        self.setFixedSize(1000, 600)
         self.setWindowTitle('Neuronroot 1.0')
         self.show()
+
+    def SetLabelImage(self, label, imageFileName):
+
+        pixmap = QPixmap(imageFileName);
+        if (pixmap.isNull()):
+            return False
+
+        w = min(pixmap.width(),  label.maximumWidth())
+        h = min(pixmap.height(), label.maximumHeight())
+        pixmap = pixmap.scaled(w, h, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        label.setPixmap(pixmap)
+        return True
 
     def set_controller(self, controller):
         self.controller = controller
