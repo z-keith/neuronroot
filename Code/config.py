@@ -41,6 +41,8 @@ test_radii = False
 # number of radius test images to output
 testcase_count = 50
 
+dpi = 0
+
 
 def initialize():
     """

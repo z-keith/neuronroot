@@ -48,6 +48,7 @@ class Controller:
     expected_length = None
     total_length = None
     nodule_area = None
+    log_string = ""
 
     def __init__(self):
 
@@ -61,16 +62,17 @@ class Controller:
         :return: Nothing. Upon successful completion, array_builder.array contains a representation of the input image.
         """
 
-        print("\nLoading image {0}:".format(config.file_name))
+        self.log_string = self.log_string + "Loading image {0}:".format(config.file_name)
         self.array_builder = array_builder.ArrayBuilder(config.file_name)
 
         self.array_builder.load_to_array()
-        print("- Loaded image to array in {0}".format(self.print_timestamp()))
-        print("\t- Image size: {0}x{1}".format(self.array_builder.image_width, self.array_builder.image_height))
+        self.log_string = self.log_string + "\n- Loaded image to array in {0}".format(self.print_timestamp())
+        self.log_string = self.log_string + "\n   - Detected DPI of {0}".format(config.dpi)
+        self.log_string = self.log_string + "\n   - Image size: {0}x{1}".format(self.array_builder.image_width, self.array_builder.image_height)
 
         self.array_builder.filter_array()
         self.array_builder.mask_ruler()
-        print("- Filtered and masked array in {0}".format(self.print_timestamp()))
+        self.log_string = self.log_string + "\n- Filtered and masked array in {0}".format(self.print_timestamp())
 
     def build_areas(self):
         """
@@ -78,18 +80,18 @@ class Controller:
         :return: Nothing. Upon successful completion, area_builder.pixel_dict represents all bright pixels in the image.
         """
 
-        print("\nConstructing pixels and areas:")
+        self.log_string = self.log_string + "\n\nConstructing pixels and areas:"
         self.area_builder = area_builder.AreaBuilder()
 
         self.area_builder.load_pixels(self.array_builder.array)
-        print("- Constructed pixel_dict in {0}".format(self.print_timestamp()))
-        print("\t- Total area found on first pass: {0} px.".format(len(self.area_builder.pixel_dict)))
+        self.log_string = self.log_string + "\n- Constructed pixel_dict in {0}".format(self.print_timestamp())
+        self.log_string = self.log_string + "\n   - Total area found on first pass: {0} px.".format(len(self.area_builder.pixel_dict))
 
         self.area_builder.find_neighbors()
-        print("- Added neighbors in {0}".format(self.print_timestamp()))
+        self.log_string = self.log_string + "\n- Added neighbors in {0}".format(self.print_timestamp())
 
         self.area_builder.set_radii()
-        print("- Set radii in {0}".format(self.print_timestamp()))
+        self.log_string = self.log_string + "\n- Set radii in {0}".format(self.print_timestamp())
 
     def print_background(self):
         """
@@ -97,11 +99,11 @@ class Controller:
         :return: Nothing. Upon successful completion, printer.array contains the faint background to be drawn on later.
         """
 
-        print("\nPrinting initial area's outline:")
+        self.log_string = self.log_string + "\n\nPrinting initial area's outline:"
         self.printer = printer.Printer(self.array_builder.array.shape)
 
         self.printer.print_original_image(self.area_builder.pixel_dict)
-        print("- Printed gray outline in {0}".format(self.print_timestamp()))
+        self.log_string = self.log_string + "\n- Printed gray outline in {0}".format(self.print_timestamp())
 
     def build_trees(self):
         """
@@ -111,21 +113,21 @@ class Controller:
         tree_builder.all_seed_pixels contains the starting points of each tree.
         """
 
-        print("\nPruning areas down to trees:")
+        self.log_string = self.log_string + "\n\nPruning areas down to trees:"
         self.tree_builder = tree_builder.TreeBuilder(self.area_builder.pixel_dict)
 
         self.tree_builder.best_pixel = self.tree_builder.find_best_pixel(config.seedYX)
         self.tree_builder.all_seed_pixels.add(self.tree_builder.best_pixel)
-        print("- Found best approximation for click point in {0}".format(self.print_timestamp()))
-        print("\t- Best approximation found for click point: ({0}, {1}) with radius of {2}".format(
-            self.tree_builder.best_pixel.x, self.tree_builder.best_pixel.y, self.tree_builder.best_pixel.radius))
+        self.log_string = self.log_string + "\n- Found best approximation for click point in {0}".format(self.print_timestamp())
+        self.log_string = self.log_string + "\n   - Best approximation found for click point: ({0}, {1}) with radius of {2}".format(
+            self.tree_builder.best_pixel.x, self.tree_builder.best_pixel.y, self.tree_builder.best_pixel.radius)
 
         self.tree_builder.find_small_areas()
         removal_count = self.tree_builder.previous_pixel_count - len(self.tree_builder.pixel_dict)
         self.tree_builder.previous_pixel_count = len(self.tree_builder.pixel_dict)
         removed_percentage = round(100 * (removal_count / self.tree_builder.initial_pixel_count), 1)
-        print("- Removed small areas in {0}".format(self.print_timestamp()))
-        print("\t- Total small area removed: {0} px ({1}% of original area)".format(removal_count, removed_percentage))
+        self.log_string = self.log_string + "\n- Removed small areas in {0}".format(self.print_timestamp())
+        self.log_string = self.log_string + "\n   - Total small area removed: {0} px ({1}% of original area)".format(removal_count, removed_percentage)
 
         self.total_area = float(len(self.tree_builder.pixel_dict)) * config.cm_per_pixel**2 * ((1+math.sqrt(2))/2)
 
@@ -133,35 +135,32 @@ class Controller:
         removal_count = self.tree_builder.previous_pixel_count - len(self.tree_builder.pixel_dict)
         self.tree_builder.previous_pixel_count = len(self.tree_builder.pixel_dict)
         removed_percentage = round(100 * (removal_count / self.tree_builder.initial_pixel_count), 1)
-        print("- Removed redundant areas in {0}".format(self.print_timestamp()))
-        print("\t- Total redundant area removed: {0} px ({1}% of original area)".format(removal_count,
-                                                                                        removed_percentage))
+        self.log_string = self.log_string + "\n- Removed redundant areas in {0}".format(self.print_timestamp())
+        self.log_string = self.log_string + "\n   - Total redundant area removed: {0} px ({1}% of original area)".format(removal_count,
+                                                                                        removed_percentage)
 
         self.tree_builder.set_tree_relationships()
-        print("- Set parent-child relationships for trees in {0}".format(self.print_timestamp()))
+        self.log_string = self.log_string + "\n- Set parent-child relationships for trees in {0}".format(self.print_timestamp())
 
         # self.tree_builder.prune_internal_pixels()
         # removal_count = self.tree_builder.previous_pixel_count - len(self.tree_builder.pixel_dict)
         # self.tree_builder.previous_pixel_count = len(self.tree_builder.pixel_dict)
         # removed_percentage = round(100 * (removal_count / self.tree_builder.initial_pixel_count), 1)
         # print("- Removed internal areas in {0}".format(self.print_timestamp()))
-        # print("\t- Total internal area removed: {0} px ({1}% of original area)".format(removal_count,
+        # print("   - Total internal area removed: {0} px ({1}% of original area)".format(removal_count,
         #                                                                                removed_percentage))
 
         self.tree_builder.remove_right_angles()
         removal_count = self.tree_builder.previous_pixel_count - len(self.tree_builder.pixel_dict)
         self.tree_builder.previous_pixel_count = len(self.tree_builder.pixel_dict)
         removed_percentage = round(100 * (removal_count / self.tree_builder.initial_pixel_count), 1)
-        print("- Removed inefficient right-angle connections in {0}".format(self.print_timestamp()))
-        print("\t- Total inefficient connection area removed: {0} px ({1}% of original area)"
-              .format(removal_count, removed_percentage))
+        self.log_string = self.log_string + "\n- Removed inefficient right-angle connections in {0}".format(self.print_timestamp())
+        self.log_string = self.log_string + "\n   - Total inefficient connection area removed: {0} px ({1}% of original area)".format(removal_count, removed_percentage)
 
         compression_percentage = round(100 * (1 - len(self.tree_builder.pixel_dict) /
                                               self.tree_builder.initial_pixel_count), 1)
-        print("- Total pixels in final area representation: {0}"
-              .format(self.tree_builder.previous_pixel_count))
-        print("\t- Total compression: {0}%"
-              .format(compression_percentage))
+        self.log_string = self.log_string + "\n- Total pixels in final area representation: {0}".format(self.tree_builder.previous_pixel_count)
+        self.log_string = self.log_string + "\n   - Total compression: {0}%".format(compression_percentage)
 
     def print_skeleton(self):
         """
@@ -170,17 +169,15 @@ class Controller:
         with "-skeleton" appended to its filename
         """
 
-        print("\nPrinting skeleton onto gray outline:")
+        self.log_string = self.log_string + "\n\nPrinting skeleton onto gray outline:"
         self.printer.print_skeletal_outline(self.tree_builder.all_seed_pixels)
-        print("\t- Printed skeletal outline in {0}"
-              .format(self.print_timestamp()))
+        self.log_string = self.log_string + "\n   - Printed skeletal outline in {0}".format(self.print_timestamp())
 
     def print_test_radii(self):
 
-        print("\nPrinting test radii:")
+        self.log_string = self.log_string + "\n\nPrinting test radii:"
         self.printer.print_test_radii(self.area_builder.pixel_dict)
-        print("\t- Printed {0} test cases in {1}"
-              .format(config.testcase_count, self.print_timestamp()))
+        self.log_string = self.log_string + "\n   - Printed {0} test cases in {1}".format(config.testcase_count, self.print_timestamp())
 
     def build_roots(self):
         """
@@ -190,32 +187,27 @@ class Controller:
         root_builder.all_seed_roots contains the start points to use them.
         """
 
-        print("\nBuilding root structures:")
+        self.log_string = self.log_string + "\n\nBuilding root structures:"
         self.root_builder = root_builder.RootBuilder(self.tree_builder.pixel_dict, self.tree_builder.all_seed_pixels)
 
         self.root_builder.create_initial_roots()
         initial_root_count = len(self.root_builder.root_dict)
-        print("- Constructed initial roots in {0}"
-              .format(self.print_timestamp()))
-        print("\t- Total number of initial roots: {0}"
-              .format(initial_root_count))
+        self.log_string = self.log_string + "\n- Constructed initial roots in {0}".format(self.print_timestamp())
+        self.log_string = self.log_string + "\n   - Total number of initial roots: {0}".format(initial_root_count)
 
         self.root_builder.update_root_statistics_and_totals()
         initial_root_length = round(self.root_builder.total_root_length, 1)
         initial_average_radius = round(self.root_builder.average_radius, 1)
-        print("- Calculated initial root average radii and total lengths in {0}"
-              .format(self.print_timestamp()))
-        print("\t- Total root length (unrefined): {0} px."
-              .format(initial_root_length))
-        print("\t- Overall average radius (unrefined): {0} px."
-              .format(initial_average_radius))
+        self.log_string = self.log_string + "\n- Calculated initial root average radii and total lengths in {0}".format(self.print_timestamp())
+        self.log_string = self.log_string + "\n   - Total root length (unrefined): {0} px.".format(initial_root_length)
+        self.log_string = self.log_string + "\n   - Overall average radius (unrefined): {0} px.".format(initial_average_radius)
 
         # self.root_builder.remove_short_roots()
         # removed_short_roots = initial_root_count - len(self.root_builder.root_dict)
         # removed_percentage = round(100 * (removed_short_roots / initial_root_count), 1)
         # print("- Removed invalid short roots in {0}"
         #       .format(self.print_timestamp()))
-        # print("\t- Total short roots removed: {0} ({1}% of original count)"
+        # print("   - Total short roots removed: {0} ({1}% of original count)"
         #       .format(removed_short_roots, removed_percentage))
         #
         # self.root_builder.update_only_total_statistics()
@@ -223,38 +215,29 @@ class Controller:
         # removed_short_radius_percent_of_initial = round(100*self.root_builder.average_radius/initial_average_radius, 1)
         # print("- Calculated post-removal root average radii and total lengths in {0}"
         #       .format(self.print_timestamp()))
-        # print("\t- Total root length removed: {0} px. ({1}% of original length)"
+        # print("   - Total root length removed: {0} px. ({1}% of original length)"
         #       .format(removed_short_length, round(100*removed_short_length/initial_root_length, 1)))
-        # print("\t- Overall average radius: {0} px. ({1}% of original value)"
+        # print("   - Overall average radius: {0} px. ({1}% of original value)"
         #       .format(round(self.root_builder.average_radius, 1), removed_short_radius_percent_of_initial))
 
         self.root_builder.set_remaining_lengths()
-        print("- Set remaining lengths for each root in {0}"
-              .format(self.print_timestamp()))
+        self.log_string = self.log_string + "\n- Set remaining lengths for each root in {0}".format(self.print_timestamp())
 
         self.root_builder.untangle_roots()
         roots_lost_to_combination = initial_root_count - len(self.root_builder.root_dict)
         removed_percentage = round(100 * (roots_lost_to_combination / initial_root_count), 1)
-        print("- Combined and untangled roots in {0}"
-              .format(self.print_timestamp()))
-        print("\t- Roots lost to combination: {0} ({1}% of original count)"
-              .format(roots_lost_to_combination, removed_percentage))
-        print("\t- Final root count: {0}"
-              .format(len(self.root_builder.root_dict)))
+        self.log_string = self.log_string + "\n- Combined and untangled roots in {0}".format(self.print_timestamp())
+        self.log_string = self.log_string + "\n   - Roots lost to combination: {0} ({1}% of original count)".format(roots_lost_to_combination, removed_percentage)
+        self.log_string = self.log_string + "\n   - Final root count: {0}".format(len(self.root_builder.root_dict))
 
         self.root_builder.update_root_statistics_and_totals()
-        print("- Calculated final root average radii and total lengths in {0}"
-              .format(self.print_timestamp()))
-        print("\t- Final total root length: {0} px."
-              .format(round(self.root_builder.total_root_length, 1)))
-        print("\t- Overall average radius: {0} px."
-              .format(round(self.root_builder.average_radius, 1)))
+        self.log_string = self.log_string + "\n- Calculated final root average radii and total lengths in {0}".format(self.print_timestamp())
+        self.log_string = self.log_string + "\n   - Final total root length: {0} px.".format(round(self.root_builder.total_root_length, 1))
+        self.log_string = self.log_string + "\n   - Overall average radius: {0} px.".format(round(self.root_builder.average_radius, 1))
 
-        print("- Final statistics:")
-        print("\t- Total root length: {0} cm."
-              .format(round(self.root_builder.total_root_length*config.cm_per_pixel, 2)))
-        print("\t- Overall average diameter: {0} cm."
-              .format(round(2*self.root_builder.average_radius*config.cm_per_pixel, 4)))
+        self.log_string = self.log_string + "\n- Final statistics:"
+        self.log_string = self.log_string + "\n   - Total root length: {0} cm.".format(round(self.root_builder.total_root_length*config.cm_per_pixel, 2))
+        self.log_string = self.log_string + "\n   - Overall average diameter: {0} cm.".format(round(2*self.root_builder.average_radius*config.cm_per_pixel, 4))
 
         self.calculated_average_diameter = 2*self.root_builder.average_radius*config.cm_per_pixel * ((1+math.sqrt(2))/2)
         self.total_length = self.root_builder.total_root_length*config.cm_per_pixel * ((1+math.sqrt(2))/2)
@@ -263,44 +246,43 @@ class Controller:
 
     def print_roots(self):
 
-        print("\nPrinting root representation:")
+        self.log_string = self.log_string + "\n\nPrinting root representation:"
         self.printer.print_by_root(self.root_builder.all_seed_roots)
-        print("\t- Printed root representation in {0}"
-              .format(self.print_timestamp()))
+        self.log_string = self.log_string + "\n   - Printed root representation in {0}".format(self.print_timestamp())
 
     def find_nodules(self):
 
-        print("\nSearching for nodules:")
+        self.log_string = self.log_string + "\n\nSearching for nodules:"
         self.nodule_finder = nodule_finder.NoduleFinder(self.root_builder.root_dict, self.root_builder.all_seed_roots, self.root_builder.total_root_length, self.root_builder.average_radius)
 
         self.nodule_finder.find_by_windows()
-        print("\t- Completed threshold-based search in {0}".format(self.print_timestamp()))
+        self.log_string = self.log_string + "\n   - Completed threshold-based search in {0}".format(self.print_timestamp())
 
         self.nodule_count = self.printer.count_nodules(self.nodule_finder.nodule_set)
-        print("\t- Counted nodules in {0}".format(self.print_timestamp()))
-        print("\t- Nodules found: {0}".format(self.nodule_count))
+        self.log_string = self.log_string + "\n   - Counted nodules in {0}".format(self.print_timestamp())
+        self.log_string = self.log_string + "\n   - Nodules found: {0}".format(self.nodule_count)
 
         self.nodule_area = self.printer.count_white_px(self.nodule_finder.nodule_set) * ((1+math.sqrt(2))/2)
-        print("\t- Computed nodule area (hacky solution) in {0}".format(self.print_timestamp()))
-        print("\t- Estimated nodule area: {0} cm^2".format(round(self.nodule_area, 2)))
+        self.log_string = self.log_string + "\n   - Computed nodule area (hacky solution) in {0}".format(self.print_timestamp())
+        self.log_string = self.log_string + "\n   - Estimated nodule area: {0} cm^2".format(round(self.nodule_area, 2))
 
 
     def print_nodules(self):
 
-        print("\nPrinting nodule view:")
+        self.log_string = self.log_string + "\n\nPrinting nodule view:"
         self.printer.print_by_nodule(self.nodule_finder.nodule_set)
-        print("\t- Printed nodule representation in {0}".format(self.print_timestamp()))
+        self.log_string = self.log_string + "\n   - Printed nodule representation in {0}".format(self.print_timestamp())
 
     def print_final_data(self):
-        print("\n#####################################################################")
-        print("#\tProgram complete! Total runtime: {0}".format(self.print_total_time()))
-        print("#\t- Measured total area: {0} cm2".format(round(self.total_area, 4)))
-        print("#\t- Measured average diameter: {0} cm".format(round(self.calculated_average_diameter, 4)))
-        print("#\t- Expected total length: {0} cm".format(round(self.expected_length, 4)))
-        print("#\t- Measured total length: {0} cm".format(round(self.total_length, 4)))
-        print("#\t- Deviation from expected length: {0}%".format(round(100*((self.total_length-self.expected_length) / self.total_length), 2)))
-        print("#\t- Measured total nodule area: {0} cm2".format(round(self.nodule_area, 4)))
-        print("#####################################################################")
+        self.log_string = self.log_string + "\n\n####################################################"
+        self.log_string = self.log_string + "\n#   Program complete! Total runtime: {0}".format(self.print_total_time())
+        self.log_string = self.log_string + "\n#   - Measured total area: {0} cm2".format(round(self.total_area, 4))
+        self.log_string = self.log_string + "\n#   - Measured average diameter: {0} cm".format(round(self.calculated_average_diameter, 4))
+        self.log_string = self.log_string + "\n#   - Expected total length: {0} cm".format(round(self.expected_length, 4))
+        self.log_string = self.log_string + "\n#   - Measured total length: {0} cm".format(round(self.total_length, 4))
+        self.log_string = self.log_string + "\n#   - Deviation from expected length: {0}%".format(round(100*((self.total_length-self.expected_length) / self.total_length), 2))
+        self.log_string = self.log_string + "\n#   - Measured total nodule area: {0} cm2".format(round(self.nodule_area, 4))
+        self.log_string = self.log_string + "\n####################################################"
 
     def print_timestamp(self):
         """

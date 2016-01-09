@@ -44,7 +44,7 @@ class ArrayBuilder:
 
         if image.info['dpi'][0]:
             config.cm_per_pixel = 1 / (image.info['dpi'][0] / 2.54)
-            print("- Detected DPI of {0}".format(image.info['dpi'][0]))
+            config.dpi = image.info['dpi'][0]
 
         # Scale the image down, if necessary, to the height defined in config
         # The program can be made to run faster at the cost of precision by reducing config.image_scaled_height
