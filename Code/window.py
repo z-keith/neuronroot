@@ -51,14 +51,14 @@ class MainWindow(QWidget):
         hbox = QHBoxLayout(self)
 
         self.initial_image_frame = QLabel(self)
-        self.initial_image_frame.setFixedWidth(350)
+        self.initial_image_frame.setFixedWidth(500)
         self.initial_image_frame.setFrameShape(1)
         self.initial_image_frame.setLineWidth(1)
         self.initial_image_frame.setAlignment(Qt.AlignCenter)
         self.initial_image_frame.setText("The initial image will appear here once it is loaded.")
 
         self.skeleton_image_frame = QLabel(self)
-        self.skeleton_image_frame.setFixedWidth(350)
+        self.skeleton_image_frame.setFixedWidth(500)
         self.skeleton_image_frame.setFrameShape(1)
         self.skeleton_image_frame.setLineWidth(1)
         self.skeleton_image_frame.setAlignment(Qt.AlignCenter)
@@ -145,7 +145,7 @@ class MainWindow(QWidget):
 
         self.set_buttons_initial()
 
-        self.setFixedSize(1200, 600)
+        self.setFixedSize(1500, 800)
         self.setWindowTitle('Neuronroot 1.0')
         self.show()
 
@@ -199,6 +199,7 @@ class MainWindow(QWidget):
         self.controller = controller
 
     def onclick_run(self):
+        self.log_string = ""
         thread = Thread(target=self.analyze)
         thread.start()
         while thread.is_alive():

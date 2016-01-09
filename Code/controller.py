@@ -52,7 +52,6 @@ class Controller:
 
     def __init__(self):
 
-        config.initialize()
         self.start_time = time.time()
         self.last_time = time.time()
 
@@ -62,7 +61,7 @@ class Controller:
         :return: Nothing. Upon successful completion, array_builder.array contains a representation of the input image.
         """
 
-        self.log_string = self.log_string + "Loading image {0}:".format(config.file_name)
+        self.log_string ="Loading image {0}:".format(config.file_name)
         self.array_builder = array_builder.ArrayBuilder(config.file_name)
 
         self.array_builder.load_to_array()
