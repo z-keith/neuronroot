@@ -14,6 +14,10 @@ class MainWindow(QtGui.QWidget):
     # Stores the reference to the program logic
     controller = None
 
+    # Stores the list of files currently in use
+    file_set = None
+    file_idx = None
+
     # Stores references to UI elements
     initial_image_frame = None
     skeleton_image_frame = None
@@ -163,7 +167,7 @@ class MainWindow(QtGui.QWidget):
         self.select_infile_btn.setDisabled(False)
         self.select_output_btn.setDisabled(False)
 
-        self.discard_redo_btn.setDisabled(False)
+        self.discard_redo_btn.setDisabled(True)
         self.discard_next_btn.setDisabled(True)
         self.accept_next_btn.setDisabled(True)
 
@@ -240,11 +244,13 @@ class MainWindow(QtGui.QWidget):
 
     def onclick_input(self):
         # get list of files, store them in config, load first one as preview
-        pass
+        self.file_set = QtGui.QFileDialog.getOpenFileNames(self.select_infile_btn, "Select image files", "", "Images (*.png *.tif *.jpg *.bmp)")
+        print(self.file_set)
 
     def onclick_output(self):
         # get output location, store it in config
-        pass
+        outfile_path = QtGui.QFileDialog.getExistingDirectory(self.select_output_btn, "Select output directory")
+        # TODO: Link to config
 
     def onclick_set_blacklist(self):
         #TODO: how to do this?
@@ -293,6 +299,7 @@ class MainWindow(QtGui.QWidget):
         thread.join()
 
         self.log_string = self.controller.log_string
+        self.initial_image = config.outfile_path + config.file_name +"-initial" + config.proper_file_extension
         self.image_updated = True
         while self.image_updated:
             sleep(1)
@@ -311,8 +318,8 @@ class MainWindow(QtGui.QWidget):
         thread.join()
 
         self.log_string = self.controller.log_string
+        self.updated_image = config.outfile_path + config.file_name + "-analysis" + config.proper_file_extension
         self.image_updated = True
-        self.initial_image = config.outfile_path + config.file_name +"-initial" + config.proper_file_extension
         while self.image_updated:
             sleep(1)
 
@@ -338,7 +345,6 @@ class MainWindow(QtGui.QWidget):
 
         self.log_string = self.controller.log_string
         self.image_updated = True
-        self.updated_image = config.outfile_path + config.file_name + "-analysis" + config.proper_file_extension
         while self.image_updated:
             sleep(1)
 
