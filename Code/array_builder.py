@@ -39,6 +39,9 @@ class ArrayBuilder:
         Loads and scales the image from the file name defined when this ArrayBuilder was initialized.
         :return: Nothing.
         """
+        initial_image = Image.open(config.infile_path + config.file_name + config.file_extension)
+        initial_image.save(config.outfile_path + config.file_name + "-initial" + config.proper_file_extension)
+
         warnings.simplefilter('ignore', Image.DecompressionBombWarning)
         image = Image.open("../TestImages/{0}.tif".format(self.file_name))
 

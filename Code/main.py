@@ -13,7 +13,7 @@ import controller
 import config
 # noinspection PyUnresolvedReferences
 import window, sys
-from PyQt5.QtWidgets import QApplication
+from PyQt4 import QtGui
 
 def main():
     """
@@ -24,7 +24,7 @@ def main():
     current_controller = controller.Controller()
 
     # initialize a Window
-    app = QApplication(sys.argv)
+    app = QtGui.QApplication(sys.argv)
     win = window.MainWindow(current_controller)
     sys.exit(app.exec_())
 

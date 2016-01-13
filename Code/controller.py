@@ -273,15 +273,13 @@ class Controller:
         self.log_string = self.log_string + "\n   - Printed nodule representation in {0}".format(self.print_timestamp())
 
     def print_final_data(self):
-        self.log_string = self.log_string + "\n\n####################################################"
-        self.log_string = self.log_string + "\n#   Program complete! Total runtime: {0}".format(self.print_total_time())
+        self.log_string = self.log_string + "\n\n#   Program complete! Total runtime: {0}".format(self.print_total_time())
         self.log_string = self.log_string + "\n#   - Measured total area: {0} cm2".format(round(self.total_area, 4))
         self.log_string = self.log_string + "\n#   - Measured average diameter: {0} cm".format(round(self.calculated_average_diameter, 4))
         self.log_string = self.log_string + "\n#   - Expected total length: {0} cm".format(round(self.expected_length, 4))
         self.log_string = self.log_string + "\n#   - Measured total length: {0} cm".format(round(self.total_length, 4))
         self.log_string = self.log_string + "\n#   - Deviation from expected length: {0}%".format(round(100*((self.total_length-self.expected_length) / self.total_length), 2))
         self.log_string = self.log_string + "\n#   - Measured total nodule area: {0} cm2".format(round(self.nodule_area, 4))
-        self.log_string = self.log_string + "\n####################################################"
 
     def print_timestamp(self):
         """

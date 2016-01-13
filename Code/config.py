@@ -14,6 +14,15 @@ current_file = 293
 # used for opening an image and naming files made from it
 file_name = "2014-06-24-Tri-293"
 
+# current filepath
+infile_path = "../TestImages/"
+
+outfile_path = "../Output/"
+
+# file extension
+file_extension = ".tif"
+proper_file_extension = ".jpg"
+
 # height to scale images to
 image_scaled_height = 2000
 

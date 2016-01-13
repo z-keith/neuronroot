@@ -33,21 +33,22 @@ class Printer:
         Creates a representation of the Pixel objects contained in pixel_dict
         :param pixel_dict: A dictionary of form {(y, x): Pixel} to be printed
         :return: Nothing. Upon successful run, self.array contains a dark outline for error checking purposes and the
-        same array will be printed to the Output folder with -grey appended to the filename
+        same array will be printed to the Output folder with -temp appended to the filename
         """
+
         self.array = np.zeros((self.image_height, self.image_width, 3), dtype=np.uint8)
         for (y, x) in pixel_dict:
             self.array[y][x] = [60, 60, 60]
 
         output_image = Image.fromarray(self.array, 'RGB')
-        output_image.save('../Output/{0}-1-grey.tif'.format(config.file_name[-3:]))
+        output_image.save(config.outfile_path + config.file_name + "-temp" + config.proper_file_extension)
 
     def print_skeletal_outline(self, seed_pixel_set):
         """
         Prints a representation of the parent-child connections in a set of trees, colorized with a gradient for easy
         visual tracing and error checking.
         :param seed_pixel_set: The set of seed pixels to start drawing from.
-        :return: Nothing. Upon successful completion, the image can be found in the output folder, with "-skeleton"
+        :return: Nothing. Upon successful completion, the image can be found in the output folder, with "-analysis"
         appended to the original filename.
         """
         current_set = seed_pixel_set
@@ -65,7 +66,7 @@ class Printer:
             current_set = next_set
 
         output_image = Image.fromarray(self.array, 'RGB')
-        output_image.save('../Output/{0}-2-skeleton.tif'.format(config.file_name[-3:]))
+        output_image.save(config.outfile_path + config.file_name + "-analysis" + config.proper_file_extension)
 
     def increment_current_color(self, multiplier):
         """
@@ -114,7 +115,7 @@ class Printer:
         self.current_color = [255, 255, 255]
         self.current_ascending = [False, False, False]
 
-        image = Image.open("../Output/{0}-1-grey.tif".format(config.file_name[-3:]))
+        image = Image.open(config.outfile_path + config.file_name + "-temp" + config.proper_file_extension)
         drawer = ImageDraw.Draw(image)
 
         current_roots = all_seed_roots
@@ -145,7 +146,7 @@ class Printer:
 
             current_roots = next_roots
 
-        image.save('../Output/{0}-3-roots.tif'.format(config.file_name[-3:]))
+        image.save(config.outfile_path + config.file_name + "-analysis" + config.proper_file_extension)
 
     def print_by_nodule(self, nodule_set):
         """
@@ -156,13 +157,13 @@ class Printer:
 
         self.current_color = [255, 255, 255]
 
-        image = Image.open("../Output/{0}-3-roots.tif".format(config.file_name[-3:]))
+        image = Image.open(config.outfile_path + config.file_name + "-analysis" + config.proper_file_extension)
         drawer = ImageDraw.Draw(image)
 
         for pixel in nodule_set:
             drawer.ellipse((pixel.x-pixel.radius, pixel.y-pixel.radius, pixel.x+pixel.radius, pixel.y+pixel.radius), tuple(self.current_color), tuple(self.current_color))
 
-        image.save('../Output/{0}-4-nodules.tif'.format(config.file_name[-3:]))
+        image.save(config.outfile_path + config.file_name + "-analysis" + config.proper_file_extension)
 
     def count_white_px(self, nodule_set):
 
