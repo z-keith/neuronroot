@@ -1,13 +1,13 @@
+import os
 
 from PyQt4 import QtGui, QtCore
 
 from PIL import Image
 
-from time import sleep
-
 from threading import Thread
 
 import config
+import controller
 
 class MainWindow(QtGui.QWidget):
 
@@ -46,9 +46,17 @@ class MainWindow(QtGui.QWidget):
     # Toggle to allow the cancel button to work
     cancel_clicked = True
 
+    # Signals
+    buttons_init = QtCore.pyqtSignal()
+    buttons_run = QtCore.pyqtSignal()
+    buttons_end = QtCore.pyqtSignal()
+    img_update = QtCore.pyqtSignal()
 
     def __init__(self, controller):
         self.controller = controller
+        controller.qt_window = self
+        controller.ui_update.connect(self.update_UI)
+        controller.image_update.connect(self.set_image_updated)
 
         super().__init__()
 
@@ -57,7 +65,7 @@ class MainWindow(QtGui.QWidget):
     def initUI(self):
 
         QtGui.QToolTip.setFont(QtGui.QFont('SansSerif', 10))
-        self.setFixedSize(1100, 500)
+        self.setFixedSize(1100, 600)
         self.setWindowTitle('Neuronroot 1.0')
 
         hbox = QtGui.QHBoxLayout(self)
@@ -75,13 +83,13 @@ class MainWindow(QtGui.QWidget):
         self.skeleton_image_frame.setFrameShape(1)
         self.skeleton_image_frame.setLineWidth(1)
         self.skeleton_image_frame.setAlignment(QtCore.Qt.AlignCenter)
-        self.skeleton_image_frame.setText("The skeleton image will appear here and update as it is refined.")
+        self.skeleton_image_frame.setText("The skeleton image will appear here, updating as it is refined.")
         hbox.addWidget(self.skeleton_image_frame)
 
         vbox = QtGui.QVBoxLayout(self)
 
         self.output_log_label = QtGui.QPlainTextEdit(self)
-        self.output_log_label.setFixedWidth(300)
+        self.output_log_label.setFixedWidth(350)
         self.output_log_label.setFrameShape(1)
         self.output_log_label.setLineWidth(1)
         self.output_log_label.setReadOnly(True)
@@ -93,53 +101,67 @@ class MainWindow(QtGui.QWidget):
         row4 = QtGui.QHBoxLayout(self)
 
         self.add_blacklist_btn = QtGui.QPushButton('Blacklist area', self)
+        self.add_blacklist_btn.setToolTip('Select an area to ignore')
         self.add_blacklist_btn.clicked.connect(self.onclick_set_blacklist)
-        self.add_blacklist_btn.setToolTip('Select an area to exclude from the search')
-        row1.addWidget(self.add_blacklist_btn)
+        self.buttonsetup_group1(self.add_blacklist_btn)
 
         self.clear_blacklist_btn = QtGui.QPushButton('Clear blacklist', self)
-        self.clear_blacklist_btn.clicked.connect(self.onclick_clear_blacklist)
         self.clear_blacklist_btn.setToolTip('Clear the blacklist')
+        self.clear_blacklist_btn.clicked.connect(self.onclick_clear_blacklist)
+        self.buttonsetup_group1(self.clear_blacklist_btn)
+
+        row1.addWidget(self.add_blacklist_btn)
         row1.addWidget(self.clear_blacklist_btn)
 
         self.select_infile_btn = QtGui.QPushButton('Input location...', self)
-        self.select_infile_btn.clicked.connect(self.onclick_input)
         self.select_infile_btn.setToolTip('Select files to process')
-        row2.addWidget(self.select_infile_btn)
+        self.select_infile_btn.clicked.connect(self.onclick_input)
+        self.buttonsetup_group1(self.select_infile_btn)
 
         self.select_output_btn = QtGui.QPushButton('Output location...', self)
-        self.select_output_btn.clicked.connect(self.onclick_output)
         self.select_output_btn.setToolTip('Choose where to save output images and data')
+        self.select_output_btn.clicked.connect(self.onclick_output)
+        self.buttonsetup_group1(self.select_output_btn)
+
+        row2.addWidget(self.select_infile_btn)
         row2.addWidget(self.select_output_btn)
 
         self.discard_redo_btn = QtGui.QPushButton('Discard + redo', self)
+        self.discard_redo_btn.setToolTip('Retry analysis of the current image')
         self.discard_redo_btn.clicked.connect(self.onclick_reject_redo)
-        self.discard_redo_btn.setToolTip('Choose where to save output images and data')
-        row3.addWidget(self.discard_redo_btn)
+        self.buttonsetup_group3(self.discard_redo_btn)
 
         self.discard_next_btn = QtGui.QPushButton('Discard + continue', self)
+        self.discard_next_btn.setToolTip('Continue without saving data')
         self.discard_next_btn.clicked.connect(self.onclick_reject_skip)
-        self.discard_next_btn.setToolTip('Choose where to save output images and data')
-        row3.addWidget(self.discard_next_btn)
+        self.buttonsetup_group3(self.discard_next_btn)
 
         self.accept_next_btn = QtGui.QPushButton('Accept + continue', self)
+        self.accept_next_btn.setToolTip('Save data and continue')
         self.accept_next_btn.clicked.connect(self.onclick_accept)
-        self.accept_next_btn.setToolTip('Choose where to save output images and data')
+        self.buttonsetup_group3(self.accept_next_btn)
+
+        row3.addWidget(self.discard_redo_btn)
+        row3.addWidget(self.discard_next_btn)
         row3.addWidget(self.accept_next_btn)
 
         self.ready_run_btn = QtGui.QPushButton('Ready', self)
-        self.ready_run_btn.clicked.connect(self.onclick_run)
         self.ready_run_btn.setToolTip('Select a start point and analyze the current image')
-        row4.addWidget(self.ready_run_btn)
+        self.ready_run_btn.clicked.connect(self.onclick_run)
+        self.buttonsetup_group1(self.ready_run_btn)
 
         self.skip_btn = QtGui.QPushButton('Skip', self)
+        self.skip_btn.setToolTip('Load the next image, ignoring the current one')
         self.skip_btn.clicked.connect(self.onclick_skip)
-        self.skip_btn.setToolTip('Select a start point and analyze the current image')
-        row4.addWidget(self.skip_btn)
+        self.buttonsetup_group1(self.skip_btn)
 
         self.cancel_btn = QtGui.QPushButton('Cancel', self)
+        self.cancel_btn.setToolTip('Stop analysis and discard any progress on the current image')
         self.cancel_btn.clicked.connect(self.onclick_cancel)
-        self.cancel_btn.setToolTip('Select a start point and analyze the current image')
+        self.buttonsetup_group2(self.cancel_btn)
+
+        row4.addWidget(self.ready_run_btn)
+        row4.addWidget(self.skip_btn)
         row4.addWidget(self.cancel_btn)
 
         vbox.addLayout(row1)
@@ -153,79 +175,64 @@ class MainWindow(QtGui.QWidget):
 
         self.show()
 
-    def update_UI_custom(self):
+    def set_image_updated(self):
+        self.image_updated = True
+
+    def update_image_paths(self):
+        self.initial_image = config.outfile_path + "/" + config.file_name +"-initial" + config.proper_file_extension
+        self.updated_image = config.outfile_path + "/" + config.file_name + "-analysis" + config.proper_file_extension
+        self.set_label_to_image(self.initial_image_frame, self.initial_image)
+
+    def update_UI(self):
+        self.log_string = self.controller.log_string
         self.output_log_label.setPlainText(self.log_string)
-        self.output_log_label.repaint()
+        self.output_log_label.verticalScrollBar().setSliderPosition(self.output_log_label.verticalScrollBar().maximum())
         if self.image_updated:
-            self.set_label_to_image(self.initial_image_frame, self.initial_image)
-            self.set_label_to_image(self.skeleton_image_frame, self.updated_image)
+            self.img_update.emit()
             self.image_updated = False
 
+    def set_filepath(self):
+        if len(self.file_set) > self.file_idx:
+            path = self.file_set[self.file_idx]
+            config.file_name = os.path.basename(path).split('.')[0]
+            config.file_extension = '.' + os.path.basename(path).split('.')[1]
+            config.infile_path = os.path.dirname(path)
+
+    def reset_controller(self):
+        self.controller = controller.Controller()
+        self.controller.ui_update.connect(self.update_UI)
+        self.controller.image_update.connect(self.set_image_updated)
+
+    def reset_UI(self):
+        self.initial_image_frame.setText("The initial image will appear here once it is loaded.")
+        self.skeleton_image_frame.setText("The skeleton image will appear here, updating as it is refined.")
+        self.log_string = ""
+        self.set_buttons_initial()
+        self.update_UI()
+
     def set_buttons_initial(self):
-        self.add_blacklist_btn.setDisabled(False)
-        self.clear_blacklist_btn.setDisabled(False)
-        self.select_infile_btn.setDisabled(False)
-        self.select_output_btn.setDisabled(False)
-
-        self.discard_redo_btn.setDisabled(True)
-        self.discard_next_btn.setDisabled(True)
-        self.accept_next_btn.setDisabled(True)
-
-        self.cancel_btn.setDisabled(True)
-
-        self.skip_btn.setDisabled(False)
-        self.ready_run_btn.setDisabled(False)
-
-        self.discard_redo_btn.repaint()
-        self.discard_next_btn.repaint()
-        self.accept_next_btn.repaint()
-        self.cancel_btn.repaint()
-        self.skip_btn.repaint()
-        self.ready_run_btn.repaint()
+        self.buttons_init.emit()
 
     def set_buttons_running(self):
-        self.add_blacklist_btn.setDisabled(True)
-        self.clear_blacklist_btn.setDisabled(True)
-        self.select_infile_btn.setDisabled(True)
-        self.select_output_btn.setDisabled(True)
-
-        self.discard_redo_btn.setDisabled(True)
-        self.discard_next_btn.setDisabled(True)
-        self.accept_next_btn.setDisabled(True)
-
-        self.cancel_btn.setDisabled(False)
-
-        self.skip_btn.setDisabled(True)
-        self.ready_run_btn.setDisabled(True)
-
-        self.discard_redo_btn.repaint()
-        self.discard_next_btn.repaint()
-        self.accept_next_btn.repaint()
-        self.cancel_btn.repaint()
-        self.skip_btn.repaint()
-        self.ready_run_btn.repaint()
+        self.buttons_run.emit()
 
     def set_buttons_finished(self):
-        self.add_blacklist_btn.setDisabled(True)
-        self.clear_blacklist_btn.setDisabled(True)
-        self.select_infile_btn.setDisabled(True)
-        self.select_output_btn.setDisabled(True)
+        self.buttons_end.emit()
 
-        self.discard_redo_btn.setDisabled(False)
-        self.discard_next_btn.setDisabled(False)
-        self.accept_next_btn.setDisabled(False)
+    def buttonsetup_group1(self, button):
+        self.buttons_init.connect(button.show)
+        self.buttons_run.connect(button.hide)
+        self.buttons_end.connect(button.hide)
 
-        self.cancel_btn.setDisabled(True)
+    def buttonsetup_group2(self, button):
+        self.buttons_init.connect(button.hide)
+        self.buttons_run.connect(button.show)
+        self.buttons_end.connect(button.hide)
 
-        self.skip_btn.setDisabled(True)
-        self.ready_run_btn.setDisabled(True)
-
-        self.discard_redo_btn.repaint()
-        self.discard_next_btn.repaint()
-        self.accept_next_btn.repaint()
-        self.cancel_btn.repaint()
-        self.skip_btn.repaint()
-        self.ready_run_btn.repaint()
+    def buttonsetup_group3(self, button):
+        self.buttons_init.connect(button.hide)
+        self.buttons_run.connect(button.hide)
+        self.buttons_end.connect(button.show)
 
     def set_label_to_image(self, label, imagepath):
 
@@ -239,18 +246,34 @@ class MainWindow(QtGui.QWidget):
         label.setPixmap(pixmap)
         return True
 
+    def load_next_file(self):
+        self.reset_controller()
+        self.reset_UI()
+        self.set_filepath()
+        self.image_setup()
+        self.update_image_paths()
+
     def set_controller(self, controller):
         self.controller = controller
+
+    def image_setup(self):
+        thread = Thread(target=self.controller.spawn_proper_infile)
+        thread.start()
+        self.log_string = "Loading file..."
+        self.output_log_label.setPlainText(self.log_string)
+        thread.join()
+        self.log_string = ""
+        self.output_log_label.setPlainText(self.log_string)
 
     def onclick_input(self):
         # get list of files, store them in config, load first one as preview
         self.file_set = QtGui.QFileDialog.getOpenFileNames(self.select_infile_btn, "Select image files", "", "Images (*.png *.tif *.jpg *.bmp)")
-        print(self.file_set)
+        self.file_idx = 0
+        self.load_next_file()
 
     def onclick_output(self):
         # get output location, store it in config
-        outfile_path = QtGui.QFileDialog.getExistingDirectory(self.select_output_btn, "Select output directory")
-        # TODO: Link to config
+        config.outfile_path = QtGui.QFileDialog.getExistingDirectory(self.select_output_btn, "Select output directory")
 
     def onclick_set_blacklist(self):
         #TODO: how to do this?
@@ -264,33 +287,29 @@ class MainWindow(QtGui.QWidget):
         thread = Thread(target=self.analyze)
         thread.start()
         self.set_buttons_running()
-        while thread.is_alive():
-            if self.cancel_clicked:
-                # TODO: implement cancellation (kill thread, reset to start position)
-                pass
-            self.update_UI_custom()
-            sleep(1)
-        self.set_buttons_finished()
-        self.update_UI_custom()
 
     def onclick_skip(self):
         # go to next file, load as preview
-        pass
+        self.file_idx += 1
+        self.load_next_file()
 
     def onclick_cancel(self):
         self.cancel_clicked = True
 
     def onclick_accept(self):
         # go to next file, load as preview
-        pass
+        # todo: save output
+        self.file_idx += 1
+        self.load_next_file()
 
     def onclick_reject_skip(self):
         # go to next file, load as preview
-        pass
+        self.file_idx += 1
+        self.load_next_file()
 
     def onclick_reject_redo(self):
         # clear temp data, set up for new run
-        pass
+        self.load_next_file()
 
     def analyze(self):
         # load the image file into an ArrayBuilder
@@ -298,18 +317,12 @@ class MainWindow(QtGui.QWidget):
         thread.start()
         thread.join()
 
-        self.log_string = self.controller.log_string
-        self.initial_image = config.outfile_path + config.file_name +"-initial" + config.proper_file_extension
-        self.image_updated = True
-        while self.image_updated:
-            sleep(1)
+        #self.initial_image = config.outfile_path + config.file_name +"-initial" + config.proper_file_extension
 
         # construct a graph and associated node_dict in a AreaBuilder
         thread = Thread(target=self.controller.build_areas)
         thread.start()
         thread.join()
-
-        self.log_string = self.controller.log_string
 
         # print the initial representation of the output with a new Printer
 
@@ -317,11 +330,7 @@ class MainWindow(QtGui.QWidget):
         thread.start()
         thread.join()
 
-        self.log_string = self.controller.log_string
-        self.updated_image = config.outfile_path + config.file_name + "-analysis" + config.proper_file_extension
-        self.image_updated = True
-        while self.image_updated:
-            sleep(1)
+        #self.updated_image = config.outfile_path + config.file_name + "-analysis" + config.proper_file_extension
 
         if config.test_radii:
             # reuse the Printer to print radius test images
@@ -329,42 +338,25 @@ class MainWindow(QtGui.QWidget):
             thread.start()
             thread.join()
 
-            self.log_string = self.controller.log_string
-
         # prune the initial representation down to a skeleton with a TreeBuilder
         thread = Thread(target=self.controller.build_trees)
         thread.start()
         thread.join()
-
-        self.log_string = self.controller.log_string
 
         # reuse the Printer to print the skeleton representation of the output
         thread = Thread(target=self.controller.print_skeleton)
         thread.start()
         thread.join()
 
-        self.log_string = self.controller.log_string
-        self.image_updated = True
-        while self.image_updated:
-            sleep(1)
-
         # build root structures with a RootBuilder
         thread = Thread(target=self.controller.build_roots)
         thread.start()
         thread.join()
 
-        self.log_string = self.controller.log_string
-
         # reuse the Printer to print a representation of the roots
         thread = Thread(target=self.controller.print_roots)
         thread.start()
         thread.join()
-
-        self.log_string = self.controller.log_string
-        self.image_updated = True
-
-        while self.image_updated:
-            sleep(1)
 
         # if the user selected it, search for nodules
         if config.search_for_nodules:
@@ -372,21 +364,14 @@ class MainWindow(QtGui.QWidget):
             thread.start()
             thread.join()
 
-            self.log_string = self.controller.log_string
-
             # and print them
             thread = Thread(target=self.controller.print_nodules)
             thread.start()
             thread.join()
-
-            self.log_string = self.controller.log_string
-            self.image_updated = True
-            while self.image_updated:
-                sleep(1)
 
         # complete!
         thread = Thread(target=self.controller.print_final_data)
         thread.start()
         thread.join()
 
-        self.log_string = self.controller.log_string
+        self.set_buttons_finished()

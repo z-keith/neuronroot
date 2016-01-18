@@ -41,7 +41,7 @@ class Printer:
             self.array[y][x] = [20, 20, 20]
 
         output_image = Image.fromarray(self.array, 'RGB')
-        output_image.save(config.outfile_path + config.file_name + "-temp" + config.proper_file_extension)
+        # output_image.save(config.outfile_path + config.file_name + "-temp" + config.proper_file_extension)
         output_image.save(config.outfile_path + config.file_name + "-analysis" + config.proper_file_extension)
 
     def print_skeletal_outline(self, seed_pixel_set):
