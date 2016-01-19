@@ -55,6 +55,7 @@ class Controller(QObject):
     # Updated signal
     image_update = pyqtSignal() 
     ui_update = pyqtSignal()
+    image_spawned = pyqtSignal()
 
     def __init__(self):
         QObject.__init__(self)
@@ -361,3 +362,4 @@ class Controller(QObject):
     def spawn_proper_infile(self):
         initial_image = Image.open(config.infile_path + "/" + config.file_name + config.file_extension)
         initial_image.save(config.outfile_path + "/" + config.file_name + "-initial" + config.proper_file_extension)
+        self.image_spawned.emit()

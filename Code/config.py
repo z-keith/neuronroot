@@ -8,11 +8,11 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # Change this to swap between test images for testing purposes
-current_file = 293
+# current_file = 293
 
 # filename stub (the date and sample)
 # used for opening an image and naming files made from it
-file_name = "2014-06-24-Tri-293"
+file_name = None
 
 # current filepath
 infile_path = "../TestImages/"

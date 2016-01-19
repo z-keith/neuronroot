@@ -186,6 +186,9 @@ class MainWindow(QtGui.QWidget):
         self.initial_image = config.outfile_path + "/" + config.file_name +"-initial" + config.proper_file_extension
         self.updated_image = config.outfile_path + "/" + config.file_name + "-analysis" + config.proper_file_extension
         self.set_label_to_image(self.initial_image_frame, self.initial_image)
+        self.log_string = ""
+        self.output_log_label.setPlainText(self.log_string)
+        self.buttons_init.emit()
 
     def update_UI(self):
         self.log_string = self.controller.log_string
@@ -251,21 +254,23 @@ class MainWindow(QtGui.QWidget):
     def load_next_file(self):
         self.reset_controller()
         self.reset_UI()
-        self.set_filepath()
-        self.image_setup()
-        self.update_image_paths()
+        if self.file_idx < len(self.file_set):
+            self.set_filepath()
+            self.image_setup()
+        else:
+            self.log_string = "All files complete!"
+            self.output_log_label.setPlainText(self.log_string)
 
     def set_controller(self, controller):
         self.controller = controller
 
     def image_setup(self):
+        self.buttons_run.emit()
         thread = Thread(target=self.controller.spawn_proper_infile)
         thread.start()
         self.log_string = "Loading file..."
         self.output_log_label.setPlainText(self.log_string)
-        thread.join()
-        self.log_string = ""
-        self.output_log_label.setPlainText(self.log_string)
+        self.controller.image_spawned.connect(self.update_image_paths)
 
     def onclick_input(self):
         # get list of files, store them in config, load first one as preview
@@ -302,14 +307,12 @@ class MainWindow(QtGui.QWidget):
         # go to next file, load as preview
         # todo: save output
         self.file_idx += 1
-        if self.file_idx < len(self.file_set):
-            self.load_next_file()
+        self.load_next_file()
 
     def onclick_reject_skip(self):
         # go to next file, load as preview
         self.file_idx += 1
-        if self.file_idx < len(self.file_set):
-            self.load_next_file()
+        self.load_next_file()
 
     def onclick_reject_redo(self):
         # clear temp data, set up for new run

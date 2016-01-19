@@ -33,7 +33,7 @@ class Printer:
         Creates a representation of the Pixel objects contained in pixel_dict
         :param pixel_dict: A dictionary of form {(y, x): Pixel} to be printed
         :return: Nothing. Upon successful run, self.array contains a dark outline for error checking purposes and the
-        same array will be printed to the Output folder with -temp appended to the filename
+        same array will be printed to the Output folder with -analysis appended to the filename
         """
 
         self.array = np.zeros((self.image_height, self.image_width, 3), dtype=np.uint8)
@@ -41,7 +41,7 @@ class Printer:
             self.array[y][x] = [20, 20, 20]
 
         output_image = Image.fromarray(self.array, 'RGB')
-        # output_image.save(config.outfile_path + config.file_name + "-temp" + config.proper_file_extension)
+        # output_image.save(config.outfile_path + config.file_name + "-analysis" + config.proper_file_extension)
         output_image.save(config.outfile_path + config.file_name + "-analysis" + config.proper_file_extension)
 
     def print_skeletal_outline(self, seed_pixel_set):
@@ -116,7 +116,7 @@ class Printer:
         self.current_color = [255, 255, 255]
         self.current_ascending = [False, False, False]
 
-        image = Image.open(config.outfile_path + config.file_name + "-temp" + config.proper_file_extension)
+        image = Image.open(config.outfile_path + config.file_name + "-analysis" + config.proper_file_extension)
         drawer = ImageDraw.Draw(image)
 
         current_roots = all_seed_roots
