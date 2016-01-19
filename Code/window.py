@@ -84,6 +84,7 @@ class MainWindow(QtGui.QWidget):
         self.skeleton_image_frame.setLineWidth(1)
         self.skeleton_image_frame.setAlignment(QtCore.Qt.AlignCenter)
         self.skeleton_image_frame.setText("The skeleton image will appear here, updating as it is refined.")
+        self.img_update.connect(self.show_image_progress)
         hbox.addWidget(self.skeleton_image_frame)
 
         vbox = QtGui.QVBoxLayout(self)
@@ -176,7 +177,10 @@ class MainWindow(QtGui.QWidget):
         self.show()
 
     def set_image_updated(self):
-        self.image_updated = True
+        self.img_update.emit()
+
+    def show_image_progress(self):
+        self.set_label_to_image(self.skeleton_image_frame, self.updated_image)
 
     def update_image_paths(self):
         self.initial_image = config.outfile_path + "/" + config.file_name +"-initial" + config.proper_file_extension
@@ -192,11 +196,10 @@ class MainWindow(QtGui.QWidget):
             self.image_updated = False
 
     def set_filepath(self):
-        if len(self.file_set) > self.file_idx:
-            path = self.file_set[self.file_idx]
-            config.file_name = os.path.basename(path).split('.')[0]
-            config.file_extension = '.' + os.path.basename(path).split('.')[1]
-            config.infile_path = os.path.dirname(path)
+        path = self.file_set[self.file_idx]
+        config.file_name = os.path.basename(path).split('.')[0]
+        config.file_extension = '.' + os.path.basename(path).split('.')[1]
+        config.infile_path = os.path.dirname(path)
 
     def reset_controller(self):
         self.controller = controller.Controller()
@@ -235,7 +238,6 @@ class MainWindow(QtGui.QWidget):
         self.buttons_end.connect(button.show)
 
     def set_label_to_image(self, label, imagepath):
-
         pixmap = QtGui.QPixmap(imagepath)
         if (pixmap.isNull()):
             return False
@@ -300,12 +302,14 @@ class MainWindow(QtGui.QWidget):
         # go to next file, load as preview
         # todo: save output
         self.file_idx += 1
-        self.load_next_file()
+        if self.file_idx < len(self.file_set):
+            self.load_next_file()
 
     def onclick_reject_skip(self):
         # go to next file, load as preview
         self.file_idx += 1
-        self.load_next_file()
+        if self.file_idx < len(self.file_set):
+            self.load_next_file()
 
     def onclick_reject_redo(self):
         # clear temp data, set up for new run
