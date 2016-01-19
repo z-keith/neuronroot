@@ -1,5 +1,6 @@
 import os
 
+import time
 from PyQt4 import QtGui, QtCore
 
 from PIL import Image
@@ -51,14 +52,17 @@ class MainWindow(QtGui.QWidget):
     buttons_run = QtCore.pyqtSignal()
     buttons_end = QtCore.pyqtSignal()
     img_update = QtCore.pyqtSignal()
+    write = QtCore.pyqtSignal()
 
     def __init__(self, controller):
+        super().__init__()
+
         self.controller = controller
         controller.qt_window = self
         controller.ui_update.connect(self.update_UI)
         controller.image_update.connect(self.set_image_updated)
-
-        super().__init__()
+        controller.write_finished.connect(self.set_write_finished)
+        self.write.connect(self.controller.write_output)
 
         self.initUI()
 
@@ -305,9 +309,15 @@ class MainWindow(QtGui.QWidget):
 
     def onclick_accept(self):
         # go to next file, load as preview
-        # todo: save output
+        self.write.emit()
+        while not self.finished_writing:
+            time.sleep(1)
+        self.finished_writing = False
         self.file_idx += 1
         self.load_next_file()
+
+    def set_write_finished(self):
+        self.finished_writing = True
 
     def onclick_reject_skip(self):
         # go to next file, load as preview

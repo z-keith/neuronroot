@@ -56,6 +56,7 @@ class Controller(QObject):
     image_update = pyqtSignal() 
     ui_update = pyqtSignal()
     image_spawned = pyqtSignal()
+    write_finished = pyqtSignal()
 
     def __init__(self):
         QObject.__init__(self)
@@ -363,3 +364,12 @@ class Controller(QObject):
         initial_image = Image.open(config.infile_path + "/" + config.file_name + config.file_extension)
         initial_image.save(config.outfile_path + "/" + config.file_name + "-initial" + config.proper_file_extension)
         self.image_spawned.emit()
+
+    def write_output(self):
+        outfile = open("output.csv", "a")
+        outstring = "\n{0},{1},{2},{3}".format(config.file_name, self.total_length, self.calculated_average_diameter, self.total_area)
+        if config.search_for_nodules:
+            outstring = outstring + ",{0}".format(self.nodule_area)
+        outfile.writelines(outstring)
+        outfile.close()
+        self.write_finished.emit()
