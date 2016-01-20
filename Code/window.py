@@ -1,9 +1,6 @@
 import os
 
-import time
 from PyQt4 import QtGui, QtCore
-
-from PIL import Image
 
 from threading import Thread
 
@@ -23,16 +20,17 @@ class MainWindow(QtGui.QWidget):
     initial_image_frame = None
     skeleton_image_frame = None
     output_log_label = None
+
     add_blacklist_btn = None
     clear_blacklist_btn = None
+
     select_infile_btn = None
     select_output_btn = None
-    find_nodules_checkbox = None
-    dpi_settext = None
+
     discard_redo_btn = None
     discard_next_btn = None
     accept_next_btn = None
-    cancel_btn = None
+
     ready_run_btn = None
     skip_btn = None
 
@@ -42,17 +40,14 @@ class MainWindow(QtGui.QWidget):
     # Stores the display image paths
     initial_image = None
     updated_image = None
-    image_updated = False
-
-    # Toggle to allow the cancel button to work
-    cancel_clicked = True
 
     # Signals
     buttons_init = QtCore.pyqtSignal()
+    buttons_ready = QtCore.pyqtSignal()
     buttons_run = QtCore.pyqtSignal()
     buttons_end = QtCore.pyqtSignal()
+
     img_update = QtCore.pyqtSignal()
-    write = QtCore.pyqtSignal()
 
     def __init__(self, controller):
         super().__init__()
@@ -60,16 +55,13 @@ class MainWindow(QtGui.QWidget):
         self.controller = controller
         controller.qt_window = self
         controller.ui_update.connect(self.update_UI)
-        controller.image_update.connect(self.set_image_updated)
-        controller.write_finished.connect(self.set_write_finished)
-        self.write.connect(self.controller.write_output)
+        controller.image_update.connect(self.img_update.emit)
 
         self.initUI()
 
     def initUI(self):
 
-        QtGui.QToolTip.setFont(QtGui.QFont('SansSerif', 10))
-        self.setFixedSize(1100, 600)
+        QtGui.QToolTip.setFont(QtGui.QFont('SansSerif', 8))
         self.setWindowTitle('Neuronroot 1.0')
 
         hbox = QtGui.QHBoxLayout(self)
@@ -98,6 +90,7 @@ class MainWindow(QtGui.QWidget):
         self.output_log_label.setFrameShape(1)
         self.output_log_label.setLineWidth(1)
         self.output_log_label.setReadOnly(True)
+        self.output_log_label.setFont(QtGui.QFont('SansSerif', 8))
         vbox.addWidget(self.output_log_label)
 
         row1 = QtGui.QHBoxLayout(self)
@@ -108,15 +101,15 @@ class MainWindow(QtGui.QWidget):
         self.add_blacklist_btn = QtGui.QPushButton('Blacklist area', self)
         self.add_blacklist_btn.setToolTip('Select an area to ignore')
         self.add_blacklist_btn.clicked.connect(self.onclick_set_blacklist)
-        self.buttonsetup_group1(self.add_blacklist_btn)
+        self.buttonsetup_group2(self.add_blacklist_btn)
 
         self.clear_blacklist_btn = QtGui.QPushButton('Clear blacklist', self)
         self.clear_blacklist_btn.setToolTip('Clear the blacklist')
         self.clear_blacklist_btn.clicked.connect(self.onclick_clear_blacklist)
-        self.buttonsetup_group1(self.clear_blacklist_btn)
+        self.buttonsetup_group2(self.clear_blacklist_btn)
 
-        row1.addWidget(self.add_blacklist_btn)
         row1.addWidget(self.clear_blacklist_btn)
+        row1.addWidget(self.add_blacklist_btn)
 
         self.select_infile_btn = QtGui.QPushButton('Input location...', self)
         self.select_infile_btn.setToolTip('Select files to process')
@@ -128,8 +121,8 @@ class MainWindow(QtGui.QWidget):
         self.select_output_btn.clicked.connect(self.onclick_output)
         self.buttonsetup_group1(self.select_output_btn)
 
-        row2.addWidget(self.select_infile_btn)
         row2.addWidget(self.select_output_btn)
+        row2.addWidget(self.select_infile_btn)
 
         self.discard_redo_btn = QtGui.QPushButton('Discard + redo', self)
         self.discard_redo_btn.setToolTip('Retry analysis of the current image')
@@ -153,24 +146,18 @@ class MainWindow(QtGui.QWidget):
         self.ready_run_btn = QtGui.QPushButton('Ready', self)
         self.ready_run_btn.setToolTip('Select a start point and analyze the current image')
         self.ready_run_btn.clicked.connect(self.onclick_run)
-        self.buttonsetup_group1(self.ready_run_btn)
+        self.buttonsetup_group2(self.ready_run_btn)
 
         self.skip_btn = QtGui.QPushButton('Skip', self)
         self.skip_btn.setToolTip('Load the next image, ignoring the current one')
         self.skip_btn.clicked.connect(self.onclick_skip)
-        self.buttonsetup_group1(self.skip_btn)
+        self.buttonsetup_group2(self.skip_btn)
 
-        self.cancel_btn = QtGui.QPushButton('Cancel', self)
-        self.cancel_btn.setToolTip('Stop analysis and discard any progress on the current image')
-        self.cancel_btn.clicked.connect(self.onclick_cancel)
-        self.buttonsetup_group2(self.cancel_btn)
-
-        row4.addWidget(self.ready_run_btn)
         row4.addWidget(self.skip_btn)
-        row4.addWidget(self.cancel_btn)
+        row4.addWidget(self.ready_run_btn)
 
-        vbox.addLayout(row1)
         vbox.addLayout(row2)
+        vbox.addLayout(row1)
         vbox.addLayout(row3)
         vbox.addLayout(row4)
 
@@ -179,9 +166,6 @@ class MainWindow(QtGui.QWidget):
         self.set_buttons_initial()
 
         self.show()
-
-    def set_image_updated(self):
-        self.img_update.emit()
 
     def show_image_progress(self):
         self.set_label_to_image(self.skeleton_image_frame, self.updated_image)
@@ -192,15 +176,12 @@ class MainWindow(QtGui.QWidget):
         self.set_label_to_image(self.initial_image_frame, self.initial_image)
         self.log_string = ""
         self.output_log_label.setPlainText(self.log_string)
-        self.buttons_init.emit()
+        self.buttons_ready.emit()
 
     def update_UI(self):
         self.log_string = self.controller.log_string
         self.output_log_label.setPlainText(self.log_string)
         self.output_log_label.verticalScrollBar().setSliderPosition(self.output_log_label.verticalScrollBar().maximum())
-        if self.image_updated:
-            self.img_update.emit()
-            self.image_updated = False
 
     def set_filepath(self):
         path = self.file_set[self.file_idx]
@@ -211,7 +192,7 @@ class MainWindow(QtGui.QWidget):
     def reset_controller(self):
         self.controller = controller.Controller()
         self.controller.ui_update.connect(self.update_UI)
-        self.controller.image_update.connect(self.set_image_updated)
+        self.controller.image_update.connect(self.img_update.emit)
 
     def reset_UI(self):
         self.initial_image_frame.setText("The initial image will appear here once it is loaded.")
@@ -223,6 +204,9 @@ class MainWindow(QtGui.QWidget):
     def set_buttons_initial(self):
         self.buttons_init.emit()
 
+    def set_buttons_ready(self):
+        self.buttons_ready.emit()
+
     def set_buttons_running(self):
         self.buttons_run.emit()
 
@@ -231,16 +215,19 @@ class MainWindow(QtGui.QWidget):
 
     def buttonsetup_group1(self, button):
         self.buttons_init.connect(button.show)
+        self.buttons_ready.connect(button.show)
         self.buttons_run.connect(button.hide)
         self.buttons_end.connect(button.hide)
 
     def buttonsetup_group2(self, button):
         self.buttons_init.connect(button.hide)
-        self.buttons_run.connect(button.show)
+        self.buttons_ready.connect(button.show)
+        self.buttons_run.connect(button.hide)
         self.buttons_end.connect(button.hide)
 
     def buttonsetup_group3(self, button):
         self.buttons_init.connect(button.hide)
+        self.buttons_ready.connect(button.hide)
         self.buttons_run.connect(button.hide)
         self.buttons_end.connect(button.show)
 
@@ -264,9 +251,7 @@ class MainWindow(QtGui.QWidget):
         else:
             self.log_string = "All files complete!"
             self.output_log_label.setPlainText(self.log_string)
-
-    def set_controller(self, controller):
-        self.controller = controller
+            self.set_buttons_initial()
 
     def image_setup(self):
         self.buttons_run.emit()
@@ -281,6 +266,7 @@ class MainWindow(QtGui.QWidget):
         self.file_set = QtGui.QFileDialog.getOpenFileNames(self.select_infile_btn, "Select image files", "", "Images (*.png *.tif *.jpg *.bmp)")
         self.file_idx = 0
         self.load_next_file()
+        self.set_buttons_ready()
 
     def onclick_output(self):
         # get output location, store it in config
@@ -309,10 +295,7 @@ class MainWindow(QtGui.QWidget):
 
     def onclick_accept(self):
         # go to next file, load as preview
-        self.write.emit()
-        while not self.finished_writing:
-            time.sleep(1)
-        self.finished_writing = False
+        self.controller.write_output()
         self.file_idx += 1
         self.load_next_file()
 

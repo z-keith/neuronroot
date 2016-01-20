@@ -40,6 +40,8 @@ class Controller(QObject):
 
     nodule_finder = None
 
+    outstring = ""
+
     # Time objects for performance tracking
     start_time = None
     last_time = None
@@ -56,7 +58,6 @@ class Controller(QObject):
     image_update = pyqtSignal() 
     ui_update = pyqtSignal()
     image_spawned = pyqtSignal()
-    write_finished = pyqtSignal()
 
     def __init__(self):
         QObject.__init__(self)
@@ -310,6 +311,11 @@ class Controller(QObject):
         self.log_string = self.log_string + "\n#   - Measured total length: {0} cm".format(round(self.total_length, 4))
         self.log_string = self.log_string + "\n#   - Deviation from expected length: {0}%".format(round(100*((self.total_length-self.expected_length) / self.total_length), 2))
         self.log_string = self.log_string + "\n#   - Measured total nodule area: {0} cm2".format(round(self.nodule_area, 4))
+
+        self.outstring = "\n{0},{1},{2},{3}".format(config.file_name, self.total_length, self.calculated_average_diameter, self.total_area)
+        if config.search_for_nodules:
+            self.outstring = self.outstring + ",{0}".format(self.nodule_area)
+
         self.signal_ui_update()
 
     def print_timestamp(self):
@@ -367,9 +373,5 @@ class Controller(QObject):
 
     def write_output(self):
         outfile = open("output.csv", "a")
-        outstring = "\n{0},{1},{2},{3}".format(config.file_name, self.total_length, self.calculated_average_diameter, self.total_area)
-        if config.search_for_nodules:
-            outstring = outstring + ",{0}".format(self.nodule_area)
-        outfile.writelines(outstring)
+        outfile.writelines(self.outstring)
         outfile.close()
-        self.write_finished.emit()
