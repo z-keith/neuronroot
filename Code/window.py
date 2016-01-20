@@ -83,7 +83,10 @@ class MainWindow(QtGui.QWidget):
         self.img_update.connect(self.show_image_progress)
         hbox.addWidget(self.skeleton_image_frame)
 
-        vbox = QtGui.QVBoxLayout(self)
+        vbox_widget = QtGui.QFrame(self)
+        vbox_widget.setContentsMargins(0, 0, 0, 0)
+        vbox = QtGui.QVBoxLayout(vbox_widget)
+        vbox.setContentsMargins(0, 0, 0, 0)
 
         self.output_log_label = QtGui.QPlainTextEdit(self)
         self.output_log_label.setFixedWidth(350)
@@ -93,90 +96,100 @@ class MainWindow(QtGui.QWidget):
         self.output_log_label.setFont(QtGui.QFont('SansSerif', 8))
         vbox.addWidget(self.output_log_label)
 
-        row1 = QtGui.QHBoxLayout(self)
-        row2 = QtGui.QHBoxLayout(self)
-        row3 = QtGui.QHBoxLayout(self)
-        row4 = QtGui.QHBoxLayout(self)
+        self.blacklist_widget = QtGui.QFrame(self)
+        self.blacklist_widget.setContentsMargins(0, 0, 0, 0)
+        blacklist_row = QtGui.QHBoxLayout(self.blacklist_widget)
+        blacklist_row.setContentsMargins(0, 0, 0, 0)
+
+        self.io_widget = QtGui.QFrame(self)
+        self.io_widget.setContentsMargins(0, 0, 0, 0)
+        io_row = QtGui.QHBoxLayout(self.io_widget)
+        io_row.setContentsMargins(0, 0, 0, 0)
+
+        self.judge_widget = QtGui.QFrame(self)
+        self.judge_widget.setContentsMargins(0, 0, 0, 0)
+        judge_row = QtGui.QHBoxLayout(self.judge_widget)
+        judge_row.setContentsMargins(0, 0, 0, 0)
+
+        self.ready_widget = QtGui.QFrame(self)
+        self.ready_widget.setContentsMargins(0, 0, 0, 0)
+        ready_row = QtGui.QHBoxLayout(self.ready_widget)
+        ready_row.setContentsMargins(0, 0, 0, 0)
 
         self.add_blacklist_btn = QtGui.QPushButton('Blacklist area', self)
         self.add_blacklist_btn.setToolTip('Select an area to ignore')
         self.add_blacklist_btn.clicked.connect(self.onclick_set_blacklist)
-        self.buttonsetup_group2(self.add_blacklist_btn)
 
         self.clear_blacklist_btn = QtGui.QPushButton('Clear blacklist', self)
         self.clear_blacklist_btn.setToolTip('Clear the blacklist')
         self.clear_blacklist_btn.clicked.connect(self.onclick_clear_blacklist)
-        self.buttonsetup_group2(self.clear_blacklist_btn)
 
-        row1.addWidget(self.clear_blacklist_btn)
-        row1.addWidget(self.add_blacklist_btn)
+        blacklist_row.addWidget(self.clear_blacklist_btn)
+        blacklist_row.addWidget(self.add_blacklist_btn)
+        self.buttonsetup_image_operations(self.blacklist_widget)
 
-        self.select_infile_btn = QtGui.QPushButton('Input location...', self)
+        self.select_infile_btn = QtGui.QPushButton('Input images...', self)
         self.select_infile_btn.setToolTip('Select files to process')
         self.select_infile_btn.clicked.connect(self.onclick_input)
-        self.buttonsetup_group1(self.select_infile_btn)
 
         self.select_output_btn = QtGui.QPushButton('Output location...', self)
         self.select_output_btn.setToolTip('Choose where to save output images and data')
         self.select_output_btn.clicked.connect(self.onclick_output)
-        self.buttonsetup_group1(self.select_output_btn)
 
-        row2.addWidget(self.select_output_btn)
-        row2.addWidget(self.select_infile_btn)
+        io_row.addWidget(self.select_output_btn)
+        io_row.addWidget(self.select_infile_btn)
+        self.buttonsetup_io(self.io_widget)
 
         self.discard_redo_btn = QtGui.QPushButton('Discard + redo', self)
         self.discard_redo_btn.setToolTip('Retry analysis of the current image')
         self.discard_redo_btn.clicked.connect(self.onclick_reject_redo)
-        self.buttonsetup_group3(self.discard_redo_btn)
 
         self.discard_next_btn = QtGui.QPushButton('Discard + continue', self)
         self.discard_next_btn.setToolTip('Continue without saving data')
         self.discard_next_btn.clicked.connect(self.onclick_reject_skip)
-        self.buttonsetup_group3(self.discard_next_btn)
 
         self.accept_next_btn = QtGui.QPushButton('Accept + continue', self)
         self.accept_next_btn.setToolTip('Save data and continue')
         self.accept_next_btn.clicked.connect(self.onclick_accept)
-        self.buttonsetup_group3(self.accept_next_btn)
 
-        row3.addWidget(self.discard_redo_btn)
-        row3.addWidget(self.discard_next_btn)
-        row3.addWidget(self.accept_next_btn)
+        judge_row.addWidget(self.discard_redo_btn)
+        judge_row.addWidget(self.discard_next_btn)
+        judge_row.addWidget(self.accept_next_btn)
+        self.buttonsetup_judge_output(self.judge_widget)
 
         self.ready_run_btn = QtGui.QPushButton('Ready', self)
         self.ready_run_btn.setToolTip('Select a start point and analyze the current image')
         self.ready_run_btn.clicked.connect(self.onclick_run)
-        self.buttonsetup_group2(self.ready_run_btn)
 
         self.skip_btn = QtGui.QPushButton('Skip', self)
         self.skip_btn.setToolTip('Load the next image, ignoring the current one')
         self.skip_btn.clicked.connect(self.onclick_skip)
-        self.buttonsetup_group2(self.skip_btn)
 
-        row4.addWidget(self.skip_btn)
-        row4.addWidget(self.ready_run_btn)
+        ready_row.addWidget(self.skip_btn)
+        ready_row.addWidget(self.ready_run_btn)
+        self.buttonsetup_image_operations(self.ready_widget)
 
-        vbox.addLayout(row2)
-        vbox.addLayout(row1)
-        vbox.addLayout(row3)
-        vbox.addLayout(row4)
+        vbox.addWidget(self.blacklist_widget)
+        vbox.addWidget(self.io_widget)
+        vbox.addWidget(self.judge_widget)
+        vbox.addWidget(self.ready_widget)
 
-        hbox.addLayout(vbox)
+        hbox.addWidget(vbox_widget)
 
         self.set_buttons_initial()
 
         self.show()
 
     def show_image_progress(self):
-        self.set_label_to_image(self.skeleton_image_frame, self.updated_image)
+        self.display_updating_image()
 
     def update_image_paths(self):
         self.initial_image = config.outfile_path + "/" + config.file_name +"-initial" + config.proper_file_extension
         self.updated_image = config.outfile_path + "/" + config.file_name + "-analysis" + config.proper_file_extension
-        self.set_label_to_image(self.initial_image_frame, self.initial_image)
+        self.display_preview_image()
         self.log_string = ""
         self.output_log_label.setPlainText(self.log_string)
-        self.buttons_ready.emit()
+        self.set_buttons_ready()
 
     def update_UI(self):
         self.log_string = self.controller.log_string
@@ -213,34 +226,41 @@ class MainWindow(QtGui.QWidget):
     def set_buttons_finished(self):
         self.buttons_end.emit()
 
-    def buttonsetup_group1(self, button):
-        self.buttons_init.connect(button.show)
-        self.buttons_ready.connect(button.show)
-        self.buttons_run.connect(button.hide)
-        self.buttons_end.connect(button.hide)
+    def buttonsetup_io(self, row):
+        self.buttons_init.connect(row.show)
+        self.buttons_ready.connect(row.show)
+        self.buttons_run.connect(row.hide)
+        self.buttons_end.connect(row.hide)
 
-    def buttonsetup_group2(self, button):
-        self.buttons_init.connect(button.hide)
-        self.buttons_ready.connect(button.show)
-        self.buttons_run.connect(button.hide)
-        self.buttons_end.connect(button.hide)
+    def buttonsetup_image_operations(self, row):
+        self.buttons_init.connect(row.hide)
+        self.buttons_ready.connect(row.show)
+        self.buttons_run.connect(row.hide)
+        self.buttons_end.connect(row.hide)
 
-    def buttonsetup_group3(self, button):
-        self.buttons_init.connect(button.hide)
-        self.buttons_ready.connect(button.hide)
-        self.buttons_run.connect(button.hide)
-        self.buttons_end.connect(button.show)
+    def buttonsetup_judge_output(self, row):
+        self.buttons_init.connect(row.hide)
+        self.buttons_ready.connect(row.hide)
+        self.buttons_run.connect(row.hide)
+        self.buttons_end.connect(row.show)
 
-    def set_label_to_image(self, label, imagepath):
-        pixmap = QtGui.QPixmap(imagepath)
+    def display_preview_image(self):
+        pixmap = QtGui.QPixmap(self.initial_image)
         if (pixmap.isNull()):
-            return False
-
-        w = min(pixmap.width(),  label.maximumWidth())
-        h = min(pixmap.height(), label.maximumHeight())
+            return
+        w = min(pixmap.width(),  self.initial_image_frame.maximumWidth())
+        h = min(pixmap.height(), self.initial_image_frame.maximumHeight())
         pixmap = pixmap.scaled(w, h, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
-        label.setPixmap(pixmap)
-        return True
+        self.initial_image_frame.setPixmap(pixmap)
+
+    def display_updating_image(self):
+        pixmap = QtGui.QPixmap(self.updated_image)
+        if (pixmap.isNull()):
+            return
+        w = min(pixmap.width(),  self.skeleton_image_frame.maximumWidth())
+        h = min(pixmap.height(), self.skeleton_image_frame.maximumHeight())
+        pixmap = pixmap.scaled(w, h, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+        self.skeleton_image_frame.setPixmap(pixmap)
 
     def load_next_file(self):
         self.reset_controller()
@@ -264,9 +284,9 @@ class MainWindow(QtGui.QWidget):
     def onclick_input(self):
         # get list of files, store them in config, load first one as preview
         self.file_set = QtGui.QFileDialog.getOpenFileNames(self.select_infile_btn, "Select image files", "", "Images (*.png *.tif *.jpg *.bmp)")
-        self.file_idx = 0
-        self.load_next_file()
-        self.set_buttons_ready()
+        if self.file_set:
+            self.file_idx = 0
+            self.load_next_file()
 
     def onclick_output(self):
         # get output location, store it in config

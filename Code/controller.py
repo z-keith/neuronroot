@@ -312,9 +312,9 @@ class Controller(QObject):
         self.log_string = self.log_string + "\n#   - Deviation from expected length: {0}%".format(round(100*((self.total_length-self.expected_length) / self.total_length), 2))
         self.log_string = self.log_string + "\n#   - Measured total nodule area: {0} cm2".format(round(self.nodule_area, 4))
 
-        self.outstring = "\n{0},{1},{2},{3}".format(config.file_name, self.total_length, self.calculated_average_diameter, self.total_area)
+        self.outstring = "\n{0},{1},{2},{3}".format(config.file_name, round(self.total_length,4), round(self.calculated_average_diameter,4), round(self.total_area,4))
         if config.search_for_nodules:
-            self.outstring = self.outstring + ",{0}".format(self.nodule_area)
+            self.outstring = self.outstring + ",{0}".format(round(self.nodule_area,4))
 
         self.signal_ui_update()
 
@@ -372,6 +372,6 @@ class Controller(QObject):
         self.image_spawned.emit()
 
     def write_output(self):
-        outfile = open("output.csv", "a")
+        outfile = open(config.outfile_path + "/output.csv", "a")
         outfile.writelines(self.outstring)
         outfile.close()
