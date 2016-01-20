@@ -54,7 +54,7 @@ class MainWindow(QtGui.QWidget):
 
         self.controller = controller
         controller.qt_window = self
-        controller.ui_update.connect(self.update_UI)
+        controller.ui_update.connect(self.update_log)
         controller.image_update.connect(self.img_update.emit)
 
         self.initUI()
@@ -71,7 +71,7 @@ class MainWindow(QtGui.QWidget):
         self.initial_image_frame.setFrameShape(1)
         self.initial_image_frame.setLineWidth(1)
         self.initial_image_frame.setAlignment(QtCore.Qt.AlignCenter)
-        self.initial_image_frame.setText("The initial image will appear here once it is loaded.")
+        self.initial_image_frame.setFont(QtGui.QFont('SansSerif', 8))
         hbox.addWidget(self.initial_image_frame)
 
         self.skeleton_image_frame = QtGui.QLabel(self)
@@ -79,13 +79,13 @@ class MainWindow(QtGui.QWidget):
         self.skeleton_image_frame.setFrameShape(1)
         self.skeleton_image_frame.setLineWidth(1)
         self.skeleton_image_frame.setAlignment(QtCore.Qt.AlignCenter)
-        self.skeleton_image_frame.setText("The skeleton image will appear here, updating as it is refined.")
-        self.img_update.connect(self.show_image_progress)
+        self.skeleton_image_frame.setFont(QtGui.QFont('SansSerif', 8))
+        self.img_update.connect(self.display_updating_image)
         hbox.addWidget(self.skeleton_image_frame)
 
         vbox_widget = QtGui.QFrame(self)
-        vbox_widget.setContentsMargins(0, 0, 0, 0)
         vbox = QtGui.QVBoxLayout(vbox_widget)
+        vbox_widget.setContentsMargins(0, 0, 0, 0)
         vbox.setContentsMargins(0, 0, 0, 0)
 
         self.output_log_label = QtGui.QPlainTextEdit(self)
@@ -97,24 +97,9 @@ class MainWindow(QtGui.QWidget):
         vbox.addWidget(self.output_log_label)
 
         self.blacklist_widget = QtGui.QFrame(self)
-        self.blacklist_widget.setContentsMargins(0, 0, 0, 0)
         blacklist_row = QtGui.QHBoxLayout(self.blacklist_widget)
+        self.blacklist_widget.setContentsMargins(0, 0, 0, 0)
         blacklist_row.setContentsMargins(0, 0, 0, 0)
-
-        self.io_widget = QtGui.QFrame(self)
-        self.io_widget.setContentsMargins(0, 0, 0, 0)
-        io_row = QtGui.QHBoxLayout(self.io_widget)
-        io_row.setContentsMargins(0, 0, 0, 0)
-
-        self.judge_widget = QtGui.QFrame(self)
-        self.judge_widget.setContentsMargins(0, 0, 0, 0)
-        judge_row = QtGui.QHBoxLayout(self.judge_widget)
-        judge_row.setContentsMargins(0, 0, 0, 0)
-
-        self.ready_widget = QtGui.QFrame(self)
-        self.ready_widget.setContentsMargins(0, 0, 0, 0)
-        ready_row = QtGui.QHBoxLayout(self.ready_widget)
-        ready_row.setContentsMargins(0, 0, 0, 0)
 
         self.add_blacklist_btn = QtGui.QPushButton('Blacklist area', self)
         self.add_blacklist_btn.setToolTip('Select an area to ignore')
@@ -128,6 +113,11 @@ class MainWindow(QtGui.QWidget):
         blacklist_row.addWidget(self.add_blacklist_btn)
         self.buttonsetup_image_operations(self.blacklist_widget)
 
+        self.io_widget = QtGui.QFrame(self)
+        io_row = QtGui.QHBoxLayout(self.io_widget)
+        self.io_widget.setContentsMargins(0, 0, 0, 0)
+        io_row.setContentsMargins(0, 0, 0, 0)
+
         self.select_infile_btn = QtGui.QPushButton('Input images...', self)
         self.select_infile_btn.setToolTip('Select files to process')
         self.select_infile_btn.clicked.connect(self.onclick_input)
@@ -139,6 +129,11 @@ class MainWindow(QtGui.QWidget):
         io_row.addWidget(self.select_output_btn)
         io_row.addWidget(self.select_infile_btn)
         self.buttonsetup_io(self.io_widget)
+
+        self.judge_widget = QtGui.QFrame(self)
+        judge_row = QtGui.QHBoxLayout(self.judge_widget)
+        self.judge_widget.setContentsMargins(0, 0, 0, 0)
+        judge_row.setContentsMargins(0, 0, 0, 0)
 
         self.discard_redo_btn = QtGui.QPushButton('Discard + redo', self)
         self.discard_redo_btn.setToolTip('Retry analysis of the current image')
@@ -156,6 +151,11 @@ class MainWindow(QtGui.QWidget):
         judge_row.addWidget(self.discard_next_btn)
         judge_row.addWidget(self.accept_next_btn)
         self.buttonsetup_judge_output(self.judge_widget)
+
+        self.ready_widget = QtGui.QFrame(self)
+        ready_row = QtGui.QHBoxLayout(self.ready_widget)
+        self.ready_widget.setContentsMargins(0, 0, 0, 0)
+        ready_row.setContentsMargins(0, 0, 0, 0)
 
         self.ready_run_btn = QtGui.QPushButton('Ready', self)
         self.ready_run_btn.setToolTip('Select a start point and analyze the current image')
@@ -176,55 +176,9 @@ class MainWindow(QtGui.QWidget):
 
         hbox.addWidget(vbox_widget)
 
-        self.set_buttons_initial()
+        self.reset_UI()
 
         self.show()
-
-    def show_image_progress(self):
-        self.display_updating_image()
-
-    def update_image_paths(self):
-        self.initial_image = config.outfile_path + "/" + config.file_name +"-initial" + config.proper_file_extension
-        self.updated_image = config.outfile_path + "/" + config.file_name + "-analysis" + config.proper_file_extension
-        self.display_preview_image()
-        self.log_string = ""
-        self.output_log_label.setPlainText(self.log_string)
-        self.set_buttons_ready()
-
-    def update_UI(self):
-        self.log_string = self.controller.log_string
-        self.output_log_label.setPlainText(self.log_string)
-        self.output_log_label.verticalScrollBar().setSliderPosition(self.output_log_label.verticalScrollBar().maximum())
-
-    def set_filepath(self):
-        path = self.file_set[self.file_idx]
-        config.file_name = os.path.basename(path).split('.')[0]
-        config.file_extension = '.' + os.path.basename(path).split('.')[1]
-        config.infile_path = os.path.dirname(path)
-
-    def reset_controller(self):
-        self.controller = controller.Controller()
-        self.controller.ui_update.connect(self.update_UI)
-        self.controller.image_update.connect(self.img_update.emit)
-
-    def reset_UI(self):
-        self.initial_image_frame.setText("The initial image will appear here once it is loaded.")
-        self.skeleton_image_frame.setText("The skeleton image will appear here, updating as it is refined.")
-        self.log_string = ""
-        self.set_buttons_initial()
-        self.update_UI()
-
-    def set_buttons_initial(self):
-        self.buttons_init.emit()
-
-    def set_buttons_ready(self):
-        self.buttons_ready.emit()
-
-    def set_buttons_running(self):
-        self.buttons_run.emit()
-
-    def set_buttons_finished(self):
-        self.buttons_end.emit()
 
     def buttonsetup_io(self, row):
         self.buttons_init.connect(row.show)
@@ -243,43 +197,6 @@ class MainWindow(QtGui.QWidget):
         self.buttons_ready.connect(row.hide)
         self.buttons_run.connect(row.hide)
         self.buttons_end.connect(row.show)
-
-    def display_preview_image(self):
-        pixmap = QtGui.QPixmap(self.initial_image)
-        if (pixmap.isNull()):
-            return
-        w = min(pixmap.width(),  self.initial_image_frame.maximumWidth())
-        h = min(pixmap.height(), self.initial_image_frame.maximumHeight())
-        pixmap = pixmap.scaled(w, h, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
-        self.initial_image_frame.setPixmap(pixmap)
-
-    def display_updating_image(self):
-        pixmap = QtGui.QPixmap(self.updated_image)
-        if (pixmap.isNull()):
-            return
-        w = min(pixmap.width(),  self.skeleton_image_frame.maximumWidth())
-        h = min(pixmap.height(), self.skeleton_image_frame.maximumHeight())
-        pixmap = pixmap.scaled(w, h, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
-        self.skeleton_image_frame.setPixmap(pixmap)
-
-    def load_next_file(self):
-        self.reset_controller()
-        self.reset_UI()
-        if self.file_idx < len(self.file_set):
-            self.set_filepath()
-            self.image_setup()
-        else:
-            self.log_string = "All files complete!"
-            self.output_log_label.setPlainText(self.log_string)
-            self.set_buttons_initial()
-
-    def image_setup(self):
-        self.buttons_run.emit()
-        thread = Thread(target=self.controller.spawn_proper_infile)
-        thread.start()
-        self.log_string = "Loading file..."
-        self.output_log_label.setPlainText(self.log_string)
-        self.controller.image_spawned.connect(self.update_image_paths)
 
     def onclick_input(self):
         # get list of files, store them in config, load first one as preview
@@ -310,17 +227,11 @@ class MainWindow(QtGui.QWidget):
         self.file_idx += 1
         self.load_next_file()
 
-    def onclick_cancel(self):
-        self.cancel_clicked = True
-
     def onclick_accept(self):
         # go to next file, load as preview
         self.controller.write_output()
         self.file_idx += 1
         self.load_next_file()
-
-    def set_write_finished(self):
-        self.finished_writing = True
 
     def onclick_reject_skip(self):
         # go to next file, load as preview
@@ -330,6 +241,87 @@ class MainWindow(QtGui.QWidget):
     def onclick_reject_redo(self):
         # clear temp data, set up for new run
         self.load_next_file()
+
+    def set_buttons_initial(self):
+        self.buttons_init.emit()
+
+    def set_buttons_ready(self):
+        self.buttons_ready.emit()
+
+    def set_buttons_running(self):
+        self.buttons_run.emit()
+
+    def set_buttons_finished(self):
+        self.buttons_end.emit()
+
+    def display_preview_image(self):
+        pixmap = QtGui.QPixmap(self.initial_image)
+        if (pixmap.isNull()):
+            return
+        w = min(pixmap.width(),  self.initial_image_frame.maximumWidth())
+        h = min(pixmap.height(), self.initial_image_frame.maximumHeight())
+        pixmap = pixmap.scaled(w, h, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+        self.initial_image_frame.setPixmap(pixmap)
+
+        self.log_string = ""
+        self.output_log_label.setPlainText(self.log_string)
+        self.set_buttons_ready()
+
+    def display_updating_image(self):
+        pixmap = QtGui.QPixmap(self.updated_image)
+        if (pixmap.isNull()):
+            return
+        w = min(pixmap.width(),  self.skeleton_image_frame.maximumWidth())
+        h = min(pixmap.height(), self.skeleton_image_frame.maximumHeight())
+        pixmap = pixmap.scaled(w, h, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+        self.skeleton_image_frame.setPixmap(pixmap)
+
+    def load_next_file(self):
+        self.reset_controller()
+        self.reset_UI()
+        if self.file_idx < len(self.file_set):
+            self.set_filepath()
+            self.image_setup()
+        else:
+            self.log_string = "All files complete!"
+            self.output_log_label.setPlainText(self.log_string)
+            self.set_buttons_initial()
+
+    def image_setup(self):
+        self.buttons_run.emit()
+        thread = Thread(target=self.controller.spawn_proper_infile)
+        thread.start()
+        self.log_string = "Loading file..."
+        self.update_image_paths()
+        self.output_log_label.setPlainText(self.log_string)
+        self.controller.image_spawned.connect(self.display_preview_image)
+
+    def update_image_paths(self):
+        self.initial_image = config.outfile_path + "/" + config.file_name +"-initial" + config.proper_file_extension
+        self.updated_image = config.outfile_path + "/" + config.file_name + "-analysis" + config.proper_file_extension
+
+    def update_log(self):
+        self.log_string = self.controller.log_string
+        self.output_log_label.setPlainText(self.log_string)
+        self.output_log_label.verticalScrollBar().setSliderPosition(self.output_log_label.verticalScrollBar().maximum())
+
+    def set_filepath(self):
+        path = self.file_set[self.file_idx]
+        config.file_name = os.path.basename(path).split('.')[0]
+        config.file_extension = '.' + os.path.basename(path).split('.')[1]
+        config.infile_path = os.path.dirname(path)
+
+    def reset_controller(self):
+        self.controller = controller.Controller()
+        self.controller.ui_update.connect(self.update_log)
+        self.controller.image_update.connect(self.img_update.emit)
+
+    def reset_UI(self):
+        self.initial_image_frame.setText("The initial image will appear here once it is loaded.")
+        self.skeleton_image_frame.setText("The skeleton image will appear here, updating as it is refined.")
+        self.log_string = ""
+        self.output_log_label.setPlainText(self.log_string)
+        self.set_buttons_initial()
 
     def analyze(self):
         # load the image file into an ArrayBuilder
