@@ -27,19 +27,19 @@ proper_file_extension = ".jpg"
 image_scaled_height = 2000
 
 # location of the initial seed point for tracing
-seedYX = (int(330*image_scaled_height/8871), int(4578*image_scaled_height/8871))
+seedYX = (0,0)
 
 # size of a pixel
 cm_per_pixel = 1/(470*image_scaled_height/8871)
 
 # minimum size of a tree to be considered not-noise
-minimum_tree_size = 0.10 * image_scaled_height
+minimum_tree_size = 0.07 * image_scaled_height
 
 # contains pair of (y,x) tuples representing the printable rectangle of the image
 area_whitelist = [(0.015, 0.015), (0.985, 0.985)]
 
 # contains pairs of (y,x) tuples representing the non-printable regions within the whitelist region
-area_blacklist = [((0.8, 0), (1, 0.6))]
+area_blacklist = []
 
 # toggle to store whether the user wants to find nodules
 search_for_nodules = True

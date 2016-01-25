@@ -1,3 +1,5 @@
+# TODO: Nodule count
+
 # -*- coding: utf-8 -*-
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -310,7 +312,8 @@ class Controller(QObject):
         self.log_string = self.log_string + "\n#   - Expected total length: {0} cm".format(round(self.expected_length, 4))
         self.log_string = self.log_string + "\n#   - Measured total length: {0} cm".format(round(self.total_length, 4))
         self.log_string = self.log_string + "\n#   - Deviation from expected length: {0}%".format(round(100*((self.total_length-self.expected_length) / self.total_length), 2))
-        self.log_string = self.log_string + "\n#   - Measured total nodule area: {0} cm2".format(round(self.nodule_area, 4))
+        if config.search_for_nodules:
+            self.log_string = self.log_string + "\n#   - Measured total nodule area: {0} cm2".format(round(self.nodule_area, 4))
 
         self.outstring = "\n{0},{1},{2},{3}".format(config.file_name, round(self.total_length,4), round(self.calculated_average_diameter,4), round(self.total_area,4))
         if config.search_for_nodules:
@@ -369,6 +372,8 @@ class Controller(QObject):
     def spawn_proper_infile(self):
         initial_image = Image.open(config.infile_path + "/" + config.file_name + config.file_extension)
         initial_image.save(config.outfile_path + "/" + config.file_name + "-initial" + config.proper_file_extension)
+        if initial_image.info['dpi'][0]:
+            config.dpi = initial_image.info['dpi'][0]
         self.image_spawned.emit()
 
     def write_output(self):

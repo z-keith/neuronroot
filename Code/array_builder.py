@@ -41,11 +41,12 @@ class ArrayBuilder:
         """
 
         warnings.simplefilter('ignore', Image.DecompressionBombWarning)
-        image = Image.open("../TestImages/{0}.tif".format(self.file_name))
+        image = Image.open("{0}/{1}-initial{2}".format(config.outfile_path, config.file_name, config.proper_file_extension))
 
-        if image.info['dpi'][0]:
-            config.cm_per_pixel = 1 / (image.info['dpi'][0] / 2.54)
-            config.dpi = image.info['dpi'][0]
+        if 'dpi' in image.info:
+            if image.info['dpi'][0]:
+                config.cm_per_pixel = 1 / (image.info['dpi'][0] / 2.54)
+                config.dpi = image.info['dpi'][0]
 
         # Scale the image down, if necessary, to the height defined in config
         # The program can be made to run faster at the cost of precision by reducing config.image_scaled_height
@@ -68,7 +69,7 @@ class ArrayBuilder:
         self.array = np.dot(self.array[..., :3], [0.299, 0.587, 0.144])
 
         # Scale of the image mean intensity to threshold the image at (higher multipliers are less permissive)
-        threshold_multiplier = 1.0
+        threshold_multiplier = 1.2
 
         global_threshold = self.array.mean() * threshold_multiplier
         self.array[self.array < global_threshold] = 0

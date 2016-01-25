@@ -27,6 +27,9 @@ class MainWindow(QtGui.QWidget):
     select_infile_btn = None
     select_output_btn = None
 
+    dpi_settext = None
+    nodule_checkbox = None
+
     discard_redo_btn = None
     discard_next_btn = None
     accept_next_btn = None
@@ -95,6 +98,34 @@ class MainWindow(QtGui.QWidget):
         self.output_log_label.setReadOnly(True)
         self.output_log_label.setFont(QtGui.QFont('SansSerif', 8))
         vbox.addWidget(self.output_log_label)
+
+        self.options_widget = QtGui.QFrame(self)
+        options_row = QtGui.QHBoxLayout(self.options_widget)
+        self.options_widget.setContentsMargins(0, 0, 0, 0)
+        options_row.setContentsMargins(0, 0, 0, 0)
+
+        dpi_label = QtGui.QLabel(self)
+        dpi_label.setFont(QtGui.QFont('SansSerif', 8))
+        dpi_label.setText('DPI:')
+        self.dpi_textedit = QtGui.QLineEdit(self)
+        self.dpi_textedit.setToolTip('Input or correct the DPI value')
+        self.dpi_textedit.setFixedWidth(60)
+        self.dpi_textedit.textChanged.connect(self.dpi_update)
+
+        nodule_label = QtGui.QLabel(self)
+        nodule_label.setFont(QtGui.QFont('SansSerif', 8))
+        nodule_label.setText('Find nodules?')
+        self.nodule_checkbox = QtGui.QCheckBox(self)
+        self.nodule_checkbox.setToolTip('Toggle the nodule search feature')
+        self.nodule_checkbox.setChecked(True)
+
+        options_row.addWidget(dpi_label)
+        options_row.addWidget(self.dpi_textedit)
+        options_row.addSpacing(15)
+        options_row.addWidget(nodule_label)
+        options_row.addWidget(self.nodule_checkbox)
+        options_row.addStretch(1000)
+        self.buttonsetup_image_operations(self.options_widget)
 
         self.blacklist_widget = QtGui.QFrame(self)
         blacklist_row = QtGui.QHBoxLayout(self.blacklist_widget)
@@ -169,6 +200,7 @@ class MainWindow(QtGui.QWidget):
         ready_row.addWidget(self.ready_run_btn)
         self.buttonsetup_image_operations(self.ready_widget)
 
+        vbox.addWidget(self.options_widget)
         vbox.addWidget(self.blacklist_widget)
         vbox.addWidget(self.io_widget)
         vbox.addWidget(self.judge_widget)
@@ -200,7 +232,7 @@ class MainWindow(QtGui.QWidget):
 
     def onclick_input(self):
         # get list of files, store them in config, load first one as preview
-        self.file_set = QtGui.QFileDialog.getOpenFileNames(self.select_infile_btn, "Select image files", "", "Images (*.png *.tif *.jpg *.bmp)")
+        self.file_set = QtGui.QFileDialog.getOpenFileNames(self.select_infile_btn, "Select image files", "../TestImages/", "Images (*.png *.tif *.jpg *.bmp)")
         if self.file_set:
             self.file_idx = 0
             self.load_next_file()
@@ -218,6 +250,10 @@ class MainWindow(QtGui.QWidget):
 
     def onclick_run(self):
         self.log_string = ""
+        if self.nodule_checkbox.isChecked():
+            config.search_for_nodules = True
+        else:
+            config.search_for_nodules = False
         thread = Thread(target=self.analyze)
         thread.start()
         self.set_buttons_running()
@@ -267,6 +303,8 @@ class MainWindow(QtGui.QWidget):
         self.output_log_label.setPlainText(self.log_string)
         self.set_buttons_ready()
 
+        self.dpi_textedit.setText(str(int(config.dpi)))
+
     def display_updating_image(self):
         pixmap = QtGui.QPixmap(self.updated_image)
         if (pixmap.isNull()):
@@ -295,6 +333,10 @@ class MainWindow(QtGui.QWidget):
         self.update_image_paths()
         self.output_log_label.setPlainText(self.log_string)
         self.controller.image_spawned.connect(self.display_preview_image)
+
+    def dpi_update(self):
+        # print(self.dpi_textedit.toPlainText())
+        pass
 
     def update_image_paths(self):
         self.initial_image = config.outfile_path + "/" + config.file_name +"-initial" + config.proper_file_extension
