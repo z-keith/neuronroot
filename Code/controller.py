@@ -10,7 +10,7 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 import time, math
-from PyQt4.QtCore import pyqtSignal, QObject
+from PyQt5.QtCore import pyqtSignal, QObject
 from PIL import Image
 
 # noinspection PyUnresolvedReferences

@@ -1,14 +1,13 @@
 import os
 
-from PyQt5 import QtGui, QtCore, QtWidgets
-
+from PyQt4 import QtGui, QtCore
 
 from threading import Thread
 
 import config
 import controller
 
-class MainWindow(QtWidgets.QWidget):
+class MainWindow(QtGui.QWidget):
 
     # Stores the reference to the program logic
     controller = None
@@ -65,12 +64,12 @@ class MainWindow(QtWidgets.QWidget):
 
     def initUI(self):
 
-        QtWidgets.QToolTip.setFont(QtGui.QFont('SansSerif', 8))
+        QtGui.QToolTip.setFont(QtGui.QFont('SansSerif', 8))
         self.setWindowTitle('Neuronroot 1.0')
 
-        hbox = QtWidgets.QHBoxLayout(self)
+        hbox = QtGui.QHBoxLayout(self)
 
-        self.initial_image_frame = QtWidgets.QLabel(self)
+        self.initial_image_frame = QtGui.QLabel(self)
         self.initial_image_frame.setFixedWidth(350)
         self.initial_image_frame.setFrameShape(1)
         self.initial_image_frame.setLineWidth(1)
@@ -78,7 +77,7 @@ class MainWindow(QtWidgets.QWidget):
         self.initial_image_frame.setFont(QtGui.QFont('SansSerif', 8))
         hbox.addWidget(self.initial_image_frame)
 
-        self.skeleton_image_frame = QtWidgets.QLabel(self)
+        self.skeleton_image_frame = QtGui.QLabel(self)
         self.skeleton_image_frame.setFixedWidth(350)
         self.skeleton_image_frame.setFrameShape(1)
         self.skeleton_image_frame.setLineWidth(1)
@@ -87,12 +86,12 @@ class MainWindow(QtWidgets.QWidget):
         self.img_update.connect(self.display_updating_image)
         hbox.addWidget(self.skeleton_image_frame)
 
-        vbox_widget = QtWidgets.QFrame(self)
-        vbox = QtWidgets.QVBoxLayout(vbox_widget)
+        vbox_widget = QtGui.QFrame(self)
+        vbox = QtGui.QVBoxLayout(vbox_widget)
         vbox_widget.setContentsMargins(0, 0, 0, 0)
         vbox.setContentsMargins(0, 0, 0, 0)
 
-        self.output_log_label = QtWidgets.QPlainTextEdit(self)
+        self.output_log_label = QtGui.QPlainTextEdit(self)
         self.output_log_label.setFixedWidth(350)
         self.output_log_label.setFrameShape(1)
         self.output_log_label.setLineWidth(1)
@@ -100,23 +99,23 @@ class MainWindow(QtWidgets.QWidget):
         self.output_log_label.setFont(QtGui.QFont('SansSerif', 8))
         vbox.addWidget(self.output_log_label)
 
-        self.options_widget = QtWidgets.QFrame(self)
-        options_row = QtWidgets.QHBoxLayout(self.options_widget)
+        self.options_widget = QtGui.QFrame(self)
+        options_row = QtGui.QHBoxLayout(self.options_widget)
         self.options_widget.setContentsMargins(0, 0, 0, 0)
         options_row.setContentsMargins(0, 0, 0, 0)
 
-        dpi_label = QtWidgets.QLabel(self)
+        dpi_label = QtGui.QLabel(self)
         dpi_label.setFont(QtGui.QFont('SansSerif', 8))
         dpi_label.setText('DPI:')
-        self.dpi_textedit = QtWidgets.QLineEdit(self)
+        self.dpi_textedit = QtGui.QLineEdit(self)
         self.dpi_textedit.setToolTip('Input or correct the DPI value')
         self.dpi_textedit.setFixedWidth(60)
         self.dpi_textedit.textChanged.connect(self.dpi_update)
 
-        nodule_label = QtWidgets.QLabel(self)
+        nodule_label = QtGui.QLabel(self)
         nodule_label.setFont(QtGui.QFont('SansSerif', 8))
         nodule_label.setText('Find nodules?')
-        self.nodule_checkbox = QtWidgets.QCheckBox(self)
+        self.nodule_checkbox = QtGui.QCheckBox(self)
         self.nodule_checkbox.setToolTip('Toggle the nodule search feature')
         self.nodule_checkbox.setChecked(True)
 
@@ -128,16 +127,16 @@ class MainWindow(QtWidgets.QWidget):
         options_row.addStretch(1000)
         self.buttonsetup_image_operations(self.options_widget)
 
-        self.blacklist_widget = QtWidgets.QFrame(self)
-        blacklist_row = QtWidgets.QHBoxLayout(self.blacklist_widget)
+        self.blacklist_widget = QtGui.QFrame(self)
+        blacklist_row = QtGui.QHBoxLayout(self.blacklist_widget)
         self.blacklist_widget.setContentsMargins(0, 0, 0, 0)
         blacklist_row.setContentsMargins(0, 0, 0, 0)
 
-        self.add_blacklist_btn = QtWidgets.QPushButton('Blacklist area', self)
+        self.add_blacklist_btn = QtGui.QPushButton('Blacklist area', self)
         self.add_blacklist_btn.setToolTip('Select an area to ignore')
         self.add_blacklist_btn.clicked.connect(self.onclick_set_blacklist)
 
-        self.clear_blacklist_btn = QtWidgets.QPushButton('Clear blacklist', self)
+        self.clear_blacklist_btn = QtGui.QPushButton('Clear blacklist', self)
         self.clear_blacklist_btn.setToolTip('Clear the blacklist')
         self.clear_blacklist_btn.clicked.connect(self.onclick_clear_blacklist)
 
@@ -145,16 +144,16 @@ class MainWindow(QtWidgets.QWidget):
         blacklist_row.addWidget(self.add_blacklist_btn)
         self.buttonsetup_image_operations(self.blacklist_widget)
 
-        self.io_widget = QtWidgets.QFrame(self)
-        io_row = QtWidgets.QHBoxLayout(self.io_widget)
+        self.io_widget = QtGui.QFrame(self)
+        io_row = QtGui.QHBoxLayout(self.io_widget)
         self.io_widget.setContentsMargins(0, 0, 0, 0)
         io_row.setContentsMargins(0, 0, 0, 0)
 
-        self.select_infile_btn = QtWidgets.QPushButton('Input images...', self)
+        self.select_infile_btn = QtGui.QPushButton('Input images...', self)
         self.select_infile_btn.setToolTip('Select files to process')
         self.select_infile_btn.clicked.connect(self.onclick_input)
 
-        self.select_output_btn = QtWidgets.QPushButton('Output location...', self)
+        self.select_output_btn = QtGui.QPushButton('Output location...', self)
         self.select_output_btn.setToolTip('Choose where to save output images and data')
         self.select_output_btn.clicked.connect(self.onclick_output)
 
@@ -162,20 +161,20 @@ class MainWindow(QtWidgets.QWidget):
         io_row.addWidget(self.select_infile_btn)
         self.buttonsetup_io(self.io_widget)
 
-        self.judge_widget = QtWidgets.QFrame(self)
-        judge_row = QtWidgets.QHBoxLayout(self.judge_widget)
+        self.judge_widget = QtGui.QFrame(self)
+        judge_row = QtGui.QHBoxLayout(self.judge_widget)
         self.judge_widget.setContentsMargins(0, 0, 0, 0)
         judge_row.setContentsMargins(0, 0, 0, 0)
 
-        self.discard_redo_btn = QtWidgets.QPushButton('Discard + redo', self)
+        self.discard_redo_btn = QtGui.QPushButton('Discard + redo', self)
         self.discard_redo_btn.setToolTip('Retry analysis of the current image')
         self.discard_redo_btn.clicked.connect(self.onclick_reject_redo)
 
-        self.discard_next_btn = QtWidgets.QPushButton('Discard + continue', self)
+        self.discard_next_btn = QtGui.QPushButton('Discard + continue', self)
         self.discard_next_btn.setToolTip('Continue without saving data')
         self.discard_next_btn.clicked.connect(self.onclick_reject_skip)
 
-        self.accept_next_btn = QtWidgets.QPushButton('Accept + continue', self)
+        self.accept_next_btn = QtGui.QPushButton('Accept + continue', self)
         self.accept_next_btn.setToolTip('Save data and continue')
         self.accept_next_btn.clicked.connect(self.onclick_accept)
 
@@ -184,16 +183,16 @@ class MainWindow(QtWidgets.QWidget):
         judge_row.addWidget(self.accept_next_btn)
         self.buttonsetup_judge_output(self.judge_widget)
 
-        self.ready_widget = QtWidgets.QFrame(self)
-        ready_row = QtWidgets.QHBoxLayout(self.ready_widget)
+        self.ready_widget = QtGui.QFrame(self)
+        ready_row = QtGui.QHBoxLayout(self.ready_widget)
         self.ready_widget.setContentsMargins(0, 0, 0, 0)
         ready_row.setContentsMargins(0, 0, 0, 0)
 
-        self.ready_run_btn = QtWidgets.QPushButton('Ready', self)
+        self.ready_run_btn = QtGui.QPushButton('Ready', self)
         self.ready_run_btn.setToolTip('Select a start point and analyze the current image')
         self.ready_run_btn.clicked.connect(self.onclick_run)
 
-        self.skip_btn = QtWidgets.QPushButton('Skip', self)
+        self.skip_btn = QtGui.QPushButton('Skip', self)
         self.skip_btn.setToolTip('Load the next image, ignoring the current one')
         self.skip_btn.clicked.connect(self.onclick_skip)
 
@@ -233,14 +232,14 @@ class MainWindow(QtWidgets.QWidget):
 
     def onclick_input(self):
         # get list of files, store them in config, load first one as preview
-        self.file_set = QtWidgets.QFileDialog.getOpenFileNames(self.select_infile_btn, "Select image files", "../TestImages/", "Images (*.png *.tif *.jpg *.bmp)")[0]
+        self.file_set = QtGui.QFileDialog.getOpenFileNames(self.select_infile_btn, "Select image files", "../TestImages/", "Images (*.png *.tif *.jpg *.bmp)")
         if self.file_set:
             self.file_idx = 0
             self.load_next_file()
 
     def onclick_output(self):
         # get output location, store it in config
-        config.outfile_path = QtWidgets.QFileDialog.getExistingDirectory(self.select_output_btn, "Select output directory")
+        config.outfile_path = QtGui.QFileDialog.getExistingDirectory(self.select_output_btn, "Select output directory")
 
     def onclick_set_blacklist(self):
         #TODO: how to do this?

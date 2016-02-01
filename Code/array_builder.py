@@ -40,7 +40,7 @@ class ArrayBuilder:
         :return: Nothing.
         """
 
-        warnings.simplefilter('ignore', Image.DecompressionBombWarning)
+        # warnings.simplefilter('ignore', Image.DecompressionBombWarning)
         image = Image.open("{0}/{1}-initial{2}".format(config.outfile_path, config.file_name, config.proper_file_extension))
 
         if 'dpi' in image.info:
