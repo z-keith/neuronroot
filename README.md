@@ -1,14 +1,15 @@
-#neuronroot v0.9.9
+#neuronroot v0.1.0
 An automated solution to root system image analysis
 
 #to do:
-- add statistical output [1.0]
-- add user interface (display initial click seed point, default dpi, whitelisted/blacklisted areas, show text output, update to roots image, accept / retry / flag as terrible buttons, toggle nodule search, final statistical output) [1.0]
-- add true nodule area + count calculation (gate-flow algorithm) [1.1]
-- implement Smartroot-style cross detection / graph-cycle cross detection [postponed - possibly not necessary for initial project]
-- port to C++ for speed/multithreading [not currently planned, but possibly a good idea]
+- Add visual blacklisting
+- Package as executable
 
 #changelog:
+##v1.0.0
+- UI implemented - analyze more images, more quickly!
+- Statistical output implemented - each analyzed file outputs data to a user-specified CSV
+
 ##v0.9.9
 - Added automated nodule detection and (very hacky) area calculation
 - Fixed questionable programming decision in grey-outline printing function (saves 10-20% runtime)
