@@ -28,7 +28,8 @@ class MainWindow(QtWidgets.QWidget):
     select_infile_btn = None
     select_output_btn = None
 
-    dpi_settext = None
+    threshold_textedit = None
+    dpi_textedit = None
     nodule_checkbox = None
 
     discard_redo_btn = None
@@ -111,7 +112,15 @@ class MainWindow(QtWidgets.QWidget):
         self.dpi_textedit = QtWidgets.QLineEdit(self)
         self.dpi_textedit.setToolTip('Input or correct the DPI value')
         self.dpi_textedit.setFixedWidth(60)
-        self.dpi_textedit.textChanged.connect(self.dpi_update)
+        self.dpi_textedit.returnPressed.connect(self.dpi_update)
+
+        threshold_label = QtWidgets.QLabel(self)
+        threshold_label.setFont(QtGui.QFont('SansSerif', 8))
+        threshold_label.setText('Threshold multiplier:')
+        self.threshold_textedit = QtWidgets.QLineEdit(self)
+        self.threshold_textedit.setToolTip('Input the threshold value')
+        self.threshold_textedit.setFixedWidth(30)
+        self.threshold_textedit.returnPressed.connect(self.threshold_update)
 
         nodule_label = QtWidgets.QLabel(self)
         nodule_label.setFont(QtGui.QFont('SansSerif', 8))
@@ -122,7 +131,8 @@ class MainWindow(QtWidgets.QWidget):
 
         options_row.addWidget(dpi_label)
         options_row.addWidget(self.dpi_textedit)
-        options_row.addSpacing(15)
+        options_row.addWidget(threshold_label)
+        options_row.addWidget(self.threshold_textedit)
         options_row.addWidget(nodule_label)
         options_row.addWidget(self.nodule_checkbox)
         options_row.addStretch(1000)
@@ -305,6 +315,7 @@ class MainWindow(QtWidgets.QWidget):
         self.set_buttons_ready()
 
         self.dpi_textedit.setText(str(int(config.dpi)))
+        self.threshold_textedit.setText(str(float(config.threshold_multiplier)))
 
     def display_updating_image(self):
         pixmap = QtGui.QPixmap(self.updated_image)
@@ -336,8 +347,22 @@ class MainWindow(QtWidgets.QWidget):
         self.controller.image_spawned.connect(self.display_preview_image)
 
     def dpi_update(self):
-        # print(self.dpi_textedit.toPlainText())
-        pass
+        self.dpi_textedit.clearFocus()
+        x = self.dpi_textedit.text()
+        try:
+            y = int(x)
+            config.dpi = y
+        except ValueError:
+            self.dpi_textedit.setText(str(config.dpi))
+
+    def threshold_update(self):
+        self.threshold_textedit.clearFocus()
+        x = self.threshold_textedit.text()
+        try:
+            y = float(x)
+            config.threshold_multiplier = y
+        except ValueError:
+            self.threshold_textedit.setText(str(config.threshold_multiplier))
 
     def update_image_paths(self):
         self.initial_image = config.outfile_path + "/" + config.file_name +"-initial" + config.proper_file_extension

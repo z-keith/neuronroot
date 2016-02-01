@@ -51,3 +51,5 @@ test_radii = False
 testcase_count = 50
 
 dpi = 0
+
+threshold_multiplier = 1

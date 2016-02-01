@@ -69,7 +69,7 @@ class ArrayBuilder:
         self.array = np.dot(self.array[..., :3], [0.299, 0.587, 0.144])
 
         # Scale of the image mean intensity to threshold the image at (higher multipliers are less permissive)
-        threshold_multiplier = 1.2
+        threshold_multiplier = config.threshold_multiplier
 
         global_threshold = self.array.mean() * threshold_multiplier
         self.array[self.array < global_threshold] = 0
