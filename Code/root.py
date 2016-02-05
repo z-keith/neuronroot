@@ -29,8 +29,8 @@ class Root:
 
     def __init__(self, pixel_list, key):
         self.pixel_list = pixel_list
-        self.branch_list = []
-        self.branches_at_endpoint = []
+        self.branch_list = list()
+        self.branches_at_endpoint = list()
         self.key = key
 
     def __repr__(self):

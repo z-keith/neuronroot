@@ -84,7 +84,7 @@ class TreeBuilder:
         are removed.
         :return: Nothing.
         """
-        all_pixels = []
+        all_pixels = list()
 
         for pixel in sorted(self.pixel_dict.values(), key=self.getkey):
             all_pixels.append(pixel)
@@ -151,7 +151,7 @@ class TreeBuilder:
         intricate-garbage offshoots we'll deal with in the next several steps)
         :return: Nothing.
         """
-        current_list = []
+        current_list = list()
         current_set = set()
         current_radius_value = 0
 

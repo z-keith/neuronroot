@@ -39,7 +39,7 @@ minimum_tree_size = 0.07 * image_scaled_height
 area_whitelist = [(0.015, 0.015), (0.985, 0.985)]
 
 # contains pairs of (y,x) tuples representing the non-printable regions within the whitelist region
-area_blacklist = []
+area_blacklist = list()
 
 # toggle to store whether the user wants to find nodules
 search_for_nodules = True
@@ -53,3 +53,5 @@ testcase_count = 50
 dpi = 0
 
 threshold_multiplier = 1
+
+min_nodule_size = 12

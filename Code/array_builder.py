@@ -11,6 +11,7 @@ from PIL import Image
 from scipy import ndimage
 import numpy as np
 import warnings
+import math
 
 # noinspection PyUnresolvedReferences
 import config
@@ -55,9 +56,12 @@ class ArrayBuilder:
             scaled_width = int(float(image.size[0])*scaling_ratio)
             image = image.resize((scaled_width, config.image_scaled_height))
             config.cm_per_pixel /= scaling_ratio
+            config.seedYX = (math.floor(config.seedYX[0]*scaling_ratio), math.floor(config.seedYX[1]*scaling_ratio))
 
         self.image_height = image.size[1]
         self.image_width = image.size[0]
+
+        config.min_nodule_size = int(12*self.image_height/2000)
 
         self.array = np.array(image)
 
@@ -111,8 +115,8 @@ class ArrayBuilder:
 
         # Blacklisted areas
         for area in config.area_blacklist:
-            yrange = (int(area[0][0]*self.image_height), int(area[1][0]*self.image_height))
-            xrange = (int(area[0][1]*self.image_width), int(area[1][1]*self.image_width))
+            yrange = (abs(int(area[0][0]*self.image_height)), abs(int(area[1][0]*self.image_height)))
+            xrange = (abs(int(area[0][1]*self.image_width)), abs(int(area[1][1]*self.image_width)))
             for y in range(yrange[0], yrange[1]):
                 for x in range(xrange[0], xrange[1]):
                     self.array[y, x] = 0

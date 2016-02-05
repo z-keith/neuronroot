@@ -46,7 +46,7 @@ class NoduleFinder:
         local_radius_threshold_multiplier = 1.5
 
         # Set the minimum radius of a nodule pixel
-        minimum_nodule_radius = 12
+        minimum_nodule_size = config.min_nodule_size
 
         # Iterate through all roots of significant length and find pixels with radius greater than either threshold
         significant_root_length = 7  # Measured in number of pixels

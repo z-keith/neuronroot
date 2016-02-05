@@ -63,9 +63,6 @@ class Controller(QObject):
     def __init__(self):
         QObject.__init__(self)
 
-        self.start_time = time.time()
-        self.last_time = time.time()
-
     def signal_ui_update(self):
         self.ui_update.emit()
         
@@ -77,6 +74,8 @@ class Controller(QObject):
         Function to handle the ArrayBuilder's image loading and filtering functions
         :return: Nothing. Upon successful completion, array_builder.array contains a representation of the input image.
         """
+        self.start_time = time.time()
+        self.last_time = time.time()
 
         self.log_string ="Loading image {0}:".format(config.file_name)
         self.signal_ui_update()
@@ -370,7 +369,7 @@ class Controller(QObject):
         return "{0} minute{1} and {2} second{3}.".format(minutes, plural_min, seconds, plural_sec)
 
     def spawn_proper_infile(self):
-        initial_image = Image.open(config.infile_path + "/" + config.file_name + config.file_extension)
+        initial_image = Image.open(config.infile_path + "/" + config.file_name + config.file_extension).convert('RGB')
         initial_image.save(config.outfile_path + "/" + config.file_name + "-initial" + config.proper_file_extension)
         if initial_image.info['dpi'][0]:
             config.dpi = initial_image.info['dpi'][0]

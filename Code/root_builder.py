@@ -45,7 +45,7 @@ class RootBuilder:
         """
 
         # Trace each tree, one at a time
-        initial_roots = []
+        initial_roots = list()
 
         for seed in self.all_seed_pixels:
 
@@ -69,7 +69,7 @@ class RootBuilder:
         create_initial_roots to be used as start_roots in the future.
         """
 
-        created_roots = []
+        created_roots = list()
 
         # Not it
         for current_pixel in start_root.pixel_list[-1].children:
@@ -120,7 +120,7 @@ class RootBuilder:
         # Lower multipliers remove less incorrect roots, but also don't incorrectly remove real roots
         radius_multiplier = 0
 
-        edge_roots = []
+        edge_roots = list()
 
         for root in self.root_dict.values():
             if not root.branches_at_endpoint:
@@ -128,7 +128,7 @@ class RootBuilder:
 
         while edge_roots:
 
-            next_root_list = []
+            next_root_list = list()
 
             for root in edge_roots:
 
@@ -150,7 +150,7 @@ class RootBuilder:
         :return:
         """
 
-        current_list = []
+        current_list = list()
 
         for root in self.root_dict.values():
             if not root.branches_at_endpoint:
@@ -158,12 +158,12 @@ class RootBuilder:
 
         while current_list:
 
-            next_list = []
+            next_list = list()
 
             for root in current_list:
 
                 if root.remaining_length_ready():
-                    length_list = []
+                    length_list = list()
                     for branch in root.branches_at_endpoint:
                         length_list.append(branch.remaining_length)
 
@@ -200,7 +200,7 @@ class RootBuilder:
         :param start_root:
         :return:
         """
-        next_roots = []
+        next_roots = list()
         to_attach = (-1, None)
 
         if not start_root.branches_at_endpoint:

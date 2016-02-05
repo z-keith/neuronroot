@@ -7,6 +7,7 @@ from threading import Thread
 
 import config
 import controller
+import drawable_image
 
 class MainWindow(QtWidgets.QWidget):
 
@@ -46,6 +47,8 @@ class MainWindow(QtWidgets.QWidget):
     initial_image = None
     updated_image = None
 
+    initial_image_pixmap = None
+
     # Signals
     buttons_init = QtCore.pyqtSignal()
     buttons_ready = QtCore.pyqtSignal()
@@ -71,7 +74,7 @@ class MainWindow(QtWidgets.QWidget):
 
         hbox = QtWidgets.QHBoxLayout(self)
 
-        self.initial_image_frame = QtWidgets.QLabel(self)
+        self.initial_image_frame = drawable_image.DrawableImage(self)
         self.initial_image_frame.setFixedWidth(350)
         self.initial_image_frame.setFrameShape(1)
         self.initial_image_frame.setLineWidth(1)
@@ -253,11 +256,35 @@ class MainWindow(QtWidgets.QWidget):
         config.outfile_path = QtWidgets.QFileDialog.getExistingDirectory(self.select_output_btn, "Select output directory")
 
     def onclick_set_blacklist(self):
-        #TODO: how to do this?
-        pass
+        self.output_log_label.setPlainText("Click and drag to draw a blacklisted area")
+        self.initial_image_frame.blacklisting = True
+        self.initial_image_frame.done_blacklisting.connect(self.blacklist_finished)
+        self.set_buttons_running()
+
+    def blacklist_finished(self):
+        self.output_log_label.setPlainText("")
+        scaled_y1 = self.initial_image_frame.clicked_y1/self.initial_image_frame.pixmap().height()
+        scaled_x1 = self.initial_image_frame.clicked_x1/self.initial_image_frame.pixmap().width()
+        scaled_y2 = self.initial_image_frame.clicked_y2/self.initial_image_frame.pixmap().height()
+        scaled_x2 = self.initial_image_frame.clicked_x2/self.initial_image_frame.pixmap().width()
+        termx1 = min(scaled_x1, scaled_x2)
+        termx2 = max(scaled_x1, scaled_x2)
+        termy1 = min(scaled_y1, scaled_y2)
+        termy2 = max(scaled_y1, scaled_y2)
+        new_tup = ((termy1, termx1),(termy2, termx2))    
+        config.area_blacklist.append(new_tup)
+        self.initial_image_frame.clicked_x1 = 0
+        self.initial_image_frame.clicked_x2 = 0
+        self.initial_image_frame.clicked_y1 = 0
+        self.initial_image_frame.clicked_y2 = 0
+        self.initial_image_frame.drawBlacklisted()
+        self.set_buttons_ready()
 
     def onclick_clear_blacklist(self):
-        config.area_blacklist = []
+        config.area_blacklist = list()
+        self.output_log_label.setPlainText("Clearing blacklist")
+        self.display_preview_image()
+        self.output_log_label.setPlainText("")
 
     def onclick_run(self):
         self.log_string = ""
@@ -265,10 +292,19 @@ class MainWindow(QtWidgets.QWidget):
             config.search_for_nodules = True
         else:
             config.search_for_nodules = False
+        self.initial_image_frame.starting = True
+        self.initial_image_frame.done_starting.connect(self.start_run_thread)
+        self.set_buttons_running()
+        self.output_log_label.setPlainText("Select the start point")
+
+    def start_run_thread(self):
+        self.output_log_label.setPlainText("")
+        scaled_y = int(self.initial_image_frame.clicked_y1/self.scale)
+        scaled_x = int(self.initial_image_frame.clicked_x1/self.scale)
+        config.seedYX = (scaled_y, scaled_x)
         thread = Thread(target=self.analyze)
         thread.start()
-        self.set_buttons_running()
-
+        
     def onclick_skip(self):
         # go to next file, load as preview
         self.file_idx += 1
@@ -302,13 +338,15 @@ class MainWindow(QtWidgets.QWidget):
         self.buttons_end.emit()
 
     def display_preview_image(self):
-        pixmap = QtGui.QPixmap(self.initial_image)
-        if (pixmap.isNull()):
+        self.initial_image_pixmap = QtGui.QPixmap(self.initial_image)
+        if (self.initial_image_pixmap.isNull()):
             return
-        w = min(pixmap.width(),  self.initial_image_frame.maximumWidth())
-        h = min(pixmap.height(), self.initial_image_frame.maximumHeight())
-        pixmap = pixmap.scaled(w, h, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
-        self.initial_image_frame.setPixmap(pixmap)
+        w = min(self.initial_image_pixmap.width(),  self.initial_image_frame.maximumWidth())
+        h = min(self.initial_image_pixmap.height(), self.initial_image_frame.maximumHeight())
+        self.scale = 350/self.initial_image_pixmap.width()
+        self.initial_image_pixmap = self.initial_image_pixmap.scaled(w, h, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+        self.initial_image_frame.setPixmap(self.initial_image_pixmap)
+        self.initial_image_frame.drawBlacklisted()
 
         self.log_string = ""
         self.output_log_label.setPlainText(self.log_string)

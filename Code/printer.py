@@ -199,7 +199,7 @@ class Printer:
         array = np.array(image)
 
         count = 0
-        locations = []
+        locations = list()
 
         for x in range(array.shape[1]):
             for y in range(array.shape[0]):
