@@ -2,7 +2,6 @@ import os
 
 from PyQt5 import QtGui, QtCore, QtWidgets
 
-
 from threading import Thread
 
 import config
@@ -62,8 +61,9 @@ class MainWindow(QtWidgets.QWidget):
 
         self.controller = controller
         controller.qt_window = self
-        controller.ui_update.connect(self.update_log)
-        controller.image_update.connect(self.img_update.emit)
+        self.controller.ui_update.connect(self.update_log)
+        self.controller.image_update.connect(self.img_update.emit)
+        self.controller.image_spawned.connect(self.display_preview_image)
 
         self.initUI()
 
@@ -80,6 +80,8 @@ class MainWindow(QtWidgets.QWidget):
         self.initial_image_frame.setLineWidth(1)
         self.initial_image_frame.setAlignment(QtCore.Qt.AlignCenter)
         self.initial_image_frame.setFont(QtGui.QFont('SansSerif', 8))
+        self.initial_image_frame.done_starting.connect(self.start_run_thread)
+        self.initial_image_frame.done_blacklisting.connect(self.blacklist_finished)
         hbox.addWidget(self.initial_image_frame)
 
         self.skeleton_image_frame = QtWidgets.QLabel(self)
@@ -258,7 +260,6 @@ class MainWindow(QtWidgets.QWidget):
     def onclick_set_blacklist(self):
         self.output_log_label.setPlainText("Click and drag to draw a blacklisted area")
         self.initial_image_frame.blacklisting = True
-        self.initial_image_frame.done_blacklisting.connect(self.blacklist_finished)
         self.set_buttons_running()
 
     def blacklist_finished(self):
@@ -293,7 +294,6 @@ class MainWindow(QtWidgets.QWidget):
         else:
             config.search_for_nodules = False
         self.initial_image_frame.starting = True
-        self.initial_image_frame.done_starting.connect(self.start_run_thread)
         self.set_buttons_running()
         self.output_log_label.setPlainText("Select the start point")
 
@@ -365,7 +365,7 @@ class MainWindow(QtWidgets.QWidget):
         self.skeleton_image_frame.setPixmap(pixmap)
 
     def load_next_file(self):
-        self.reset_controller()
+        # self.reset_controller()
         self.reset_UI()
         if self.file_idx < len(self.file_set):
             self.set_filepath()
@@ -382,7 +382,6 @@ class MainWindow(QtWidgets.QWidget):
         self.log_string = "Loading file..."
         self.update_image_paths()
         self.output_log_label.setPlainText(self.log_string)
-        self.controller.image_spawned.connect(self.display_preview_image)
 
     def dpi_update(self):
         self.dpi_textedit.clearFocus()
@@ -431,65 +430,38 @@ class MainWindow(QtWidgets.QWidget):
 
     def analyze(self):
         # load the image file into an ArrayBuilder
-        thread = Thread(target=self.controller.load_image_to_array)
-        thread.start()
-        thread.join()
-
-        #self.initial_image = config.outfile_path + config.file_name +"-initial" + config.proper_file_extension
+        self.controller.load_image_to_array()
 
         # construct a graph and associated node_dict in a AreaBuilder
-        thread = Thread(target=self.controller.build_areas)
-        thread.start()
-        thread.join()
+        self.controller.build_areas()
 
         # print the initial representation of the output with a new Printer
 
-        thread = Thread(target=self.controller.print_background)
-        thread.start()
-        thread.join()
-
-        #self.updated_image = config.outfile_path + config.file_name + "-analysis" + config.proper_file_extension
+        self.controller.print_background()
 
         if config.test_radii:
-            # reuse the Printer to print radius test images
-            thread = Thread(target=self.controller.print_test_radii)
-            thread.start()
-            thread.join()
+            self.controller.print_test_radii()
 
         # prune the initial representation down to a skeleton with a TreeBuilder
-        thread = Thread(target=self.controller.build_trees)
-        thread.start()
-        thread.join()
+        self.controller.build_trees()
 
         # reuse the Printer to print the skeleton representation of the output
-        thread = Thread(target=self.controller.print_skeleton)
-        thread.start()
-        thread.join()
+        self.controller.print_skeleton()
 
         # build root structures with a RootBuilder
-        thread = Thread(target=self.controller.build_roots)
-        thread.start()
-        thread.join()
+        self.controller.build_roots()
 
         # reuse the Printer to print a representation of the roots
-        thread = Thread(target=self.controller.print_roots)
-        thread.start()
-        thread.join()
+        self.controller.print_roots()
 
         # if the user selected it, search for nodules
         if config.search_for_nodules:
-            thread = Thread(target=self.controller.find_nodules)
-            thread.start()
-            thread.join()
+            self.controller.find_nodules()
 
             # and print them
-            thread = Thread(target=self.controller.print_nodules)
-            thread.start()
-            thread.join()
+            self.controller.print_nodules()
 
         # complete!
-        thread = Thread(target=self.controller.print_final_data)
-        thread.start()
-        thread.join()
+        self.controller.print_final_data()
 
         self.set_buttons_finished()
