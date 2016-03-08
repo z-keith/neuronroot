@@ -12,10 +12,6 @@ class MainWindow(QtWidgets.QWidget):
     # Stores the reference to the program logic
     controller = None
 
-    # Stores the list of files currently in use
-    file_set = None
-    file_idx = None
-
     # Stores references to UI elements
     # Display elements:
     initial_image_frame = None
@@ -227,12 +223,56 @@ class MainWindow(QtWidgets.QWidget):
         self.buttons_run.connect(row.hide)
         self.buttons_end.connect(row.show)
 
-    def onclick_input(self):
-        # get list of files, store them in config, load first one as preview
-        self.file_set = QtWidgets.QFileDialog.getOpenFileNames(self.select_infile_btn, "Select image files", "../TestImages/", "Images (*.png *.tif *.jpg *.bmp)")[0]
-        if self.file_set:
-            self.file_idx = 0
-            self.load_next_file()
+    def set_buttons_initial(self):
+        self.buttons_init.emit()
+
+    def set_buttons_ready(self):
+        self.buttons_ready.emit()
+
+    def set_buttons_running(self):
+        self.buttons_run.emit()
+
+    def set_buttons_finished(self):
+        self.buttons_end.emit()
+
+    def display_preview_image(self):
+        pixmap = QtGui.QPixmap(self.initial_image_path)
+        if (pixmap.isNull()):
+            return
+        w = min(pixmap.width(), self.initial_image_frame.maximumWidth())
+        h = min(pixmap.height(), self.initial_image_frame.maximumHeight())
+        self.scale = 350/pixmap.width()
+        pixmap = pixmap.scaled(w, h, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+        self.initial_image_frame.setPixmap(pixmap)
+        self.initial_image_frame.drawBlacklisted()
+
+        self.output_log_label.setPlainText("")
+        self.set_buttons_ready()
+
+        self.dpi_textedit.setText(str(int(config.dpi)))
+        self.threshold_textedit.setText(str(float(config.threshold_multiplier)))
+
+    def display_updating_image(self):
+        pixmap = QtGui.QPixmap(self.updated_image_path)
+        if (pixmap.isNull()):
+            return
+        w = min(pixmap.width(),  self.skeleton_image_frame.maximumWidth())
+        h = min(pixmap.height(), self.skeleton_image_frame.maximumHeight())
+        pixmap = pixmap.scaled(w, h, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+        self.skeleton_image_frame.setPixmap(pixmap)
+
+    def update_log(self, text):
+        self.output_log_label.setPlainText(text)
+        self.output_log_label.verticalScrollBar().setSliderPosition(self.output_log_label.verticalScrollBar().maximum())
+
+    def reset_UI(self):
+        self.initial_image_frame.setText("The initial image will appear here once it is loaded.")
+        self.skeleton_image_frame.setText("The skeleton image will appear here, updating as it is refined.")
+        self.output_log_label.setPlainText("")
+        self.set_buttons_initial()
+
+    def get_files(self):
+        return QtWidgets.QFileDialog.getOpenFileNames(self.select_infile_btn, "Select image files", "../TestImages/", "Images (*.png *.tif *.jpg *.bmp)")[0]
 
     def onclick_output(self):
         # get output location, store it in config
@@ -305,43 +345,7 @@ class MainWindow(QtWidgets.QWidget):
         # clear temp data, set up for new run
         self.load_next_file()
 
-    def set_buttons_initial(self):
-        self.buttons_init.emit()
 
-    def set_buttons_ready(self):
-        self.buttons_ready.emit()
-
-    def set_buttons_running(self):
-        self.buttons_run.emit()
-
-    def set_buttons_finished(self):
-        self.buttons_end.emit()
-
-    def display_preview_image(self):
-        pixmap = QtGui.QPixmap(self.initial_image_path)
-        if (pixmap.isNull()):
-            return
-        w = min(pixmap.width(), self.initial_image_frame.maximumWidth())
-        h = min(pixmap.height(), self.initial_image_frame.maximumHeight())
-        self.scale = 350/pixmap.width()
-        pixmap = pixmap.scaled(w, h, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
-        self.initial_image_frame.setPixmap(pixmap)
-        self.initial_image_frame.drawBlacklisted()
-
-        self.output_log_label.setPlainText("")
-        self.set_buttons_ready()
-
-        self.dpi_textedit.setText(str(int(config.dpi)))
-        self.threshold_textedit.setText(str(float(config.threshold_multiplier)))
-
-    def display_updating_image(self):
-        pixmap = QtGui.QPixmap(self.updated_image_path)
-        if (pixmap.isNull()):
-            return
-        w = min(pixmap.width(),  self.skeleton_image_frame.maximumWidth())
-        h = min(pixmap.height(), self.skeleton_image_frame.maximumHeight())
-        pixmap = pixmap.scaled(w, h, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
-        self.skeleton_image_frame.setPixmap(pixmap)
 
     def load_next_file(self):
         self.reset_UI()
@@ -381,21 +385,11 @@ class MainWindow(QtWidgets.QWidget):
         self.initial_image_path = config.outfile_path + "/" + config.file_name + "-initial" + config.proper_file_extension
         self.updated_image_path = config.outfile_path + "/" + config.file_name + "-analysis" + config.proper_file_extension
 
-    def update_log(self):
-        self.output_log_label.setPlainText(self.controller.log_string)
-        self.output_log_label.verticalScrollBar().setSliderPosition(self.output_log_label.verticalScrollBar().maximum())
-
     def set_filepath(self):
         path = self.file_set[self.file_idx]
         config.file_name = os.path.basename(path).split('.')[0]
         config.file_extension = '.' + os.path.basename(path).split('.')[1]
         config.infile_path = os.path.dirname(path)
-
-    def reset_UI(self):
-        self.initial_image_frame.setText("The initial image will appear here once it is loaded.")
-        self.skeleton_image_frame.setText("The skeleton image will appear here, updating as it is refined.")
-        self.output_log_label.setPlainText("")
-        self.set_buttons_initial()
 
     def analyze(self):
         # load the image file into an ArrayBuilder

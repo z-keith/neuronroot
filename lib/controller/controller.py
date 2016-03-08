@@ -11,22 +11,16 @@ import time, math
 from PyQt5.QtCore import pyqtSignal, QObject
 from PIL import Image
 
-# noinspection PyUnresolvedReferences
-import tree_builder
-# noinspection PyUnresolvedReferences
-import array_builder
-# noinspection PyUnresolvedReferences
-import root_builder
-# noinspection PyUnresolvedReferences
 import printer
-# noinspection PyUnresolvedReferences
+
 import config
-# noinspection PyUnresolvedReferences
-import area_builder
-# noinspection PyUnresolvedReferences
-import nodule_finder
 
 class Controller(QObject):
+
+
+    # Stores the list of files currently in use
+    file_set = None
+    file_idx = None
 
     printer = None
 
@@ -68,6 +62,13 @@ class Controller(QObject):
         
     def signal_image_update(self):
         self.image_update.emit()
+
+    def onclick_input(self):
+        # get list of files, store them in config, load first one as preview
+        self.file_set = window.get_files()
+        if self.file_set:
+            self.file_idx = 0
+            self.load_next_file()
 
     def load_image_to_array(self):
         """

@@ -23,7 +23,7 @@ else: model
 + neuronroot
 	+ lib
 		+ model
-			- model.py
+			- model.py // container class that generates other processes and can return data to controller
 			- pixel.py
 			- root.py
 			- array_builder.py
