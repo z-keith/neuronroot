@@ -1,8 +1,7 @@
 import os
+from threading import Thread
 
 from PyQt5 import QtGui, QtCore, QtWidgets
-
-from threading import Thread
 
 import config
 import controller
@@ -18,42 +17,24 @@ class MainWindow(QtWidgets.QWidget):
     file_idx = None
 
     # Stores references to UI elements
+    # Display elements:
     initial_image_frame = None
     skeleton_image_frame = None
     output_log_label = None
-
-    add_blacklist_btn = None
-    clear_blacklist_btn = None
-
-    select_infile_btn = None
-    select_output_btn = None
-
+    # Preferences elements:
     threshold_textedit = None
     dpi_textedit = None
     nodule_checkbox = None
 
-    discard_redo_btn = None
-    discard_next_btn = None
-    accept_next_btn = None
-
-    ready_run_btn = None
-    skip_btn = None
-
-    # Stores the log output as a string
-    log_string = ""
-
     # Stores the display image paths
-    initial_image = None
-    updated_image = None
+    initial_image_path = None
+    updated_image_path = None
 
-    initial_image_pixmap = None
-
-    # Signals
+    # Generate the signals that will be used
     buttons_init = QtCore.pyqtSignal()
     buttons_ready = QtCore.pyqtSignal()
     buttons_run = QtCore.pyqtSignal()
     buttons_end = QtCore.pyqtSignal()
-
     img_update = QtCore.pyqtSignal()
 
     def __init__(self, controller):
@@ -61,7 +42,7 @@ class MainWindow(QtWidgets.QWidget):
 
         self.controller = controller
         controller.qt_window = self
-        self.controller.ui_update.connect(self.update_log)
+        self.controller.log_update.connect(self.update_log)
         self.controller.image_update.connect(self.img_update.emit)
         self.controller.image_spawned.connect(self.display_preview_image)
 
@@ -288,7 +269,6 @@ class MainWindow(QtWidgets.QWidget):
         self.output_log_label.setPlainText("")
 
     def onclick_run(self):
-        self.log_string = ""
         if self.nodule_checkbox.isChecked():
             config.search_for_nodules = True
         else:
@@ -338,25 +318,24 @@ class MainWindow(QtWidgets.QWidget):
         self.buttons_end.emit()
 
     def display_preview_image(self):
-        self.initial_image_pixmap = QtGui.QPixmap(self.initial_image)
-        if (self.initial_image_pixmap.isNull()):
+        pixmap = QtGui.QPixmap(self.initial_image_path)
+        if (pixmap.isNull()):
             return
-        w = min(self.initial_image_pixmap.width(),  self.initial_image_frame.maximumWidth())
-        h = min(self.initial_image_pixmap.height(), self.initial_image_frame.maximumHeight())
-        self.scale = 350/self.initial_image_pixmap.width()
-        self.initial_image_pixmap = self.initial_image_pixmap.scaled(w, h, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
-        self.initial_image_frame.setPixmap(self.initial_image_pixmap)
+        w = min(pixmap.width(), self.initial_image_frame.maximumWidth())
+        h = min(pixmap.height(), self.initial_image_frame.maximumHeight())
+        self.scale = 350/pixmap.width()
+        pixmap = pixmap.scaled(w, h, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+        self.initial_image_frame.setPixmap(pixmap)
         self.initial_image_frame.drawBlacklisted()
 
-        self.log_string = ""
-        self.output_log_label.setPlainText(self.log_string)
+        self.output_log_label.setPlainText("")
         self.set_buttons_ready()
 
         self.dpi_textedit.setText(str(int(config.dpi)))
         self.threshold_textedit.setText(str(float(config.threshold_multiplier)))
 
     def display_updating_image(self):
-        pixmap = QtGui.QPixmap(self.updated_image)
+        pixmap = QtGui.QPixmap(self.updated_image_path)
         if (pixmap.isNull()):
             return
         w = min(pixmap.width(),  self.skeleton_image_frame.maximumWidth())
@@ -365,23 +344,20 @@ class MainWindow(QtWidgets.QWidget):
         self.skeleton_image_frame.setPixmap(pixmap)
 
     def load_next_file(self):
-        # self.reset_controller()
         self.reset_UI()
         if self.file_idx < len(self.file_set):
             self.set_filepath()
             self.image_setup()
         else:
-            self.log_string = "All files complete!"
-            self.output_log_label.setPlainText(self.log_string)
+            self.output_log_label.setPlainText("All files complete!")
             self.set_buttons_initial()
 
     def image_setup(self):
         self.buttons_run.emit()
         thread = Thread(target=self.controller.spawn_proper_infile)
         thread.start()
-        self.log_string = "Loading file..."
         self.update_image_paths()
-        self.output_log_label.setPlainText(self.log_string)
+        self.output_log_label.setPlainText("Loading file...")
 
     def dpi_update(self):
         self.dpi_textedit.clearFocus()
@@ -402,12 +378,11 @@ class MainWindow(QtWidgets.QWidget):
             self.threshold_textedit.setText(str(config.threshold_multiplier))
 
     def update_image_paths(self):
-        self.initial_image = config.outfile_path + "/" + config.file_name +"-initial" + config.proper_file_extension
-        self.updated_image = config.outfile_path + "/" + config.file_name + "-analysis" + config.proper_file_extension
+        self.initial_image_path = config.outfile_path + "/" + config.file_name + "-initial" + config.proper_file_extension
+        self.updated_image_path = config.outfile_path + "/" + config.file_name + "-analysis" + config.proper_file_extension
 
     def update_log(self):
-        self.log_string = self.controller.log_string
-        self.output_log_label.setPlainText(self.log_string)
+        self.output_log_label.setPlainText(self.controller.log_string)
         self.output_log_label.verticalScrollBar().setSliderPosition(self.output_log_label.verticalScrollBar().maximum())
 
     def set_filepath(self):
@@ -416,16 +391,10 @@ class MainWindow(QtWidgets.QWidget):
         config.file_extension = '.' + os.path.basename(path).split('.')[1]
         config.infile_path = os.path.dirname(path)
 
-    def reset_controller(self):
-        self.controller = controller.Controller()
-        self.controller.ui_update.connect(self.update_log)
-        self.controller.image_update.connect(self.img_update.emit)
-
     def reset_UI(self):
         self.initial_image_frame.setText("The initial image will appear here once it is loaded.")
         self.skeleton_image_frame.setText("The skeleton image will appear here, updating as it is refined.")
-        self.log_string = ""
-        self.output_log_label.setPlainText(self.log_string)
+        self.output_log_label.setPlainText("")
         self.set_buttons_initial()
 
     def analyze(self):
