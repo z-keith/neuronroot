@@ -43,10 +43,10 @@ class NoduleFinder:
         global_radius_threshold = global_radius_threshold_multiplier * global_average_radius
 
         # Set the multiplier for the local radius threshold
-        local_radius_threshold_multiplier = 1.5
+        local_radius_threshold_multiplier = 1.1
 
         # Set the minimum radius of a nodule pixel
-        minimum_nodule_size = config.min_nodule_size
+        minimum_nodule_size = 0
 
         # Iterate through all roots of significant length and find pixels with radius greater than either threshold
         significant_root_length = 7  # Measured in number of pixels
@@ -80,8 +80,8 @@ class NoduleFinder:
         pixel_idx = 0
         target_length = int(self.total_length/550)
         absolute_threshold = int(5*self.average_radius)
-        min_local_threshold = int(1.5*self.average_radius)
-        radius_multiplier = 2.5
+        min_local_threshold = int(2*self.average_radius)
+        radius_multiplier = 2
 
         # Make deep copy so multiple branches don't overwrite each other
         for pixel in recent_pixels:

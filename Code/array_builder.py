@@ -119,6 +119,7 @@ class ArrayBuilder:
             xrange = (abs(int(area[0][1]*self.image_width)), abs(int(area[1][1]*self.image_width)))
             for y in range(yrange[0], yrange[1]):
                 for x in range(xrange[0], xrange[1]):
-                    self.array[y, x] = 0
+                    if x<self.array.shape[1] and y<self.array.shape[0]:
+                        self.array[y, x] = 0
 
         self.UI_image = Image.fromarray(self.array, 'RGB')

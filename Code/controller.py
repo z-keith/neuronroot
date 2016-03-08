@@ -371,7 +371,7 @@ class Controller(QObject):
     def spawn_proper_infile(self):
         initial_image = Image.open(config.infile_path + "/" + config.file_name + config.file_extension).convert('RGB')
         initial_image.save(config.outfile_path + "/" + config.file_name + "-initial" + config.proper_file_extension)
-        if initial_image.info['dpi'][0]:
+        if 'dpi' in initial_image.info:
             config.dpi = initial_image.info['dpi'][0]
         self.image_spawned.emit()
 
