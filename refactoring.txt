@@ -1,7 +1,7 @@
 + neuronroot
 	+ lib
 		+ model
-			- model.py              *IN PROGRESS    // finish fixing config calls
+			- model.py              *COMPLETE
 			- pixel.py              *COMPLETE
 			- root.py               *COMPLETE
 			- array_builder.py      *COMPLETE
@@ -10,7 +10,7 @@
 			- root_builder.py       *COMPLETE
 			- nodule_finder.py      *COMPLETE
 		+ view                      *COMPLETE
-			- window.py             *IN PROGRESS    // attach default checkbox state to config
+			- window.py             *COMPLETE
 			- drawable_image.py     *COMPLETE
 			- printer.py            *COMPLETE
 		+ controller                *COMPLETE
@@ -21,3 +21,8 @@
 	- readme.md                     *IN PROGRESS    // add project summary, quick start guide, update changelog
 
 ** All files require a commenting pass and the program needs testing
+** Current bugs:
+    - area calculations are wrong
+    - dpi/threshold fields do not automatically populate
+    - checkbox does not pull from config
+    - CSV generation is untested/ignore and skip buttons also untested

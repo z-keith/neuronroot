@@ -98,11 +98,11 @@ class Controller(QObject):
     def blacklist_finished(self):
         self.window.update_log(" ")
 
-        new_blacklist_zone = self.window.initial_image_path.generate_blacklist_rectangle()
+        new_blacklist_zone = self.window.initial_image_frame.generate_blacklist_rectangle()
         self.config.area_blacklist.append(new_blacklist_zone)
 
         self.window.initial_image_frame.reset()
-        self.window.initial_image_frame.draw_blacklisted()
+        self.window.initial_image_frame.draw_blacklisted(self.config.area_blacklist)
 
         self.window.set_buttons_ready()
 

@@ -38,14 +38,19 @@ class Model(QObject):
     log_string = None
 
     log_update = pyqtSignal()
+    img_update = pyqtSignal()
 
     def __init__(self, controller):
         QObject.__init__(self)
         self.controller = controller
         self.log_update.connect(self.controller.signal_log_update)
+        self.img_update.connect(self.controller.signal_image_update)
 
     def signal_log_update(self):
         self.log_update.emit()
+
+    def signal_image_update(self):
+        self.img_update.emit()
 
     def load_image_to_array(self, file_path):
         self.start_time = time.time()
