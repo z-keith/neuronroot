@@ -1,15 +1,4 @@
-# -*- coding: utf-8 -*-
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#   file=       area_builder.py
-#   author=     Zackery Keith
-#   date=       Jul 2 2015
-#   purpose=    Converts an array of intensities into a pixel_dict full of Pixels and their neighbor relationships,
-#               representing continuous areas of the image
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-# noinspection PyUnresolvedReferences,PyUnresolvedReferences,PyUnresolvedReferences
-import pixel as px
+import lib.model.pixel as px
 
 
 class AreaBuilder:

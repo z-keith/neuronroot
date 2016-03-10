@@ -1,26 +1,11 @@
-# -*- coding: utf-8 -*-
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#   file=       array_builder.py
-#   author=     Zackery Keith
-#   date=       May 29 2015
-#   purpose=    Loads the input image and prepares it for analysis
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
 from PIL import Image
 from scipy import ndimage
 import numpy as np
-import warnings
-import math
-
-# noinspection PyUnresolvedReferences
-import config
 
 
 class ArrayBuilder:
-
     # File name stub to be loaded (in production version, will have to change to file path)
-    file_name = None
+    file_path = None
 
     # Stores the thresholded, filtered, and masked image data for delivery to another function
     array = None
@@ -32,66 +17,52 @@ class ArrayBuilder:
     image_height = None
     image_width = None
 
-    def __init__(self, filename):
-        self.file_name = filename
+    def __init__(self, file_path):
+        self.file_path = file_path
 
-    def load_to_array(self):
-        """
-        Loads and scales the image from the file name defined when this ArrayBuilder was initialized.
-        :return: Nothing.
-        """
+    def load_to_array(self, max_height):
+        image = Image.open(self.file_path)
 
-        # warnings.simplefilter('ignore', Image.DecompressionBombWarning)
-        image = Image.open("{0}/{1}-initial{2}".format(config.outfile_path, config.file_name, config.proper_file_extension))
-
-        if 'dpi' in image.info:
-            if image.info['dpi'][0]:
-                config.cm_per_pixel = 1 / (image.info['dpi'][0] / 2.54)
-                config.dpi = image.info['dpi'][0]
+        # if 'dpi' in image.info:
+        #     if image.info['dpi'][0]:
+        #         cm_per_pixel = 1 / (image.info['dpi'][0] / 2.54)
+        #         dpi = image.info['dpi'][0]
 
         # Scale the image down, if necessary, to the height defined in config
         # The program can be made to run faster at the cost of precision by reducing config.image_scaled_height
-        scaling_ratio = (config.image_scaled_height / float(image.size[1]))
-        if scaling_ratio < 1:
-            scaled_width = int(float(image.size[0])*scaling_ratio)
-            image = image.resize((scaled_width, config.image_scaled_height))
-            config.cm_per_pixel /= scaling_ratio
-            config.seedYX = (math.floor(config.seedYX[0]*scaling_ratio), math.floor(config.seedYX[1]*scaling_ratio))
+        scaling_ratio = 1
+        if max_height:
+            scaling_ratio = (max_height / float(image.size[1]))
+            if scaling_ratio < 1:
+                scaled_width = int(float(image.size[0]) * scaling_ratio)
+                image = image.resize((scaled_width, max_height))
 
         self.image_height = image.size[1]
         self.image_width = image.size[0]
 
-        config.min_nodule_size = int(12*self.image_height/2000)
-
         self.array = np.array(image)
 
-    def filter_array(self):
-        """
-        Changes the array to represent a black and white image and thresholds it at a percentage of the global mean
-        :return: Nothing.
-        """
+        if max_height and scaling_ratio < 1:
+            return (self.image_height, self.image_width), scaling_ratio
+        else:
+            return (self.image_height, self.image_width), 1
+
+    def filter_array(self, threshold_multiplier):
         self.array = np.dot(self.array[..., :3], [0.299, 0.587, 0.144])
 
         # Scale of the image mean intensity to threshold the image at (higher multipliers are less permissive)
-        threshold_multiplier = config.threshold_multiplier
-
         global_threshold = self.array.mean() * threshold_multiplier
         self.array[self.array < global_threshold] = 0
 
         self.array = ndimage.filters.median_filter(self.array, size=(4, 4))
 
-    def mask_ruler(self):
-        """
-        Automatically sets the margins of the image and the region containing the ruler to black, to prevent image
-        artifacts from being detected as roots.
-        :return: Nothing.
-        """
+    def mask_ruler(self, whitelist, blacklist):
 
         # Find the locations of the edges of the whitelisted area
-        left_margin = int(config.area_whitelist[0][1]*self.image_width)
-        right_margin = int(config.area_whitelist[1][1]*self.image_width)
-        top_margin = int(config.area_whitelist[0][0]*self.image_height)
-        bottom_margin = int(config.area_whitelist[1][1]*self.image_height)
+        left_margin = int(whitelist[0][1] * self.image_width)
+        right_margin = int(whitelist[1][1] * self.image_width)
+        top_margin = int(whitelist[0][0] * self.image_height)
+        bottom_margin = int(whitelist[1][1] * self.image_height)
 
         # Left edge
         for x in range(0, left_margin):
@@ -114,12 +85,12 @@ class ArrayBuilder:
                 self.array[y, x] = 0
 
         # Blacklisted areas
-        for area in config.area_blacklist:
-            yrange = (abs(int(area[0][0]*self.image_height)), abs(int(area[1][0]*self.image_height)))
-            xrange = (abs(int(area[0][1]*self.image_width)), abs(int(area[1][1]*self.image_width)))
+        for area in blacklist:
+            yrange = (abs(int(area[0][0] * self.image_height)), abs(int(area[1][0] * self.image_height)))
+            xrange = (abs(int(area[0][1] * self.image_width)), abs(int(area[1][1] * self.image_width)))
             for y in range(yrange[0], yrange[1]):
                 for x in range(xrange[0], xrange[1]):
-                    if x<self.array.shape[1] and y<self.array.shape[0]:
+                    if x < self.array.shape[1] and y < self.array.shape[0]:
                         self.array[y, x] = 0
 
         self.UI_image = Image.fromarray(self.array, 'RGB')

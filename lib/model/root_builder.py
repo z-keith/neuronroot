@@ -1,15 +1,4 @@
-# -*- coding: utf-8 -*-
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#   file=       root_builder.py
-#   author=     Zackery Keith
-#   date=       Jul 6 2015
-#   purpose=    Builds roots from a pixel_dict skeleton, removes invalid roots, and disentangles them to create an
-#               accurate representation of the source root
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-# noinspection PyUnresolvedReferences
-import root as rt
+import lib.model.root as rt
 
 
 class RootBuilder:
@@ -180,7 +169,6 @@ class RootBuilder:
 
             current_list = next_list
 
-
     def untangle_roots(self):
         """
         Connects the many root segments created by create_initial_roots into coherent roots based on their orientation,
@@ -231,7 +219,6 @@ class RootBuilder:
             self.root_dict.pop(removal_key, None)
 
         return next_roots
-
 
     def update_root_statistics_and_totals(self):
         """

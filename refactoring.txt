@@ -1,43 +1,23 @@
-initui: view
-buttonsetup: view
-onclick: controller
-finished: controller
-start_run: controller
-set_buttons: view
-display: view
-load_next: controller
-image_setup: controller
-dpi_update: controller
-threshold_update: controller
-update_image_paths: controller
-update_log: view
-set_filepath: controller (append update image paths to it)
-reset_ui: view
-analyze: model
-
-signal: controller
-infile: controller
-write: controller
-else: model
-
 + neuronroot
 	+ lib
 		+ model
-			- model.py // container class that generates other processes and can return data to controller
-			- pixel.py
-			- root.py
-			- array_builder.py
-			- area_builder.py
-			- tree_builder.py
-			- root_builder.py
-			- nodule_finder.py
-		+ view
-			- window.py
-			- drawable_image.py
-			- printer.py
-		+ controller
-			- controller.py
-		- main.py // load config information, make controller, make window, printer, and model, tell controller about each
-	- run.sh // make venv, get packages, run main
-	- config.py
-	- readme.md
+			- model.py              *IN PROGRESS    // finish fixing config calls
+			- pixel.py              *COMPLETE
+			- root.py               *COMPLETE
+			- array_builder.py      *COMPLETE
+			- area_builder.py       *COMPLETE
+			- tree_builder.py       *COMPLETE
+			- root_builder.py       *COMPLETE
+			- nodule_finder.py      *COMPLETE
+		+ view                      *COMPLETE
+			- window.py             *IN PROGRESS    // attach default checkbox state to config
+			- drawable_image.py     *COMPLETE
+			- printer.py            *COMPLETE
+		+ controller                *COMPLETE
+			- controller.py         *COMPLETE
+		- main.py                   *COMPLETE
+	- run.sh                        *NOT STARTED    // make venv, get packages, run main
+	- config.py                     *COMPLETE
+	- readme.md                     *IN PROGRESS    // add project summary, quick start guide, update changelog
+
+** All files require a commenting pass and the program needs testing

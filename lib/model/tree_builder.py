@@ -1,17 +1,3 @@
-# -*- coding: utf-8 -*-
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#   file=       tree_builder.py
-#   author=     Zackery Keith
-#   date=       Jul 2 2015
-#   purpose=    Adds parent-child relationships to a pixel_dict full of area relationships, and prunes those areas down
-#               to representative 1-px wide skeletons
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-# noinspection PyUnresolvedReferences
-import config
-
-
 class TreeBuilder:
     # Contains the tree structures being built in the format {(int y, int x) : Pixel}
     # WARNING: This is only a shallow copy of AreaBuilder's pixel_dict, and changes to one affect the other.
@@ -77,13 +63,7 @@ class TreeBuilder:
 
         return largest_local
 
-    def find_small_areas(self):
-        """
-        Iterates over the pixel_dict, calling check_area_for_size on each disjoint area it finds. If an area is large
-        enough, its candidate seed point is added to the set of all_seed_pixels. If not, all its member pixels
-        are removed.
-        :return: Nothing.
-        """
+    def find_small_areas(self, min_tree_size):
         all_pixels = list()
 
         for pixel in sorted(self.pixel_dict.values(), key=self.getkey):
@@ -95,17 +75,10 @@ class TreeBuilder:
 
                 if not pixel.is_visited:
 
-                    if self.check_area_for_size(pixel):
+                    if self.check_area_for_size(pixel, min_tree_size):
                         self.all_seed_pixels.add(pixel)
 
-    def check_area_for_size(self, start_pixel):
-        """
-        Iteratively add the neighbors of a set of pixels to an overall pixel set. If their total area is too small to
-        be considered a significant tree, remove all pixels in the pixel set.
-        :param start_pixel: The pixel to start the area tracing from.
-        :return: True if the area is valid, False otherwise.
-        """
-
+    def check_area_for_size(self, start_pixel, min_tree_size):
         pixel_set = {start_pixel}
 
         previous_set = {start_pixel}
@@ -138,7 +111,7 @@ class TreeBuilder:
                 previous_set = current_set
                 current_set = next_set
 
-        if len(pixel_set) < config.minimum_tree_size:
+        if len(pixel_set) < min_tree_size:
             self.remove_pixels(pixel_set)
             return False
         else:

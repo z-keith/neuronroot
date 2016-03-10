@@ -1,57 +1,63 @@
-# -*- coding: utf-8 -*-
+class Config:
+    # default input/output locations, (defaults are relative paths, but absolute paths are permissible)
+    infile_path = "TestImages/"
+    outfile_path = "Output/"
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#   file=       config.py
-#   author=     Zackery Keith
-#   date=       May 29 2015
-#   purpose=    Stores global variables relating to the original image file
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    # file extension to generate output with
+    # by default, QT does not support .tiff files, so they are converted to this type for display
+    proper_file_extension = ".jpg"
 
-# Change this to swap between test images for testing purposes
-# current_file = 293
+    # default height to scale images to (0 means never scale)
+    image_scaled_height = 2000
 
-# filename stub (the date and sample)
-# used for opening an image and naming files made from it
-file_name = None
+    # default minimum area of a tree
+    # stored as a percentage of the image's height
+    minimum_tree_size_multiplier = 0.07
 
-# current filepath
-infile_path = "../TestImages/"
+    # default thresholding value to separate root from background
+    # increasing the threshold can help to clean up images with relatively bright backgrounds
+    threshold_multiplier = 1
 
-outfile_path = "../Output/"
+    # default minimum radius of a nodule
+    # increasing this value will allow detection of smaller nodules at the cost of increased false positives
+    min_nodule_size = 12
 
-# file extension
-file_extension = ".tif"
-proper_file_extension = ".jpg"
+    # contains pair of (y,x) tuples representing the part of the image worth analyzing
+    # y and x are stored as percentages of the image dimensions
+    # by default, ignores the outermost 1.5% of the image
+    area_whitelist = [(0.015, 0.015), (0.985, 0.985)]
 
-# height to scale images to
-image_scaled_height = 2000
+    # contains pairs of (y,x) tuples representing the non-printable regions within the whitelist region
+    # y and x are stored as percentages of the image dimensions
+    # by default, the blacklist is empty
+    area_blacklist = []
 
-# location of the initial seed point for tracing
-seedYX = (0,0)
+    # default DPI value
+    # used to calculate real-life sizes from pixel sizes
+    # if the roots were scanned, the dpi stored in the image file will be accurate
+    # photographs of roots will require manual DPI calculation
+    dpi = 1200
 
-# size of a pixel
-cm_per_pixel = 1/(470*image_scaled_height/8871)
+    # if true, the program will run the nodule-searching subroutine
+    # set this to false if you don't care about nodules
+    search_for_nodules = True
 
-# minimum size of a tree to be considered not-noise
-minimum_tree_size = 0.07 * image_scaled_height
+    # DEVELOPER OPTIONS
+    # toggle to store whether the user wants to test radii calculation with test-printed images
+    # you more than likely don't want this option
+    test_radii = False
+    # number of radius test images to output
+    # only used when test_radii is true
+    testcase_count = 50
 
-# contains pair of (y,x) tuples representing the printable rectangle of the image
-area_whitelist = [(0.015, 0.015), (0.985, 0.985)]
+    # PROGRAM VARIABLES
+    # do not edit these values - they're just enumerated here to track what's being stored in this class
+    file_name = None
+    file_extension = None
 
-# contains pairs of (y,x) tuples representing the non-printable regions within the whitelist region
-area_blacklist = list()
+    initial_image_path = None
+    updated_image_path = None
 
-# toggle to store whether the user wants to find nodules
-search_for_nodules = True
-
-# toggle to store whether the user wants to test radii
-test_radii = False
-
-# number of radius test images to output
-testcase_count = 50
-
-dpi = 0
-
-threshold_multiplier = 1
-
-min_nodule_size = 12
+    image_dimensions = None
+    cm_per_pixel = None
+    seedYX = None
