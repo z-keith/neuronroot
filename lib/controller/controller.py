@@ -82,11 +82,15 @@ class Controller(QObject):
         outfile.writelines(self.model.csv_out_string)
         outfile.close()
 
+        os.remove(self.config.initial_image_path)
+
         self.file_idx += 1
         self.load_next_file()
 
     def onclick_reject_skip(self):
         # go to next file, load as preview
+        os.remove(self.config.initial_image_path)
+
         self.file_idx += 1
         self.load_next_file()
 
@@ -119,9 +123,14 @@ class Controller(QObject):
                 self.config.outfile_path + self.config.file_name + "-analysis" + self.config.proper_file_extension
 
             self.window.set_buttons_running()
-            thread = Thread(target=self.spawn_proper_infile)
-            thread.start()
-            self.window.update_log("Loading file...")
+
+            if os.path.isfile(self.config.initial_image_path):
+                self.signal_initial_draw()
+            else:
+                thread = Thread(target=self.spawn_proper_infile)
+                thread.start()
+                self.window.update_log("Loading file...")
+
         else:
             self.window.update_log("All files complete!")
             self.window.set_buttons_initial()

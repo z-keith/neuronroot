@@ -3,7 +3,6 @@ An automated solution to root system image analysis
 
 #to do:
 - Improve commenting
-- Remove temporary image files on continue
 - Package as executable? Or at least add a bash script
 
 #changelog:
