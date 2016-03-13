@@ -19,8 +19,8 @@ class Config:
     threshold_multiplier = 1
 
     # default minimum radius of a nodule
-    # increasing this value will allow detection of smaller nodules at the cost of increased false positives
-    min_nodule_size = 12
+    # increasing this value will remove false positives in nodule detection, at the cost of missing smaller nodules
+    min_nodule_size = 0
 
     # contains pair of (y,x) tuples representing the part of the image worth analyzing
     # y and x are stored as percentages of the image dimensions

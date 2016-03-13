@@ -125,7 +125,7 @@ class Model(QObject):
         seedX_loc = math.floor(self.controller.config.seedYX[1] * self.controller.config.image_dimensions[1])
 
         self.controller.config.seedYX = (seedY_loc, seedX_loc)
-        print(self.controller.config.seedYX)
+
         self.tree_builder.best_pixel = self.tree_builder.find_best_pixel(self.controller.config.seedYX)
         self.tree_builder.all_seed_pixels.add(self.tree_builder.best_pixel)
         self.log_string += "\n- Found best approximation for click point in {0}".format(

@@ -16,6 +16,7 @@ class MainWindow(QtWidgets.QWidget):
     threshold_textedit = None
     dpi_textedit = None
     nodule_checkbox = None
+    minsize_textedit = None
 
     # Stores the current display image paths
     initial_image_path = None
@@ -41,7 +42,9 @@ class MainWindow(QtWidgets.QWidget):
 
     def init_ui(self):
 
-        QtWidgets.QToolTip.setFont(QtGui.QFont('SansSerif', 8))
+        custom_font = QtGui.QFont('SansSerif', 7)
+
+        QtWidgets.QToolTip.setFont(custom_font)
         self.setWindowTitle('Neuronroot 1.0')
 
         hbox = QtWidgets.QHBoxLayout(self)
@@ -51,7 +54,7 @@ class MainWindow(QtWidgets.QWidget):
         self.initial_image_frame.setFrameShape(1)
         self.initial_image_frame.setLineWidth(1)
         self.initial_image_frame.setAlignment(QtCore.Qt.AlignCenter)
-        self.initial_image_frame.setFont(QtGui.QFont('SansSerif', 8))
+        self.initial_image_frame.setFont(custom_font)
         self.initial_image_frame.done_starting.connect(self.controller.start_run_thread)
         self.initial_image_frame.done_blacklisting.connect(self.controller.blacklist_finished)
         hbox.addWidget(self.initial_image_frame)
@@ -61,7 +64,7 @@ class MainWindow(QtWidgets.QWidget):
         self.skeleton_image_frame.setFrameShape(1)
         self.skeleton_image_frame.setLineWidth(1)
         self.skeleton_image_frame.setAlignment(QtCore.Qt.AlignCenter)
-        self.skeleton_image_frame.setFont(QtGui.QFont('SansSerif', 8))
+        self.skeleton_image_frame.setFont(custom_font)
         hbox.addWidget(self.skeleton_image_frame)
 
         vbox_widget = QtWidgets.QFrame(self)
@@ -70,11 +73,11 @@ class MainWindow(QtWidgets.QWidget):
         vbox.setContentsMargins(0, 0, 0, 0)
 
         self.output_log_label = QtWidgets.QPlainTextEdit(self)
-        self.output_log_label.setFixedWidth(350)
+        self.output_log_label.setFixedWidth(400)
         self.output_log_label.setFrameShape(1)
         self.output_log_label.setLineWidth(1)
         self.output_log_label.setReadOnly(True)
-        self.output_log_label.setFont(QtGui.QFont('SansSerif', 8))
+        self.output_log_label.setFont(custom_font)
         vbox.addWidget(self.output_log_label)
 
         options_widget = QtWidgets.QFrame(self)
@@ -83,35 +86,52 @@ class MainWindow(QtWidgets.QWidget):
         options_row.setContentsMargins(0, 0, 0, 0)
 
         dpi_label = QtWidgets.QLabel(self)
-        dpi_label.setFont(QtGui.QFont('SansSerif', 8))
+        dpi_label.setFont(custom_font)
         dpi_label.setText('DPI:')
         self.dpi_textedit = QtWidgets.QLineEdit(self)
+        self.dpi_textedit.setFont(custom_font)
         self.dpi_textedit.setToolTip('Input or correct the DPI value')
-        self.dpi_textedit.setFixedWidth(60)
+        self.dpi_textedit.setFixedWidth(40)
         self.dpi_textedit.returnPressed.connect(self.dpi_update)
 
         threshold_label = QtWidgets.QLabel(self)
-        threshold_label.setFont(QtGui.QFont('SansSerif', 8))
+        threshold_label.setFont(custom_font)
         threshold_label.setText('Threshold multiplier:')
         self.threshold_textedit = QtWidgets.QLineEdit(self)
+        self.threshold_textedit.setFont(custom_font)
         self.threshold_textedit.setToolTip('Input the threshold value')
         self.threshold_textedit.setFixedWidth(30)
         self.threshold_textedit.returnPressed.connect(self.threshold_update)
 
+        line = QtWidgets.QFrame(self)
+        line.setFrameShape(QtWidgets.QFrame.VLine)
+        line.setFrameShadow(QtWidgets.QFrame.Sunken)
+
         nodule_label = QtWidgets.QLabel(self)
-        nodule_label.setFont(QtGui.QFont('SansSerif', 8))
+        nodule_label.setFont(custom_font)
         nodule_label.setText('Find nodules?')
         self.nodule_checkbox = QtWidgets.QCheckBox(self)
         self.nodule_checkbox.setToolTip('Toggle the nodule search feature')
         self.nodule_checkbox.setChecked(True)
-        # TODO: Load checked status from config
+
+        size_label = QtWidgets.QLabel(self)
+        size_label.setFont(custom_font)
+        size_label.setText('Min. size:')
+        self.minsize_textedit = QtWidgets.QLineEdit(self)
+        self.minsize_textedit.setFont(custom_font)
+        self.minsize_textedit.setToolTip('Input a minimum radius for potential nodules')
+        self.minsize_textedit.setFixedWidth(30)
+        self.minsize_textedit.returnPressed.connect(self.minsize_update)
 
         options_row.addWidget(dpi_label)
         options_row.addWidget(self.dpi_textedit)
         options_row.addWidget(threshold_label)
         options_row.addWidget(self.threshold_textedit)
+        options_row.addWidget(line)
         options_row.addWidget(nodule_label)
         options_row.addWidget(self.nodule_checkbox)
+        options_row.addWidget(size_label)
+        options_row.addWidget(self.minsize_textedit)
         options_row.addStretch(1000)
         self.buttonsetup_image_operations(options_widget)
 
@@ -241,14 +261,15 @@ class MainWindow(QtWidgets.QWidget):
         self.initial_image_frame.setPixmap(pixmap)
         self.initial_image_frame.draw_blacklisted(self.controller.config.area_blacklist)
         self.set_values(self.controller.config.dpi, self.controller.config.threshold_multiplier,
-                        self.controller.config.search_for_nodules)
+                        self.controller.config.search_for_nodules, self.controller.config.min_nodule_size)
         self.update_log(" ")
         self.set_buttons_ready()
 
-    def set_values(self, dpi, threshold, nodule):
+    def set_values(self, dpi, threshold, nodule, minsize):
         self.dpi_textedit.setText(str(int(dpi)))
-        self.threshold_textedit.setText(str(int(threshold)))
+        self.threshold_textedit.setText(str(float(threshold)))
         self.nodule_checkbox.setChecked(nodule)
+        self.minsize_textedit.setText(str(int(minsize)))
 
     def display_updating_image(self):
         pixmap = QtGui.QPixmap(self.controller.config.updated_image_path)
@@ -296,3 +317,12 @@ class MainWindow(QtWidgets.QWidget):
             self.controller.config.threshold_multiplier = y
         except ValueError:
             self.threshold_textedit.setText(str(self.controller.config.threshold_multiplier))
+
+    def minsize_update(self):
+        self.minsize_textedit.clearFocus()
+        x = self.minsize_textedit.text()
+        try:
+            y = float(x)
+            self.controller.config.min_nodule_size = y
+        except ValueError:
+            self.minsize_textedit.setText(str(self.controller.config.min_nodule_size))

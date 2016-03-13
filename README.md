@@ -3,13 +3,13 @@ An automated solution to root system image analysis
 
 #to do:
 - Improve commenting
-- Add min_nodule_size input field
 - Remove temporary image files on continue
 - Package as executable? Or at least add a bash script
 
 #changelog:
 ##v1.1.0
 - Visual blacklisting and configuration options added
+- Added min_nodule_size input field
 - Code reorganized for easier maintenance
     - Now *actually* built using MVC principles, instead of just having a class called Controller
     - Definitely not perfect still, but should be much easier to work on
