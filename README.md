@@ -1,11 +1,15 @@
-#neuronroot v0.1.0
+#neuronroot v1.1.0
 An automated solution to root system image analysis
 
 #to do:
-- Add visual blacklisting
-- Package as executable
+- Clean up code
+- Remove temporary image files on continue
+- Package as executable? Or at least add a bash script
 
 #changelog:
+##v1.1.0
+- Visual blacklisting and configuration options added
+
 ##v1.0.0
 - UI implemented - analyze more images, more quickly!
 - Statistical output implemented - each analyzed file outputs data to a user-specified CSV

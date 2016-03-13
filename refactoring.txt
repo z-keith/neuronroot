@@ -1,0 +1,25 @@
++ neuronroot
+	+ lib
+		+ model
+			- model.py              *COMPLETE
+			- pixel.py              *COMPLETE
+			- root.py               *COMPLETE
+			- array_builder.py      *COMPLETE
+			- area_builder.py       *COMPLETE
+			- tree_builder.py       *COMPLETE
+			- root_builder.py       *COMPLETE
+			- nodule_finder.py      *COMPLETE
+		+ view                      *COMPLETE
+			- window.py             *COMPLETE
+			- drawable_image.py     *COMPLETE
+			- printer.py            *COMPLETE
+		+ controller                *COMPLETE
+			- controller.py         *COMPLETE
+		- main.py                   *COMPLETE
+	- run.sh                        *NOT STARTED    // make venv, get packages, run main
+	- config.py                     *COMPLETE
+	- readme.md                     *IN PROGRESS    // add project summary, quick start guide, update changelog
+
+** All files require a commenting pass and the program needs testing
+** Current bugs:
+    - area calculations are wrong

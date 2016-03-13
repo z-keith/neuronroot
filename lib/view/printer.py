@@ -1,32 +1,23 @@
-# -*- coding: utf-8 -*-
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#   file=       printer.py
-#   author=     Zackery Keith
-#   date=       Jul 2 2015
-#   purpose=    Outputs diagnostic images of program results to image files
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
 from PIL import Image, ImageDraw
 import numpy as np
 import random
 import os
 
-# noinspection PyUnresolvedReferences
-import config
-
 
 class Printer:
     array = None
 
+    updated_image_path = None
     image_height = None
     image_width = None
 
     current_color = [255, 255, 255]
     current_ascending = [False, False, False]
 
-    def __init__(self, size):
-        self.image_height, self.image_width = size
+    def __init__(self, path, shape):
+        self.updated_image_path = path
+        self.image_height = shape[0]
+        self.image_width = shape[1]
 
     def print_original_image(self, pixel_dict):
         """
@@ -41,8 +32,7 @@ class Printer:
             self.array[y][x] = [20, 20, 20]
 
         output_image = Image.fromarray(self.array, 'RGB')
-        # output_image.save(config.outfile_path + config.file_name + "-analysis" + config.proper_file_extension)
-        output_image.save(config.outfile_path + config.file_name + "-analysis" + config.proper_file_extension)
+        output_image.save(self.updated_image_path)
 
     def print_skeletal_outline(self, seed_pixel_set):
         """
@@ -67,7 +57,7 @@ class Printer:
             current_set = next_set
 
         output_image = Image.fromarray(self.array, 'RGB')
-        output_image.save(config.outfile_path + config.file_name + "-analysis" + config.proper_file_extension)
+        output_image.save(self.updated_image_path)
 
     def increment_current_color(self, multiplier):
         """
@@ -116,7 +106,7 @@ class Printer:
         self.current_color = [255, 255, 255]
         self.current_ascending = [False, False, False]
 
-        image = Image.open(config.outfile_path + config.file_name + "-analysis" + config.proper_file_extension)
+        image = Image.open(self.updated_image_path)
         drawer = ImageDraw.Draw(image)
 
         current_roots = all_seed_roots
@@ -147,7 +137,7 @@ class Printer:
 
             current_roots = next_roots
 
-        image.save(config.outfile_path + config.file_name + "-analysis" + config.proper_file_extension)
+        image.save(self.updated_image_path)
 
     def print_by_nodule(self, nodule_set):
         """
@@ -158,13 +148,15 @@ class Printer:
 
         self.current_color = [255, 255, 255]
 
-        image = Image.open(config.outfile_path + config.file_name + "-analysis" + config.proper_file_extension)
+        image = Image.open(self.updated_image_path)
         drawer = ImageDraw.Draw(image)
 
         for pixel in nodule_set:
-            drawer.ellipse((pixel.x-pixel.radius, pixel.y-pixel.radius, pixel.x+pixel.radius, pixel.y+pixel.radius), tuple(self.current_color), tuple(self.current_color))
+            drawer.ellipse(
+                (pixel.x - pixel.radius, pixel.y - pixel.radius, pixel.x + pixel.radius, pixel.y + pixel.radius),
+                tuple(self.current_color), tuple(self.current_color))
 
-        image.save(config.outfile_path + config.file_name + "-analysis" + config.proper_file_extension)
+        image.save(self.updated_image_path)
 
     def count_white_px(self, nodule_set):
 
@@ -175,15 +167,15 @@ class Printer:
         drawer = ImageDraw.Draw(image)
 
         for pixel in nodule_set:
-            drawer.ellipse((pixel.x-pixel.radius, pixel.y-pixel.radius, pixel.x+pixel.radius, pixel.y+pixel.radius), tuple(self.current_color), tuple(self.current_color))
+            drawer.ellipse(
+                (pixel.x - pixel.radius, pixel.y - pixel.radius, pixel.x + pixel.radius, pixel.y + pixel.radius),
+                tuple(self.current_color), tuple(self.current_color))
 
         array = np.array(image)
 
         area_px = np.count_nonzero(array)
 
-        area_cm = area_px*(config.cm_per_pixel**2)
-
-        return area_cm
+        return area_px
 
     def count_nodules_old(self, nodule_set):
 
@@ -194,7 +186,9 @@ class Printer:
         drawer = ImageDraw.Draw(image)
 
         for pixel in nodule_set:
-            drawer.ellipse((pixel.x-pixel.radius, pixel.y-pixel.radius, pixel.x+pixel.radius, pixel.y+pixel.radius), tuple(self.current_color), tuple(self.current_color))
+            drawer.ellipse(
+                (pixel.x - pixel.radius, pixel.y - pixel.radius, pixel.x + pixel.radius, pixel.y + pixel.radius),
+                tuple(self.current_color), tuple(self.current_color))
 
         array = np.array(image)
 
@@ -203,24 +197,24 @@ class Printer:
 
         for x in range(array.shape[1]):
             for y in range(array.shape[0]):
-                if array[y][x][0]==[255]:
-                    locations.append((y,x))
+                if array[y][x][0] == [255]:
+                    locations.append((y, x))
 
         while locations:
             count += 1
             current = set()
             current.add(locations[0])
             while True:
-                next = set()
+                next_locations = set()
                 for i in current:
-                        locations.remove(i)
+                    locations.remove(i)
                 for i in current:
                     for x in [-1, 0, 1]:
                         for y in [-1, 0, 1]:
-                            if (i[0]+y, i[1]+x) in locations and x**2+y**2:
-                                next.add((i[0]+y, i[1]+x))
-                if len(next):
-                    current = next
+                            if (i[0] + y, i[1] + x) in locations and x ** 2 + y ** 2:
+                                next_locations.add((i[0] + y, i[1] + x))
+                if len(next_locations):
+                    current = next_locations
                 else:
                     break
 
@@ -231,7 +225,9 @@ class Printer:
         image = Image.fromarray(np.zeros((self.image_height, self.image_width, 3), dtype=np.uint8))
         drawer = ImageDraw.Draw(image)
         for pixel in nodule_set:
-            drawer.ellipse((pixel.x-pixel.radius, pixel.y-pixel.radius, pixel.x+pixel.radius, pixel.y+pixel.radius), tuple(self.current_color), tuple(self.current_color))
+            drawer.ellipse(
+                (pixel.x - pixel.radius, pixel.y - pixel.radius, pixel.x + pixel.radius, pixel.y + pixel.radius),
+                tuple(self.current_color), tuple(self.current_color))
         array = np.array(image)
         array = np.dot(array[..., :3], [0.299, 0.587, 0.144])
 
@@ -242,9 +238,9 @@ class Printer:
         for y in range(0, array.shape[0]):
             for x in range(0, array.shape[1]):
                 if array[y][x]:
-                    locations.add((y,x))
+                    locations.add((y, x))
 
-        #problem block ends
+        # problem block ends
 
         while locations:
             count += 1
@@ -253,35 +249,33 @@ class Printer:
                 current.add(i)
                 break
             while True:
-                next = set()
+                next_locations = set()
                 for i in current:
-                        locations.remove(i)
+                    locations.remove(i)
                 for i in current:
                     for x in [-1, 0, 1]:
                         for y in [-1, 0, 1]:
-                            if (i[0]+y, i[1]+x) in locations and x**2+y**2:
-                                next.add((i[0]+y, i[1]+x))
-                if len(next):
-                    current = next
+                            if (i[0] + y, i[1] + x) in locations and x ** 2 + y ** 2:
+                                next_locations.add((i[0] + y, i[1] + x))
+                if len(next_locations):
+                    current = next_locations
                 else:
                     break
 
         return count
 
-
-
-    def print_test_radii(self, pixel_dict):
+    def print_test_radii(self, count, name, pixel_dict):
 
         os.makedirs("../TestOutputs", exist_ok=True)
-        os.makedirs("../TestOutputs/" + str(config.current_file), exist_ok=True)
+        os.makedirs("../TestOutputs/" + str(name), exist_ok=True)
 
         case_set = set()
 
-        while len(case_set) < config.testcase_count*.5 and len(case_set) < len(pixel_dict):
+        while len(case_set) < count * .5 and len(case_set) < len(pixel_dict):
             case = random.choice(list(pixel_dict.keys()))
             if pixel_dict[case].radius > 2:
                 case_set.add(case)
-        while len(case_set) < config.testcase_count and len(case_set) < len(pixel_dict):
+        while len(case_set) < count and len(case_set) < len(pixel_dict):
             case = random.choice(list(pixel_dict.keys()))
             case_set.add(case)
 
@@ -291,18 +285,14 @@ class Printer:
             x = pixel_dict[case].x
             y = pixel_dict[case].y
 
-            test_array = np.zeros((2*r + 3, 2*r + 3, 3), dtype=np.uint8)
+            test_array = np.zeros((2 * r + 3, 2 * r + 3, 3), dtype=np.uint8)
 
-            for i in range(-r-1, r+2):
-                for j in range(-r-1, r+2):
-                    if i==j==0:
-                        test_array[r+1+j][r+1+i] = [255,0,0]
-                    elif (y+j, x+i) in pixel_dict:
-                        test_array[j+(r+1)][i+(r+1)] = [255,255,255]
+            for i in range(-r - 1, r + 2):
+                for j in range(-r - 1, r + 2):
+                    if i == j == 0:
+                        test_array[r + 1 + j][r + 1 + i] = [255, 0, 0]
+                    elif (y + j, x + i) in pixel_dict:
+                        test_array[j + (r + 1)][i + (r + 1)] = [255, 255, 255]
 
             output_image = Image.fromarray(test_array, 'RGB')
-            output_image.save('../TestOutputs/{0}/{1}_{2}.png'.format(config.current_file, x, y))
-
-
-
-
+            output_image.save('../TestOutputs/{0}/{1}_{2}.png'.format(name, x, y))

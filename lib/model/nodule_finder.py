@@ -1,13 +1,3 @@
-# -*- coding: utf-8 -*-
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#   file=       nodule_finder.py
-#   author=     Zackery Keith
-#   date=       Sep 8 2015
-#   purpose=    Finds likely nodule locations in a Root-based reconstruction of the root system
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-
 class NoduleFinder:
 
     # Dictionary of form (ID: Root) containing all Roots that represent the image
@@ -46,7 +36,7 @@ class NoduleFinder:
         local_radius_threshold_multiplier = 1.1
 
         # Set the minimum radius of a nodule pixel
-        minimum_nodule_size = 0
+        minimum_nodule_radius = 0
 
         # Iterate through all roots of significant length and find pixels with radius greater than either threshold
         significant_root_length = 7  # Measured in number of pixels
