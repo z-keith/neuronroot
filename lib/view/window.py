@@ -240,12 +240,15 @@ class MainWindow(QtWidgets.QWidget):
         pixmap = pixmap.scaled(w, h, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
         self.initial_image_frame.setPixmap(pixmap)
         self.initial_image_frame.draw_blacklisted(self.controller.config.area_blacklist)
-        self.update_log("")
+        self.set_values(self.controller.config.dpi, self.controller.config.threshold_multiplier,
+                        self.controller.config.search_for_nodules)
+        self.update_log(" ")
         self.set_buttons_ready()
 
-    def set_values(self, dpi, threshold):
+    def set_values(self, dpi, threshold, nodule):
         self.dpi_textedit.setText(str(int(dpi)))
-        self.threshold_textedit.setText(str(float(threshold)))
+        self.threshold_textedit.setText(str(int(threshold)))
+        self.nodule_checkbox.setChecked(nodule)
 
     def display_updating_image(self):
         pixmap = QtGui.QPixmap(self.controller.config.updated_image_path)
@@ -266,7 +269,7 @@ class MainWindow(QtWidgets.QWidget):
     def reset_ui(self):
         self.initial_image_frame.setText("The initial image will appear here once it is loaded.")
         self.skeleton_image_frame.setText("The skeleton image will appear here, updating as it is refined.")
-        self.update_log("")
+        self.update_log(" ")
         self.set_buttons_initial()
 
     def get_files(self):

@@ -23,6 +23,3 @@
 ** All files require a commenting pass and the program needs testing
 ** Current bugs:
     - area calculations are wrong
-    - dpi/threshold fields do not automatically populate
-    - checkbox does not pull from config
-    - CSV generation is untested/ignore and skip buttons also untested

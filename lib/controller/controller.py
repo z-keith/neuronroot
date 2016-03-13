@@ -1,5 +1,4 @@
 import os
-import math
 from threading import Thread
 
 from PyQt5.QtCore import pyqtSignal, QObject
@@ -80,7 +79,7 @@ class Controller(QObject):
     def onclick_accept(self):
         # go to next file, load as preview
         outfile = open(self.config.outfile_path + "/output.csv", "a")
-        outfile.writelines(self.csv_out_string)
+        outfile.writelines(self.model.csv_out_string)
         outfile.close()
 
         self.file_idx += 1
@@ -111,7 +110,7 @@ class Controller(QObject):
         if self.file_idx < len(self.file_set):
             path = self.file_set[self.file_idx]
             self.config.file_name = os.path.basename(path).split('.')[0]
-            self.config.file_extension = '.' + str(os.path.basename(path).split('.')[1])
+            self.config.file_extension = '.' + os.path.basename(path).split('.')[1]
             self.config.infile_path = os.path.dirname(path)
 
             self.config.initial_image_path = \
@@ -172,6 +171,8 @@ class Controller(QObject):
         # complete!
         self.model.display_final_data()
 
+        self.model.clean_up()
+
         self.window.set_buttons_finished()
 
     def spawn_proper_infile(self):
@@ -183,6 +184,5 @@ class Controller(QObject):
         self.signal_initial_draw()
 
     def scale_config(self, scale_factor):
-        self.config.cm_per_pixel = 0.394/(self.config.dpi * scale_factor)
-        self.config.seedYX = (math.floor(scale_factor*self.config.seedYX[0]),
-                              math.floor(scale_factor*self.config.seedYX[1]))
+        self.config.cm_per_pixel = 1/(470 * scale_factor)
+        self.config.seedYX = (scale_factor*self.config.seedYX[0]), (scale_factor*self.config.seedYX[1])

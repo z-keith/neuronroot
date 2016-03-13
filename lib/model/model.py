@@ -121,6 +121,11 @@ class Model(QObject):
         self.signal_log_update()
         self.tree_builder = tree_builder.TreeBuilder(self.area_builder.pixel_dict)
 
+        seedY_loc = math.floor(self.controller.config.seedYX[0] * self.controller.config.image_dimensions[0])
+        seedX_loc = math.floor(self.controller.config.seedYX[1] * self.controller.config.image_dimensions[1])
+
+        self.controller.config.seedYX = (seedY_loc, seedX_loc)
+        print(self.controller.config.seedYX)
         self.tree_builder.best_pixel = self.tree_builder.find_best_pixel(self.controller.config.seedYX)
         self.tree_builder.all_seed_pixels.add(self.tree_builder.best_pixel)
         self.log_string += "\n- Found best approximation for click point in {0}".format(
@@ -331,6 +336,24 @@ class Model(QObject):
             self.csv_out_string += ",{0},{1}".format(self.nodule_count, round(self.nodule_area, 4))
 
         self.signal_log_update()
+
+    def clean_up(self):
+        del self.array_builder
+        del self.area_builder
+        del self.tree_builder
+        del self.root_builder
+        del self.nodule_finder
+        del self.printer
+
+        self.start_time = None
+        self.last_time = None
+
+        self.total_area = None
+        self.calculated_average_diameter = None
+        self.expected_length = None
+        self.total_length = None
+        self.nodule_area = None
+        self.nodule_count = None
 
     def print_timestamp(self):
         """
