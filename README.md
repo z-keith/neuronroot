@@ -2,20 +2,24 @@
 An automated solution to root system image analysis
 
 #to do:
-- Clean up code
+- Improve commenting
+- Add min_nodule_size input field
 - Remove temporary image files on continue
 - Package as executable? Or at least add a bash script
 
 #changelog:
 ##v1.1.0
 - Visual blacklisting and configuration options added
+- Code reorganized for easier maintenance
+    - Now *actually* built using MVC principles, instead of just having a class called Controller
+    - Definitely not perfect still, but should be much easier to work on
 
 ##v1.0.0
 - UI implemented - analyze more images, more quickly!
 - Statistical output implemented - each analyzed file outputs data to a user-specified CSV
 
 ##v0.9.9
-- Added automated nodule detection and (very hacky) area calculation
+- Added automated nodule detection and area calculation
 - Fixed questionable programming decision in grey-outline printing function (saves 10-20% runtime)
 - Implemented DPI detection - size calculations don't require a user input if the image has DPI metadata
 
