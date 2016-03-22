@@ -26,52 +26,27 @@ class NoduleFinder:
 
         self.nodule_set = set()
 
-    def find_by_thresholds(self, global_average_radius):
-
-        # Set the absolute threshold
-        global_radius_threshold_multiplier = 10
-        global_radius_threshold = global_radius_threshold_multiplier * global_average_radius
-
-        # Set the multiplier for the local radius threshold
-        local_radius_threshold_multiplier = 1.1
-
-        # Set the minimum radius of a nodule pixel
-        minimum_nodule_radius = 0
-
-        # Iterate through all roots of significant length and find pixels with radius greater than either threshold
-        significant_root_length = 7  # Measured in number of pixels
-
-        for root in self.root_dict.values():
-            if len(root.pixel_list) > significant_root_length:
-
-                local_radius_threshold = local_radius_threshold_multiplier * root.average_radius
-                if local_radius_threshold < minimum_nodule_radius:
-                    local_radius_threshold = minimum_nodule_radius
-
-                for pixel in root.pixel_list:
-                    if pixel.radius > global_radius_threshold:
-                        self.nodule_set.add(pixel)
-                    elif pixel.radius > local_radius_threshold:
-                        self.nodule_set.add(pixel)
-
-    def find_by_windows(self):
+    def find_by_windows(self, multipliers):
 
         # start from seed points
         for seed_root in self.all_seed_roots:
 
             empty_list = list()
             # send that pixel set to an instance of window_search
-            self.window_search(seed_root, empty_list)
+            self.window_search(seed_root, empty_list, multipliers)
 
-    def window_search(self, root, recent_pixels):
+    def window_search(self, root, recent_pixels, multipliers):
+
+        absolute_threshold_multipler = multipliers[0]
+        min_threshold_multipler = multipliers[1]
+        radius_multiplier = multipliers[2]
 
         starter_pixels = list()
         branching_dict = dict()
         pixel_idx = 0
         target_length = int(self.total_length/550)
-        absolute_threshold = int(5*self.average_radius)
-        min_local_threshold = int(2*self.average_radius)
-        radius_multiplier = 2
+        absolute_threshold = int(absolute_threshold_multipler*self.average_radius)
+        min_local_threshold = int(min_threshold_multipler*self.average_radius)
 
         # Make deep copy so multiple branches don't overwrite each other
         for pixel in recent_pixels:
@@ -115,7 +90,7 @@ class NoduleFinder:
                 for out_root in branching_dict[pixel_idx]:
                     if len(out_root.pixel_list) > 2:
                         branched = True
-                        self.window_search(out_root, recent_pixels)
+                        self.window_search(out_root, recent_pixels, multipliers)
 
             # check if this is nodule-like
             average_radius = total_radius/len(starter_pixels)

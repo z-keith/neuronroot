@@ -20,7 +20,20 @@ class Config:
 
     # default minimum radius of a nodule
     # increasing this value will remove false positives in nodule detection, at the cost of missing smaller nodules
-    min_nodule_size = 0
+    # note: deprecated in 1.2.0
+    # min_nodule_size = 0
+
+    # nodule detection thresholds:
+    # any location larger than this*image average radius is automatically a nodule
+    # higher values result in less reliable detection for nodules that are very large
+    abs_threshold_multiplier = 5
+    # no location smaller than this*image average radius is eligible to be a nodule
+    # higher values result in less detection of small nodules
+    min_threshold_multiplier = 2
+    # used for adaptive nodule detection
+    # higher values result in nodules only being found at rapidly-growing points
+    # lower values result in more nodule detections but possibly more errors
+    rad_multiplier = 2
 
     # contains pair of (y,x) tuples representing the part of the image worth analyzing
     # y and x are stored as percentages of the image dimensions

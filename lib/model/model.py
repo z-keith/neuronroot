@@ -285,7 +285,8 @@ class Model(QObject):
                                                         self.root_builder.total_root_length,
                                                         self.root_builder.average_radius)
 
-        self.nodule_finder.find_by_windows()
+        multipliers = (self.controller.config.abs_threshold_multiplier, self.controller.config.min_threshold_multiplier, self.controller.config.rad_multiplier)
+        self.nodule_finder.find_by_windows(multipliers)
         self.log_string += "\n   - Completed threshold-based search in {0}".format(
             self.print_timestamp())
         self.signal_log_update()
