@@ -33,7 +33,7 @@ class Config:
     # used for adaptive nodule detection
     # higher values result in nodules only being found at rapidly-growing points
     # lower values result in more nodule detections but possibly more errors
-    rad_multiplier = 2
+    rad_multiplier = 1.5
 
     # contains pair of (y,x) tuples representing the part of the image worth analyzing
     # y and x are stored as percentages of the image dimensions

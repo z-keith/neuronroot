@@ -114,14 +114,14 @@ class MainWindow(QtWidgets.QWidget):
         self.nodule_checkbox.setToolTip('Toggle the nodule search feature')
         self.nodule_checkbox.setChecked(True)
 
-        # size_label = QtWidgets.QLabel(self)
-        # size_label.setFont(custom_font)
-        # size_label.setText('Min. size:')
-        # self.minsize_textedit = QtWidgets.QLineEdit(self)
-        # self.minsize_textedit.setFont(custom_font)
-        # self.minsize_textedit.setToolTip('Input a minimum radius for potential nodules')
-        # self.minsize_textedit.setFixedWidth(30)
-        # self.minsize_textedit.returnPressed.connect(self.minsize_update)
+        size_label = QtWidgets.QLabel(self)
+        size_label.setFont(custom_font)
+        size_label.setText('Min. size:')
+        self.minsize_textedit = QtWidgets.QLineEdit(self)
+        self.minsize_textedit.setFont(custom_font)
+        self.minsize_textedit.setToolTip('Input a minimum radius multiplier for potential nodules')
+        self.minsize_textedit.setFixedWidth(30)
+        self.minsize_textedit.returnPressed.connect(self.minsize_update)
 
         options_row.addWidget(dpi_label)
         options_row.addWidget(self.dpi_textedit)
@@ -130,8 +130,8 @@ class MainWindow(QtWidgets.QWidget):
         options_row.addWidget(line)
         options_row.addWidget(nodule_label)
         options_row.addWidget(self.nodule_checkbox)
-        #options_row.addWidget(size_label)
-        #options_row.addWidget(self.minsize_textedit)
+        options_row.addWidget(size_label)
+        options_row.addWidget(self.minsize_textedit)
         options_row.addStretch(1000)
         self.buttonsetup_image_operations(options_widget)
 
@@ -261,7 +261,7 @@ class MainWindow(QtWidgets.QWidget):
         self.initial_image_frame.setPixmap(pixmap)
         self.initial_image_frame.draw_blacklisted(self.controller.config.area_blacklist)
         self.set_values(self.controller.config.dpi, self.controller.config.threshold_multiplier,
-                        self.controller.config.search_for_nodules, self.controller.config.min_nodule_size)
+                        self.controller.config.search_for_nodules, self.controller.config.rad_multiplier)
         self.update_log(" ")
         self.set_buttons_ready()
 
@@ -269,7 +269,7 @@ class MainWindow(QtWidgets.QWidget):
         self.dpi_textedit.setText(str(int(dpi)))
         self.threshold_textedit.setText(str(float(threshold)))
         self.nodule_checkbox.setChecked(nodule)
-        #self.minsize_textedit.setText(str(int(minsize)))
+        self.minsize_textedit.setText(str(float(minsize)))
 
     def display_updating_image(self):
         pixmap = QtGui.QPixmap(self.controller.config.updated_image_path)
@@ -323,6 +323,6 @@ class MainWindow(QtWidgets.QWidget):
         x = self.minsize_textedit.text()
         try:
             y = float(x)
-            self.controller.config.min_nodule_size = y
+            self.controller.config.rad_multiplier = y
         except ValueError:
-            self.minsize_textedit.setText(str(self.controller.config.min_nodule_size))
+            self.minsize_textedit.setText(str(self.controller.config.rad_multiplier))
