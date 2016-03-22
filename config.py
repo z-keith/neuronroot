@@ -18,11 +18,6 @@ class Config:
     # increasing the threshold can help to clean up images with relatively bright backgrounds
     threshold_multiplier = 1
 
-    # default minimum radius of a nodule
-    # increasing this value will remove false positives in nodule detection, at the cost of missing smaller nodules
-    # note: deprecated in 1.2.0
-    # min_nodule_size = 0
-
     # nodule detection thresholds:
     # any location larger than this*image average radius is automatically a nodule
     # higher values result in less reliable detection for nodules that are very large
