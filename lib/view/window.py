@@ -252,9 +252,6 @@ class MainWindow(QtWidgets.QWidget):
 
     def display_preview_image(self):
         pixmap = QtGui.QPixmap(self.controller.config.initial_image_path)
-        if pixmap.isNull():
-            self.update_log("Image load failed.")
-            return
         w = min(pixmap.width(), self.initial_image_frame.maximumWidth())
         h = min(pixmap.height(), self.initial_image_frame.maximumHeight())
         pixmap = pixmap.scaled(w, h, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)

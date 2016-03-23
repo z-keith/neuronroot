@@ -1,7 +1,9 @@
 #neuronroot v1.1.0
 An automated solution to root system image analysis
 
-#to do:
+# to do:
+- Fix memory leak
+- Fix blacklisting UI scaling
 - Improve commenting
 - Package as executable? Or at least add a bash script
 
