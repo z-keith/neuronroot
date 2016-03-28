@@ -9,6 +9,7 @@ You will need Python 3 with the following packages installed:
 - Pillow
 - Numpy
 - Scipy
+
 Your images should have light roots on a dark background. If they're on a light background, you should be able to just invert the values in Photoshop/gIMP/whatever image manipulation software you like.
 Make any configuration changes you'd like in config.py, then we're ready to go!
 
