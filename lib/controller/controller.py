@@ -187,6 +187,8 @@ class Controller(QObject):
     def spawn_proper_infile(self):
         initial_image = Image.open(
             self.config.infile_path + "/" + self.config.file_name + self.config.file_extension).convert('RGB')
+        if initial_image.size[0] > initial_image.size[1]:
+            initial_image = initial_image.rotate(90)
         initial_image.save(self.config.initial_image_path)
         if 'dpi' in initial_image.info:
             self.config.dpi = initial_image.info['dpi'][0]

@@ -51,6 +51,7 @@ class MainWindow(QtWidgets.QWidget):
 
         self.initial_image_frame = drawable_image.DrawableImage(self)
         self.initial_image_frame.setFixedWidth(350)
+        self.initial_image_frame.setMaximumHeight(600)
         self.initial_image_frame.setFrameShape(1)
         self.initial_image_frame.setLineWidth(1)
         self.initial_image_frame.setAlignment(QtCore.Qt.AlignCenter)
@@ -61,6 +62,7 @@ class MainWindow(QtWidgets.QWidget):
 
         self.skeleton_image_frame = QtWidgets.QLabel(self)
         self.skeleton_image_frame.setFixedWidth(350)
+        self.skeleton_image_frame.setMaximumHeight(600)
         self.skeleton_image_frame.setFrameShape(1)
         self.skeleton_image_frame.setLineWidth(1)
         self.skeleton_image_frame.setAlignment(QtCore.Qt.AlignCenter)
