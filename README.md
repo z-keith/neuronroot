@@ -29,18 +29,18 @@ Make any configuration changes you'd like in config.py, then we're ready to go!
  
 ## troubleshooting:
 1. The analysis is including some of the background!
-- Try increasing the threshold multiplier value - that part of the background is too close in brightness to the root system.
-- You can also blacklist the offending area.
+    - Try increasing the threshold multiplier value - that part of the background is too close in brightness to the root system.
+    - You can also blacklist the offending area.
 2. The analysis is missing some (or all) of the roots!
-- Try decreasing the threshold multiplier - mechanically, this is the opposite problem of #1. 
+    - Try decreasing the threshold multiplier - mechanically, this is the opposite problem of #1. 
 3. I blacklisted an area, but part of it still showed up in the analysis!
-- This is a known visual bug - the displayed blacklist area includes anywhere you moved your mouse, but the actual calculated area is the rectangle between where you intially click and where you let go of the mouse. For now, just be careful with the starting and ending position of your mouse.
+    - This is a known visual bug - the displayed blacklist area includes anywhere you moved your mouse, but the actual calculated area is the rectangle between where you intially click and where you let go of the mouse. For now, just be careful with the starting and ending position of your mouse.
 4. The blacklist isn't drawing at the position of my mouse!
-- Also a known visual bug - for now, vertically resize the neuronroot window to get rid of the space above and below the image, clear the blacklist, and try again.
+    - Also a known visual bug - for now, vertically resize the neuronroot window to get rid of the space above and below the image, clear the blacklist, and try again.
 5. Too many/too few nodules are being detected!
-- Increase or decrease the 'Nodule Size' value, respectively. However, the nodule detection isn't perfect and will always struggle with nodules that have a smaller radius than the root they're found on.
+    - Increase or decrease the 'Nodule Size' value, respectively. However, the nodule detection isn't perfect and will always struggle with nodules that have a smaller radius than the root they're found on.
 6. The program seems to be slowing down!
-- I think I'm somehow leaking memory somewhere in the program, but I haven't tracked down where yet. Or, maybe this isn't a real problem and it's just happening on my underpowered Linux virtual machine. Either way, try closing and restarting the program - all your output data that has been accepted will be preserved. 
+    - I think I'm somehow leaking memory somewhere in the program, but I haven't tracked down where yet. Or, maybe this isn't a real problem and it's just happening on my underpowered Linux virtual machine. Either way, try closing and restarting the program - all your output data that has been accepted will be preserved. 
 
 # to do:
 - Fix memory leak
